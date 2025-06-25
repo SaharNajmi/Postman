@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,15 +39,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.postman.ui.theme.Blue
-import com.example.postman.ui.theme.Brown
+import com.example.postman.data.ApiClient
+import com.example.postman.data.ApiRepositoryImp
 import com.example.postman.ui.theme.Gray
-import com.example.postman.ui.theme.Green
 import com.example.postman.ui.theme.LightBlue
-import com.example.postman.ui.theme.Magenta
 import com.example.postman.ui.theme.PostmanTheme
-import com.example.postman.ui.theme.Purple
-import com.example.postman.ui.theme.Red
+val viewModel= HomeViewModel(ApiRepositoryImp(ApiClient.createApiService()))
 
 @Preview(name = "Light Mode")
 //@Preview(
@@ -56,34 +54,31 @@ import com.example.postman.ui.theme.Red
 //)
 @Composable()
 fun PreviewHomeScreen() {
+
     PostmanTheme {
+
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             HomeScreen(
-                modifier = Modifier.padding(innerPadding)
+                modifier = Modifier.padding(innerPadding),
+                viewModel
             )
         }
     }
 }
 
-enum class HeaderName(val color: Color) {
-    GET(Green),
-    POST(Brown),
-    PUT(Blue),
-    PATCH(Purple),
-    DELETE(Red),
-    HEAD(Green),
-    OPTIONS(Magenta)
-}
-
 @Composable()
-fun HomeScreen(modifier: Modifier) {
-    val headerOptions = listOf(
-        HeaderName.GET, HeaderName.POST, HeaderName.PUT, HeaderName.PATCH,
-        HeaderName.DELETE, HeaderName.HEAD, HeaderName.OPTIONS
+fun HomeScreen(
+    modifier: Modifier,
+    viewModel: HomeViewModel )
+{
+    val methodOptions = listOf(
+        MethodName.GET, MethodName.POST, MethodName.PUT, MethodName.PATCH,
+        MethodName.DELETE, MethodName.HEAD, MethodName.OPTIONS
     )
     var expanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf(headerOptions[0]) }
+    var selectedMethodOption by remember { mutableStateOf(methodOptions[0]) }
     var urlRequest by remember { mutableStateOf<String>("") }
+    val uiState by viewModel.response.collectAsState()
 
     Column(modifier = modifier) {
 
@@ -104,8 +99,8 @@ fun HomeScreen(modifier: Modifier) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    selectedOption.name,
-                    color = selectedOption.color,
+                    selectedMethodOption.name,
+                    color = selectedMethodOption.color,
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier
                         .padding(12.dp)
@@ -122,11 +117,11 @@ fun HomeScreen(modifier: Modifier) {
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
                 ) {
-                    headerOptions.forEach { option ->
+                    methodOptions.forEach { option ->
                         DropdownMenuItem(
                             text = { Text(option.name, color = option.color) },
                             onClick = {
-                                selectedOption = option
+                                selectedMethodOption = option
                                 expanded = false
                             })
                     }
@@ -157,13 +152,15 @@ fun HomeScreen(modifier: Modifier) {
                     .height(50.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = LightBlue),
                 shape = RoundedCornerShape(4.dp),
-                onClick = {}) {
+                onClick = {
+                    viewModel.request(selectedMethodOption, urlRequest)
+                }) {
                 Text(text = "Send", fontWeight = FontWeight.Bold)
             }
         }
         HorizontalDivider()
-        Text(text = "request response")
+
+        Text(text = "request response: $uiState")
 
     }
 }
-
