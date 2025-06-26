@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
@@ -36,14 +38,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.postman.data.ApiClient
 import com.example.postman.data.ApiRepositoryImp
+import com.example.postman.data.ApiUiState
+import com.example.postman.ui.theme.Blue
 import com.example.postman.ui.theme.Gray
 import com.example.postman.ui.theme.LightBlue
 import com.example.postman.ui.theme.PostmanTheme
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonParser
+
 val viewModel= HomeViewModel(ApiRepositoryImp(ApiClient.createApiService()))
 
 @Preview(name = "Light Mode")
@@ -158,9 +169,32 @@ fun HomeScreen(
                 Text(text = "Send", fontWeight = FontWeight.Bold)
             }
         }
-        HorizontalDivider()
-
-        Text(text = "request response: $uiState")
-
+        ShowApiResponse(uiState)
+    }
+}@Composable
+fun ShowApiResponse(uiState: ApiUiState) {
+    when (uiState) {
+        is ApiUiState.Success -> JsonViewerSimple(uiState.data)
+        is ApiUiState.Error -> Text(text = "Error: ${uiState.message}")
+        ApiUiState.Loading -> Text(text = "Loading...")
     }
 }
+@Composable
+fun JsonViewerSimple(jsonInput: String) {
+    Text(
+        text =formatJson(jsonInput),
+        modifier = Modifier
+            .padding(16.dp, top = 0.dp)
+            .verticalScroll(rememberScrollState()),
+        fontFamily = FontFamily.Monospace
+    )
+}
+fun formatJson(json: String): String {
+    return try {
+        val jsonElement = JsonParser.parseString(json)
+        GsonBuilder().setPrettyPrinting().create().toJson(jsonElement)
+    } catch (e: Exception) {
+        json
+    }
+}
+
