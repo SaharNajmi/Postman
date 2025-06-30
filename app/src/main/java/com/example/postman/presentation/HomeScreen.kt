@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -38,6 +40,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
@@ -45,17 +51,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.postman.R
 import com.example.postman.data.ApiClient
 import com.example.postman.data.ApiRepositoryImp
 import com.example.postman.data.ApiUiState
 import com.example.postman.ui.theme.Blue
 import com.example.postman.ui.theme.Gray
 import com.example.postman.ui.theme.LightBlue
+import com.example.postman.ui.theme.LightGray
 import com.example.postman.ui.theme.PostmanTheme
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
 
-val viewModel= HomeViewModel(ApiRepositoryImp(ApiClient.createApiService()))
+val viewModel = HomeViewModel(ApiRepositoryImp(ApiClient.createApiService()))
 
 @Preview(name = "Light Mode")
 //@Preview(
@@ -80,8 +88,8 @@ fun PreviewHomeScreen() {
 @Composable()
 fun HomeScreen(
     modifier: Modifier,
-    viewModel: HomeViewModel )
-{
+    viewModel: HomeViewModel
+) {
     val methodOptions = listOf(
         MethodName.GET, MethodName.POST, MethodName.PUT, MethodName.PATCH,
         MethodName.DELETE, MethodName.HEAD, MethodName.OPTIONS
@@ -169,26 +177,55 @@ fun HomeScreen(
                 Text(text = "Send", fontWeight = FontWeight.Bold)
             }
         }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp, 0.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = "{ } JSON",
+                modifier = Modifier
+                    .background(LightGray, shape = RoundedCornerShape(4.dp))
+                    .padding(6.dp, 2.dp)
+            )
+
+            Icon(
+                painter = painterResource(R.drawable.outline_content_copy),
+                contentDescription = "copy all"
+            )
+        }
+        HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(4.dp))
         ShowApiResponse(uiState)
     }
-}@Composable
-fun ShowApiResponse(uiState: ApiUiState) {
+}
+
+@Composable
+fun ShowApiResponse(uiState: ApiUiState<String>) {
     when (uiState) {
         is ApiUiState.Success -> JsonViewerSimple(uiState.data)
-        is ApiUiState.Error -> Text(text = "Error: ${uiState.message}")
+        is ApiUiState.Error -> Text(
+            text = "Error: ${uiState.message}",
+            modifier = Modifier.padding(16.dp, top = 0.dp)
+        )
+
         ApiUiState.Loading -> Text(text = "Loading...")
+        ApiUiState.Idle -> {}
     }
 }
+
 @Composable
 fun JsonViewerSimple(jsonInput: String) {
     Text(
-        text =formatJson(jsonInput),
+        text = formatJson(jsonInput),
         modifier = Modifier
             .padding(16.dp, top = 0.dp)
             .verticalScroll(rememberScrollState()),
         fontFamily = FontFamily.Monospace
     )
 }
+
 fun formatJson(json: String): String {
     return try {
         val jsonElement = JsonParser.parseString(json)
