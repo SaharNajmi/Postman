@@ -1,4 +1,4 @@
-package com.example.postman.presentation
+package com.example.postman.presentation.home
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -32,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -45,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -53,11 +55,21 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
+import androidx.room.Room
 import com.example.postman.R
-import com.example.postman.data.ApiClient
-import com.example.postman.data.ApiRepositoryImp
-import com.example.postman.data.ApiUiState
 import com.example.postman.data.HighlightedLine
+import com.example.postman.data.local.appDatabase.RoomDatabase
+import com.example.postman.data.remote.ApiClient
+import com.example.postman.data.remote.ApiUiState
+import com.example.postman.data.repository.ApiRepositoryImp
+import com.example.postman.data.repository.HistoryRequestRepositoryImp
+import com.example.postman.presentation.MethodName
+import com.example.postman.presentation.Screens
+import com.example.postman.presentation.history.HistoryViewModel
 import com.example.postman.ui.theme.Gray
 import com.example.postman.ui.theme.LightBlue
 import com.example.postman.ui.theme.LightGray
@@ -65,8 +77,6 @@ import com.example.postman.ui.theme.LightYellow
 import com.example.postman.ui.theme.PostmanTheme
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
-
-val viewModel = HomeViewModel(ApiRepositoryImp(ApiClient.createApiService()))
 
 @Preview(name = "Light Mode")
 //@Preview(
@@ -76,13 +86,38 @@ val viewModel = HomeViewModel(ApiRepositoryImp(ApiClient.createApiService()))
 //)
 @Composable()
 fun PreviewHomeScreen() {
-
+    val db = Room.databaseBuilder(
+        LocalContext.current,
+        RoomDatabase::class.java, "history"
+    ).build()
+    val dao = db.historyRequestDao()
+    val historyRepo = HistoryRequestRepositoryImp(dao)
+    val homeViewModel: HomeViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return HomeViewModel(
+                    ApiRepositoryImp(ApiClient.createApiService()),
+                    historyRequestRepository = historyRepo
+                ) as T
+            }
+        }
+    )
+    val historyViewModel: HistoryViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return HistoryViewModel(historyRepo) as T
+            }
+        }
+    )
+    val nav = rememberNavController()
     PostmanTheme {
-
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             HomeScreen(
                 modifier = Modifier.padding(innerPadding),
-                viewModel
+                homeViewModel, historyViewModel,
+                onNavigateToHistory = {
+                    nav.navigate(Screens.HistoryScreen)
+                }
             )
         }
     }
@@ -91,7 +126,9 @@ fun PreviewHomeScreen() {
 @Composable()
 fun HomeScreen(
     modifier: Modifier,
-    viewModel: HomeViewModel
+    homeViewModel: HomeViewModel,
+    historyViewModel: HistoryViewModel,
+    onNavigateToHistory: () -> Unit
 ) {
     val methodOptions = listOf(
         MethodName.GET, MethodName.POST, MethodName.PUT, MethodName.PATCH,
@@ -100,13 +137,17 @@ fun HomeScreen(
     var urlRequest by remember { mutableStateOf<String>("") }
     var expandedMethodOption by remember { mutableStateOf(false) }
     var selectedMethodOption by remember { mutableStateOf(methodOptions[0]) }
-    val uiState by viewModel.response.collectAsState()
+    val uiState by homeViewModel.response.collectAsState()
     Column(modifier = modifier) {
+        TextButton(modifier = Modifier.fillMaxWidth(), onClick = {
+            onNavigateToHistory()
+        }) {
+            Text("History")
+        }
 
         Row(
             modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
-
         ) {
             Row(
                 modifier = Modifier
@@ -174,7 +215,7 @@ fun HomeScreen(
                 colors = ButtonDefaults.buttonColors(containerColor = LightBlue),
                 shape = RoundedCornerShape(4.dp),
                 onClick = {
-                    viewModel.request(selectedMethodOption, urlRequest)
+                    homeViewModel.request(selectedMethodOption, urlRequest)
                 }) {
                 Text(text = "Send", fontWeight = FontWeight.Bold)
             }
@@ -341,11 +382,14 @@ fun SearchFromContentText(contentText: String) {
 }
 
 @Composable
-fun ShowApiResponse(uiState: ApiUiState<String>) {
+fun ShowApiResponse(
+    uiState: ApiUiState<String>,
+) {
     when (uiState) {
         is ApiUiState.Success -> {
             SearchFromContentText(uiState.data)
         }
+
         is ApiUiState.Error -> Text(
             text = "Error: ${uiState.message}",
             modifier = Modifier.padding(16.dp, top = 0.dp)

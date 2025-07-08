@@ -1,4 +1,4 @@
-package com.example.postman.data
+package com.example.postman.data.remote
 
 import com.google.gson.GsonBuilder
 import retrofit2.Retrofit
@@ -13,5 +13,3 @@ object ApiClient {
                 .create(ApiService::class.java)
         }
 }
-
-

@@ -1,4 +1,4 @@
-package com.example.postman.data
+package com.example.postman.data.repository
 
 import okhttp3.RequestBody
 

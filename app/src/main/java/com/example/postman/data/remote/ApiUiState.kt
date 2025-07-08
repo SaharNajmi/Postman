@@ -1,4 +1,4 @@
-package com.example.postman.data
+package com.example.postman.data.remote
 
 sealed class ApiUiState<out U> {
     object Idle : ApiUiState<Nothing>()

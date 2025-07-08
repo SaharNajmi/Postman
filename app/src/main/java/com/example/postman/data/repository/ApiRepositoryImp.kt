@@ -1,11 +1,8 @@
-package com.example.postman.data
+package com.example.postman.data.repository
 
-import android.util.Log
+import com.example.postman.data.remote.ApiService
 import com.example.postman.presentation.MethodName
-import com.google.gson.Gson
-import com.google.gson.JsonObject
 import okhttp3.RequestBody
-import okhttp3.ResponseBody
 
 class ApiRepositoryImp(val apiService: ApiService) : ApiRepository {
     override suspend fun request(
