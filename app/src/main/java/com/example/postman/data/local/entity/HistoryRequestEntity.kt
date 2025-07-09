@@ -10,5 +10,6 @@ data class HistoryRequestEntity(
     val id: Int,
     val requestUrl: String,
     val methodOption: MethodName,
-    val response: String
+    val response: String,
+    val createdAt: Long
 )

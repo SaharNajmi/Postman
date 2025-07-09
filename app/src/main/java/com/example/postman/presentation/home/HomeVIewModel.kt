@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.postman.data.repository.ApiRepository
 import com.example.postman.data.remote.ApiUiState
-import com.example.postman.domain.model.HistoryRequest
+import com.example.postman.domain.model.HistoryRequestModel
 import com.example.postman.domain.repository.HistoryRequestRepository
 import com.example.postman.presentation.MethodName
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,10 +33,10 @@ class HomeViewModel(
                 onFailure = { ApiUiState.Error(it.message ?: "Unknown error") }
             )
             historyRequestRepository.insertHistoryRequest(
-                HistoryRequest(
+                HistoryRequestModel(
                     requestUrl = url,
                     methodOption = methodName,
-                    response = response.value.toString()
+                    response = response.value.toString(),
                 )
             )
         }

@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import com.example.postman.data.local.dao.HistoryRequestDao
 import com.example.postman.data.local.entity.HistoryRequestEntity
 
-@Database(entities = [HistoryRequestEntity::class], version = 1, exportSchema = false)
+@Database(entities = [HistoryRequestEntity::class], version = 2, exportSchema = false)
 abstract class RoomDatabase: RoomDatabase() {
     abstract fun historyRequestDao(): HistoryRequestDao
 }

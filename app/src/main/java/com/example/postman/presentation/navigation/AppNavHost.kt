@@ -28,19 +28,23 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
     val db = Room.databaseBuilder(
         LocalContext.current,
         RoomDatabase::class.java, Screens.HistoryScreen.route
-    ).build()
+    ).fallbackToDestructiveMigration(true)
+        .build()
     val dao = db.historyRequestDao()
     val historyRepo = HistoryRequestRepositoryImp(dao)
-    val homeViewModel: HomeViewModel=viewModel(
-        factory = object : ViewModelProvider.Factory{
+    val homeViewModel: HomeViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return HomeViewModel(ApiRepositoryImp(ApiClient.createApiService()),historyRepo) as T
+                return HomeViewModel(
+                    ApiRepositoryImp(ApiClient.createApiService()),
+                    historyRepo
+                ) as T
             }
         }
     )
     val historyViewModel: HistoryViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
-           // @Suppress("UNCHECKED_CAST")
+            // @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return HistoryViewModel(historyRepo) as T
             }
@@ -53,16 +57,14 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
     ) {
         composable(Screens.HomeScreen.route) {
             HomeScreen(
-                modifier = Modifier.padding(4.dp),
                 homeViewModel,
-                historyViewModel,
                 onNavigateToHistory = {
                     navController.navigate(Screens.HistoryScreen.route)
                 }
             )
         }
         composable(Screens.HistoryScreen.route) {
-            HistoryScreen(navController,historyViewModel)
+            HistoryScreen(navController, historyViewModel)
         }
     }
 

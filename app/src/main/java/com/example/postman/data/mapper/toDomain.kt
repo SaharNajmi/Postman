@@ -1,22 +1,31 @@
 package com.example.postman.data.mapper
 
 import com.example.postman.data.local.entity.HistoryRequestEntity
-import com.example.postman.domain.model.HistoryRequest
+import com.example.postman.domain.model.HistoryRequestModel
+import java.time.Instant
+import java.time.ZoneId
 
-fun HistoryRequestEntity.toDomain(): HistoryRequest {
-    return HistoryRequest(
+fun HistoryRequestEntity.toDomain(): HistoryRequestModel {
+    return HistoryRequestModel(
         id = id,
         requestUrl = requestUrl,
         methodOption = methodOption,
-        response = response
+        response = response,
+        createdAt=Instant.ofEpochMilli(createdAt)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
     )
 }
 
-fun HistoryRequest.toEntity(): HistoryRequestEntity {
+fun HistoryRequestModel.toEntity(): HistoryRequestEntity {
     return HistoryRequestEntity(
         id = id,
         requestUrl = requestUrl,
         methodOption = methodOption,
-        response = response
+        response = response,
+        createdAt= createdAt
+            .atStartOfDay(ZoneId.systemDefault())
+            .toInstant()
+            .toEpochMilli()
     )
 }

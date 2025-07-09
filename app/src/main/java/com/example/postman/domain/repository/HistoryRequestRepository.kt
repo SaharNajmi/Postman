@@ -1,16 +1,15 @@
 package com.example.postman.domain.repository
 
-import com.example.postman.domain.model.HistoryRequest
-import kotlinx.coroutines.flow.Flow
+import com.example.postman.domain.model.HistoryRequestModel
 
 interface HistoryRequestRepository {
-    suspend fun getAllHistories(): List<HistoryRequest>
+    suspend fun getAllHistories(): List<HistoryRequestModel>
 
-    suspend fun insertHistoryRequest(history: HistoryRequest)
+    suspend fun insertHistoryRequest(history: HistoryRequestModel)
 
-    suspend fun updateHistoryRequest(historyItem: HistoryRequest)
+    suspend fun updateHistoryRequest(historyItem: HistoryRequestModel)
 
-    suspend fun deleteHistoryRequest(history: HistoryRequest)
+    suspend fun deleteHistoryRequest(history: HistoryRequestModel)
 
-    suspend fun getHistoryRequest(historyId: Int): HistoryRequest
+    suspend fun getHistoryRequest(historyId: Int): HistoryRequestModel
 }

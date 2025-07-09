@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -30,7 +29,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -46,6 +45,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.stylusHoverIcon
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -69,7 +70,6 @@ import com.example.postman.data.repository.ApiRepositoryImp
 import com.example.postman.data.repository.HistoryRequestRepositoryImp
 import com.example.postman.presentation.MethodName
 import com.example.postman.presentation.Screens
-import com.example.postman.presentation.history.HistoryViewModel
 import com.example.postman.ui.theme.Gray
 import com.example.postman.ui.theme.LightBlue
 import com.example.postman.ui.theme.LightGray
@@ -102,19 +102,12 @@ fun PreviewHomeScreen() {
             }
         }
     )
-    val historyViewModel: HistoryViewModel = viewModel(
-        factory = object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return HistoryViewModel(historyRepo) as T
-            }
-        }
-    )
     val nav = rememberNavController()
     PostmanTheme {
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+        Surface {
             HomeScreen(
-                modifier = Modifier.padding(innerPadding),
-                homeViewModel, historyViewModel,
+                // modifier = Modifier.padding(innerPadding),
+                homeViewModel,
                 onNavigateToHistory = {
                     nav.navigate(Screens.HistoryScreen)
                 }
@@ -125,9 +118,7 @@ fun PreviewHomeScreen() {
 
 @Composable()
 fun HomeScreen(
-    modifier: Modifier,
     homeViewModel: HomeViewModel,
-    historyViewModel: HistoryViewModel,
     onNavigateToHistory: () -> Unit
 ) {
     val methodOptions = listOf(
@@ -138,27 +129,44 @@ fun HomeScreen(
     var expandedMethodOption by remember { mutableStateOf(false) }
     var selectedMethodOption by remember { mutableStateOf(methodOptions[0]) }
     val uiState by homeViewModel.response.collectAsState()
-    Column(modifier = modifier) {
-        TextButton(modifier = Modifier.fillMaxWidth(), onClick = {
-            onNavigateToHistory()
-        }) {
-            Text("History")
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 8.dp)
+    ) {
+        TextButton(
+            modifier = Modifier
+                .align(Alignment.End)
+                .padding(top = 12.dp)
+                .stylusHoverIcon(
+                    icon = PointerIcon(R.drawable.arrow_upward)
+                ), onClick = {
+                onNavigateToHistory()
+            }) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    painter = painterResource(R.drawable.outline_history),
+                    contentDescription = "history"
+                )
+                Text("History")
+            }
         }
 
         Row(
-            modifier.fillMaxWidth(),
+            Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .weight(1f)
-                    .wrapContentHeight()
-                    .padding(top = 12.dp, start = 12.dp, bottom = 12.dp)
+                    .padding(start = 12.dp)
                     .border(
                         shape = RoundedCornerShape(4.dp),
                         border = BorderStroke(0.5.dp, color = Color.Black)
                     ),
-                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     selectedMethodOption.name,
@@ -169,7 +177,7 @@ fun HomeScreen(
                         .clickable { expandedMethodOption = true })
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown,
-                    modifier = modifier
+                    modifier = Modifier
                         .padding(end = 8.dp)
                         .clickable { expandedMethodOption = true },
                     contentDescription = "drop down icon"
@@ -209,13 +217,13 @@ fun HomeScreen(
                 )
             }
             Button(
-                modifier = modifier
-                    .padding(4.dp)
-                    .height(50.dp),
+                modifier = Modifier
+                    .padding(4.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = LightBlue),
                 shape = RoundedCornerShape(4.dp),
                 onClick = {
-                    homeViewModel.request(selectedMethodOption, urlRequest)
+                    if (urlRequest.isNotEmpty())
+                        homeViewModel.request(selectedMethodOption, urlRequest)
                 }) {
                 Text(text = "Send", fontWeight = FontWeight.Bold)
             }
