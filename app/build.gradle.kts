@@ -67,5 +67,5 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
-    coreLibraryDesugaring(libs.desugar.jdk.libs)
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 }

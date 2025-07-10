@@ -10,7 +10,7 @@ import com.example.postman.data.local.entity.HistoryRequestEntity
 
 @Dao
 interface HistoryRequestDao {
-    @Query("SELECT * FROM histories")
+    @Query("SELECT * FROM histories ORDER by id DESC")
     suspend fun getAllHistories(): List<HistoryRequestEntity>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
