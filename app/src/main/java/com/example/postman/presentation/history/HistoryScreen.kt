@@ -32,7 +32,10 @@ import com.example.postman.presentation.utils.formatDate
 import com.example.postman.ui.theme.LightGray
 
 @Composable
-fun HistoryScreen(navController: NavController, viewModel: HistoryViewModel) {
+fun HistoryScreen(
+    navController: NavController, viewModel: HistoryViewModel,
+    onNavigateToHistoryDetail: (Int) -> Unit
+) {
     LaunchedEffect(Unit) {
         viewModel.getAllHistories()
     }
@@ -58,7 +61,11 @@ fun HistoryScreen(navController: NavController, viewModel: HistoryViewModel) {
         LazyColumn() {
             items(historyRequest.size) { index ->
                 Row(
-                    modifier = Modifier.padding(vertical = 12.dp),
+                    modifier = Modifier
+                        .padding(vertical = 12.dp)
+                        .clickable {
+                            onNavigateToHistoryDetail(historyRequest[index].id)
+                        },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
@@ -70,7 +77,9 @@ fun HistoryScreen(navController: NavController, viewModel: HistoryViewModel) {
                     Text(
                         text = historyRequest[index].requestUrl.toString(),
                         fontSize = 12.sp,
-                        modifier = Modifier.weight(1f).padding(end = 4.dp)
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 4.dp)
                     )
                     Text(
                         text = formatDate(historyRequest[index].createdAt),
