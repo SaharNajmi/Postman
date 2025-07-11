@@ -1,5 +1,7 @@
 package com.example.postman.presentation.history
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.postman.domain.model.HistoryRequestModel
@@ -8,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class HistoryViewModel(private val historyRequestRepository: HistoryRequestRepository) :
     ViewModel() {
@@ -18,33 +21,49 @@ class HistoryViewModel(private val historyRequestRepository: HistoryRequestRepos
     private val _historyItem = MutableStateFlow<HistoryRequestModel?>(null)
     val historyItem: StateFlow<HistoryRequestModel?> = _historyItem
 
+    private var _isDeleting = mutableStateOf(false)
+    val isDeleting: MutableState<Boolean> = _isDeleting
+
     fun getAllHistories() {
-        viewModelScope.launch(Dispatchers.IO) {
-            _historyRequestsModel.value = historyRequestRepository.getAllHistories()
+        viewModelScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                historyRequestRepository.getAllHistories()
+            }
+            _historyRequestsModel.value = result // main thread
         }
     }
 
     fun insertHistoryRequest(history: HistoryRequestModel) {
-        viewModelScope.launch(Dispatchers.IO) {
-            historyRequestRepository.insertHistoryRequest(history)
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                historyRequestRepository.insertHistoryRequest(history)
+            }
         }
     }
 
     fun updateHistoryRequest(historyItem: HistoryRequestModel) {
-        viewModelScope.launch(Dispatchers.IO) {
-            historyRequestRepository.updateHistoryRequest(historyItem)
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                historyRequestRepository.updateHistoryRequest(historyItem)
+            }
         }
     }
 
     fun deleteHistoryRequest(history: HistoryRequestModel) {
-        viewModelScope.launch(Dispatchers.IO) {
-            historyRequestRepository.deleteHistoryRequest(history)
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                historyRequestRepository.deleteHistoryRequest(history)
+            }
+            getAllHistories()
         }
     }
 
     fun getHistoryRequest(historyId: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _historyItem.value = historyRequestRepository.getHistoryRequest(historyId)
+        viewModelScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                historyRequestRepository.getHistoryRequest(historyId)
+            }
+            _historyItem.value = result
         }
     }
 }
