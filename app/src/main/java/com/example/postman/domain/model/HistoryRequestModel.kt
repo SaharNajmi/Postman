@@ -8,5 +8,6 @@ data class HistoryRequestModel(
     val requestUrl: String,
     val methodOption: MethodName,
     val response: String,
-    val createdAt: LocalDate = LocalDate.now()
+    val createdAt: LocalDate = LocalDate.now(),
+    val statusCode: Int,
 )

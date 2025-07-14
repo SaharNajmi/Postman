@@ -19,7 +19,6 @@ import com.example.postman.data.repository.HistoryRequestRepositoryImp
 import com.example.postman.presentation.Screens
 import com.example.postman.presentation.history.HistoryScreen
 import com.example.postman.presentation.history.HistoryViewModel
-import com.example.postman.presentation.historyDetail.HistoryDetail
 import com.example.postman.presentation.home.HomeScreen
 import com.example.postman.presentation.home.HomeViewModel
 
@@ -54,10 +53,19 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
         navController = navController,
         startDestination = Screens.HomeScreen.route
     ) {
-        composable(Screens.HomeScreen.route) {
+        composable(
+            Screens.HomeScreen.route,
+            arguments = listOf(navArgument("historyId") {
+                type = NavType.IntType
+                defaultValue = -1
+            })
+        ) { backStackEntry ->
+            var historyId = backStackEntry.arguments?.getInt("historyId") ?: -1
             HomeScreen(
                 homeViewModel,
+                historyId,
                 onNavigateToHistory = {
+                    historyId=-1
                     navController.navigate(Screens.HistoryScreen.route)
                 }
             )
@@ -67,18 +75,10 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             HistoryScreen(
                 navController,
                 historyViewModel,
-                onNavigateToHistoryDetail = { historyId ->
-                    navController.navigate(Screens.HistoryDetail.createRoute(historyId))
+                onHistoryItemClick = { historyId ->
+                    navController.navigate(Screens.HomeScreen.createRoute(historyId))
                 }
             )
-        }
-
-        composable(
-            Screens.HistoryDetail.route,
-            arguments = listOf(navArgument("historyId") { type = NavType.IntType })
-        ) { backStackEntry ->
-            val historyId = backStackEntry.arguments?.getInt("historyId")
-            HistoryDetail(navController, historyId!!)
         }
     }
 }

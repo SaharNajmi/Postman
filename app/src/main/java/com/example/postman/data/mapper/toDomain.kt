@@ -11,9 +11,10 @@ fun HistoryRequestEntity.toDomain(): HistoryRequestModel {
         requestUrl = requestUrl,
         methodOption = methodOption,
         response = response,
-        createdAt=Instant.ofEpochMilli(createdAt)
+        createdAt = Instant.ofEpochMilli(createdAt)
             .atZone(ZoneId.systemDefault())
-            .toLocalDate()
+            .toLocalDate(),
+        statusCode = statusCode
     )
 }
 
@@ -23,9 +24,10 @@ fun HistoryRequestModel.toEntity(): HistoryRequestEntity {
         requestUrl = requestUrl,
         methodOption = methodOption,
         response = response,
-        createdAt= createdAt
+        createdAt = createdAt
             .atStartOfDay(ZoneId.systemDefault())
             .toInstant()
-            .toEpochMilli()
+            .toEpochMilli(),
+        statusCode = statusCode
     )
 }

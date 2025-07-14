@@ -1,13 +1,15 @@
 package com.example.postman.data.repository
 
 import okhttp3.RequestBody
+import okhttp3.ResponseBody
+import retrofit2.Response
 
 interface ApiRepository {
     suspend fun request(
         method: String,
         url: String,
         body: RequestBody? = null
-    ): Result<String>
+    ): Response<ResponseBody>
 
 //    suspend fun getRequest(url: String): Response<ResponseBody>
 //

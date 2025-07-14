@@ -65,14 +65,16 @@ import com.example.postman.R
 import com.example.postman.data.HighlightedLine
 import com.example.postman.data.local.appDatabase.RoomDatabase
 import com.example.postman.data.remote.ApiClient
-import com.example.postman.data.remote.ApiUiState
+import com.example.postman.data.remote.UiState
 import com.example.postman.data.repository.ApiRepositoryImp
 import com.example.postman.data.repository.HistoryRequestRepositoryImp
 import com.example.postman.presentation.MethodName
 import com.example.postman.presentation.Screens
 import com.example.postman.ui.theme.Gray
+import com.example.postman.ui.theme.Green
 import com.example.postman.ui.theme.LightBlue
 import com.example.postman.ui.theme.LightGray
+import com.example.postman.ui.theme.LightGreen
 import com.example.postman.ui.theme.LightYellow
 import com.example.postman.ui.theme.PostmanTheme
 import com.google.gson.GsonBuilder
@@ -107,7 +109,7 @@ fun PreviewHomeScreen() {
         Surface {
             HomeScreen(
                 // modifier = Modifier.padding(innerPadding),
-                homeViewModel,
+                homeViewModel, -1,
                 onNavigateToHistory = {
                     nav.navigate(Screens.HistoryScreen)
                 }
@@ -119,16 +121,31 @@ fun PreviewHomeScreen() {
 @Composable()
 fun HomeScreen(
     homeViewModel: HomeViewModel,
-    onNavigateToHistory: () -> Unit
+    historyId: Int,
+    onNavigateToHistory: () -> Unit,
 ) {
     val methodOptions = listOf(
         MethodName.GET, MethodName.POST, MethodName.PUT, MethodName.PATCH,
         MethodName.DELETE, MethodName.HEAD, MethodName.OPTIONS
     )
+
+    val uiState by homeViewModel.uiState.collectAsState()
+    val historyModel by homeViewModel.historyRequest.collectAsState()
     var urlRequest by remember { mutableStateOf<String>("") }
     var expandedMethodOption by remember { mutableStateOf(false) }
     var selectedMethodOption by remember { mutableStateOf(methodOptions[0]) }
-    val uiState by homeViewModel.response.collectAsState()
+
+    LaunchedEffect(historyId) {
+        if (historyId != -1) {
+            homeViewModel.loadRequestFromHistory(historyId)
+        }
+    }
+    LaunchedEffect(historyModel) {
+        historyModel?.let {
+            urlRequest = it.requestUrl
+            selectedMethodOption = it.methodOption
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -223,7 +240,7 @@ fun HomeScreen(
                 shape = RoundedCornerShape(4.dp),
                 onClick = {
                     if (urlRequest.isNotEmpty())
-                        homeViewModel.request(selectedMethodOption, urlRequest)
+                        homeViewModel.sendRequest(selectedMethodOption, urlRequest)
                 }) {
                 Text(text = "Send", fontWeight = FontWeight.Bold)
             }
@@ -241,6 +258,21 @@ fun HomeScreen(
                     .background(LightGray, shape = RoundedCornerShape(8.dp))
                     .padding(6.dp, 2.dp)
             )
+
+            historyModel?.statusCode?.takeIf { it != -1 }?.let { statusCode ->
+                Text(
+                    modifier = Modifier
+                        .padding(start = 24.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(
+                            LightGreen
+                        )
+                        .padding(horizontal = 4.dp),
+                    color = Green,
+                    text = statusCode.toString(),
+                )
+            }
+
             Spacer(Modifier.weight(1f))
             Icon(
                 imageVector = Icons.Default.Search,
@@ -391,20 +423,20 @@ fun SearchFromContentText(contentText: String) {
 
 @Composable
 fun ShowApiResponse(
-    uiState: ApiUiState<String>,
+    uiState: UiState<String>,
 ) {
     when (uiState) {
-        is ApiUiState.Success -> {
+        is UiState.Success -> {
             SearchFromContentText(uiState.data)
         }
 
-        is ApiUiState.Error -> Text(
+        is UiState.Error -> Text(
             text = "Error: ${uiState.message}",
             modifier = Modifier.padding(16.dp, top = 0.dp)
         )
 
-        ApiUiState.Loading -> Text(text = "Loading...")
-        ApiUiState.Idle -> {}
+        UiState.Loading -> Text(text = "Loading...")
+        UiState.Idle -> {}
     }
 }
 

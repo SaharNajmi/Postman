@@ -21,9 +21,6 @@ class HistoryViewModel(private val historyRequestRepository: HistoryRequestRepos
     private val _historyItem = MutableStateFlow<HistoryRequestModel?>(null)
     val historyItem: StateFlow<HistoryRequestModel?> = _historyItem
 
-    private var _isDeleting = mutableStateOf(false)
-    val isDeleting: MutableState<Boolean> = _isDeleting
-
     fun getAllHistories() {
         viewModelScope.launch {
             val result = withContext(Dispatchers.IO) {

@@ -33,8 +33,9 @@ import com.example.postman.ui.theme.LightGray
 
 @Composable
 fun HistoryScreen(
-    navController: NavController, viewModel: HistoryViewModel,
-    onNavigateToHistoryDetail: (Int) -> Unit
+    navController: NavController,
+    viewModel: HistoryViewModel,
+    onHistoryItemClick: (Int) -> Unit
 ) {
     LaunchedEffect(Unit) {
         viewModel.getAllHistories()
@@ -64,7 +65,7 @@ fun HistoryScreen(
                     modifier = Modifier
                         .padding(vertical = 12.dp)
                         .clickable {
-                            onNavigateToHistoryDetail(historyRequest[index].id)
+                            onHistoryItemClick(historyRequest[index].id)
                         },
                     verticalAlignment = Alignment.CenterVertically
                 ) {

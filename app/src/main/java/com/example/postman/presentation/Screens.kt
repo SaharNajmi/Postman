@@ -1,9 +1,8 @@
 package com.example.postman.presentation
 
 sealed class Screens(val route: String) {
-    object HomeScreen : Screens("Home")
-    object HistoryScreen : Screens("History")
-    object HistoryDetail : Screens("historyDetail/{historyId}") {
-        fun createRoute(historyId: Int) = "historyDetail/$historyId"
+    object HomeScreen : Screens("Home?historyId={historyId}"){ //historyId is optional
+        fun createRoute(historyId: Int) = "Home?historyId=$historyId"
     }
+    object HistoryScreen : Screens("History")
 }

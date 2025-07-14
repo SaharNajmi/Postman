@@ -6,7 +6,7 @@ import com.example.postman.data.mapper.toEntity
 import com.example.postman.domain.model.HistoryRequestModel
 import com.example.postman.domain.repository.HistoryRequestRepository
 
-class HistoryRequestRepositoryImp(private val historyRequestDao: HistoryRequestDao) :
+class HistoryRequestRepositoryImp(private val historyRequestDao: HistoryRequestDao,) :
     HistoryRequestRepository {
     override suspend fun getAllHistories(): List<HistoryRequestModel> =
         historyRequestDao.getAllHistories().map { it.toDomain() }
