@@ -1,12 +1,12 @@
 package com.example.postman.data.mapper
 
-import com.example.postman.data.local.entity.HistoryRequestEntity
-import com.example.postman.domain.model.HistoryRequestModel
+import com.example.postman.data.local.entity.HistoryEntity
+import com.example.postman.domain.model.History
 import java.time.Instant
 import java.time.ZoneId
 
-fun HistoryRequestEntity.toDomain(): HistoryRequestModel {
-    return HistoryRequestModel(
+fun HistoryEntity.toDomain(): History {
+    return History(
         id = id,
         requestUrl = requestUrl,
         methodOption = methodOption,
@@ -18,8 +18,8 @@ fun HistoryRequestEntity.toDomain(): HistoryRequestModel {
     )
 }
 
-fun HistoryRequestModel.toEntity(): HistoryRequestEntity {
-    return HistoryRequestEntity(
+fun History.toEntity(): HistoryEntity {
+    return HistoryEntity(
         id = id,
         requestUrl = requestUrl,
         methodOption = methodOption,

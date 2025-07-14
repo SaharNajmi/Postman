@@ -2,11 +2,11 @@ package com.example.postman.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.postman.data.remote.UiState
-import com.example.postman.data.repository.ApiRepository
-import com.example.postman.domain.model.HistoryRequestModel
-import com.example.postman.domain.repository.HistoryRequestRepository
-import com.example.postman.presentation.MethodName
+import com.example.postman.presentation.base.BaseUiState
+import com.example.postman.domain.repository.ApiRepository
+import com.example.postman.domain.model.History
+import com.example.postman.domain.repository.HistoryRepository
+import com.example.postman.common.utils.MethodName
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,14 +22,14 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val repository: ApiRepository,
-    private val historyRequestRepository: HistoryRequestRepository
+    private val historyRepository: HistoryRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<UiState<String>>(UiState.Idle)
-    val uiState: StateFlow<UiState<String>> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow<BaseUiState<String>>(BaseUiState.Idle)
+    val uiState: StateFlow<BaseUiState<String>> = _uiState.asStateFlow()
 
-    private val _historyRequest = MutableStateFlow<HistoryRequestModel?>(null)
-    val historyRequest: StateFlow<HistoryRequestModel?> = _historyRequest.asStateFlow()
+    private val _historyRequest = MutableStateFlow<History?>(null)
+    val historyRequest: StateFlow<History?> = _historyRequest.asStateFlow()
 
     fun sendRequest(
         methodName: MethodName,
@@ -37,7 +37,7 @@ class HomeViewModel @Inject constructor(
         body: String? = null
     ) {
         viewModelScope.launch {
-            _uiState.value = UiState.Loading
+            _uiState.value = BaseUiState.Loading
             var result: Response<ResponseBody>? = null
             var statusCode = -1
             var body = ""
@@ -48,16 +48,16 @@ class HomeViewModel @Inject constructor(
                 statusCode = result.code()
                 body = result.body()?.string() ?: "Empty"
                 _uiState.value = when (result.code()) {
-                    200 -> UiState.Success(body)
-                    404 -> UiState.Error("${result.code()}: ${result.message()} Not Found")
-                    else -> UiState.Error("error: ${result.code()}")
+                    200 -> BaseUiState.Success(body)
+                    404 -> BaseUiState.Error("${result.code()}: ${result.message()} Not Found")
+                    else -> BaseUiState.Error("error: ${result.code()}")
                 }
             } catch (e: Exception) {
                 statusCode = 404
-                _uiState.value = UiState.Error("Network error: ${e.message}")
+                _uiState.value = BaseUiState.Error("Network error: ${e.message}")
             } finally {
                 saveToHistory(
-                    HistoryRequestModel(
+                    History(
                         requestUrl = url,
                         methodOption = methodName,
                         response = body,
@@ -69,12 +69,12 @@ class HomeViewModel @Inject constructor(
     }
 
     fun saveToHistory(
-        historyRequestModel: HistoryRequestModel
+        history: History
     ) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                historyRequestRepository.insertHistoryRequest(
-                    historyRequestModel
+                historyRepository.insertHistoryRequest(
+                    history
                 )
             }
         }
@@ -82,15 +82,15 @@ class HomeViewModel @Inject constructor(
 
     fun loadRequestFromHistory(historyId: Int) {
         viewModelScope.launch {
-            _uiState.value = UiState.Loading
+            _uiState.value = BaseUiState.Loading
             val saved = withContext(Dispatchers.IO) {
-                historyRequestRepository.getHistoryRequest(historyId)
+                historyRepository.getHistoryRequest(historyId)
             }
             _historyRequest.value = saved
             _uiState.value = when (saved.statusCode) {
-                200 -> UiState.Success(saved.response)
-                404 -> UiState.Error("${saved.statusCode} Not Found")
-                else -> UiState.Error("error: ${saved.statusCode}")
+                200 -> BaseUiState.Success(saved.response)
+                404 -> BaseUiState.Error("${saved.statusCode} Not Found")
+                else -> BaseUiState.Error("error: ${saved.statusCode}")
             }
         }
     }

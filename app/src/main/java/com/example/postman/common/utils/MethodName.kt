@@ -1,4 +1,4 @@
-package com.example.postman.presentation
+package com.example.postman.common.utils
 
 import androidx.compose.ui.graphics.Color
 import com.example.postman.ui.theme.Blue

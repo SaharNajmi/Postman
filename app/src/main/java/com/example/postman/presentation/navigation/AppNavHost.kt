@@ -8,7 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.postman.presentation.Screens
+import com.example.postman.presentation.navigation.Screens
 import com.example.postman.presentation.history.HistoryScreen
 import com.example.postman.presentation.history.HistoryViewModel
 import com.example.postman.presentation.home.HomeScreen

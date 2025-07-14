@@ -1,4 +1,4 @@
-package com.example.postman.presentation.utils
+package com.example.postman.common.utils
 
 import java.time.LocalDate
 import java.time.format.TextStyle

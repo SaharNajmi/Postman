@@ -1,8 +1,8 @@
-package com.example.postman.data
+package com.example.postman.presentation.home
 
 import androidx.compose.ui.text.AnnotatedString
 
-data class HighlightedLine(
+data class HighlightedTextLine(
     val annotatedString: AnnotatedString,
     val matchPositions: List<Int>
 )

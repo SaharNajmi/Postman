@@ -2,10 +2,10 @@ package com.example.postman.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.postman.presentation.MethodName
+import com.example.postman.common.utils.MethodName
 
 @Entity(tableName = "histories")
-data class HistoryRequestEntity(
+data class HistoryEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     val requestUrl: String,

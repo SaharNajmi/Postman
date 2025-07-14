@@ -1,12 +1,12 @@
 package com.example.postman.data.di
 
-import com.example.postman.data.Constant
+import com.example.postman.common.constants.NetworkConstants
 import com.example.postman.data.local.dao.HistoryRequestDao
 import com.example.postman.data.remote.ApiService
-import com.example.postman.data.repository.ApiRepository
+import com.example.postman.domain.repository.ApiRepository
 import com.example.postman.data.repository.ApiRepositoryImp
-import com.example.postman.data.repository.HistoryRequestRepositoryImp
-import com.example.postman.domain.repository.HistoryRequestRepository
+import com.example.postman.data.repository.HistoryRepositoryImp
+import com.example.postman.domain.repository.HistoryRepository
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
@@ -21,12 +21,12 @@ import javax.inject.Singleton
 object RepositoryModule {
     @Provides
     fun provideBaseUrl(): String {
-        return Constant.BASE_URL
+        return NetworkConstants.BASE_URL
     }
 
     @Provides
-    fun provideHistoryRequestRepository(historyRequestDao: HistoryRequestDao): HistoryRequestRepository =
-        HistoryRequestRepositoryImp(historyRequestDao)
+    fun provideHistoryRequestRepository(historyRequestDao: HistoryRequestDao): HistoryRepository =
+        HistoryRepositoryImp(historyRequestDao)
 
     @Provides
     fun provideApiRepository(apiService: ApiService): ApiRepository =

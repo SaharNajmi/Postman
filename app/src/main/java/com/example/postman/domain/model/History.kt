@@ -1,9 +1,9 @@
 package com.example.postman.domain.model
 
-import com.example.postman.presentation.MethodName
+import com.example.postman.common.utils.MethodName
 import java.time.LocalDate
 
-data class HistoryRequestModel(
+data class History(
     val id: Int = 0,
     val requestUrl: String,
     val methodOption: MethodName,

@@ -6,23 +6,23 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.postman.data.local.entity.HistoryRequestEntity
+import com.example.postman.data.local.entity.HistoryEntity
 
 @Dao
 interface HistoryRequestDao {
     @Query("SELECT * FROM histories ORDER by id DESC")
-    suspend fun getAllHistories(): List<HistoryRequestEntity>
+    suspend fun getAllHistories(): List<HistoryEntity>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertHistoryRequest(history: HistoryRequestEntity)
+    suspend fun insertHistoryRequest(history: HistoryEntity)
 
     @Update
-    suspend fun updateHistoryRequest(history: HistoryRequestEntity)
+    suspend fun updateHistoryRequest(history: HistoryEntity)
 
     @Delete
-    suspend fun deleteHistoryRequest(history: HistoryRequestEntity)
+    suspend fun deleteHistoryRequest(history: HistoryEntity)
 
     @Query("SELECT * FROM histories WHERE id= :historyId ")
-    fun getHistoryRequest(historyId: Int): HistoryRequestEntity
+    fun getHistoryRequest(historyId: Int): HistoryEntity
 
 }

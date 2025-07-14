@@ -1,7 +1,8 @@
 package com.example.postman.data.repository
 
 import com.example.postman.data.remote.ApiService
-import com.example.postman.presentation.MethodName
+import com.example.postman.common.utils.MethodName
+import com.example.postman.domain.repository.ApiRepository
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Response

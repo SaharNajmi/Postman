@@ -58,10 +58,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.postman.R
-import com.example.postman.data.HighlightedLine
-import com.example.postman.data.remote.UiState
-import com.example.postman.presentation.MethodName
-import com.example.postman.presentation.Screens
+import com.example.postman.common.extensions.formatJson
+import com.example.postman.presentation.base.BaseUiState
+import com.example.postman.common.utils.MethodName
+import com.example.postman.presentation.navigation.Screens
 import com.example.postman.ui.theme.Gray
 import com.example.postman.ui.theme.Green
 import com.example.postman.ui.theme.LightBlue
@@ -69,8 +69,6 @@ import com.example.postman.ui.theme.LightGray
 import com.example.postman.ui.theme.LightGreen
 import com.example.postman.ui.theme.LightYellow
 import com.example.postman.ui.theme.PostmanTheme
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonParser
 
 @Preview(name = "Light Mode")
 //@Preview(
@@ -268,14 +266,14 @@ fun HomeScreen(
 
 @Composable
 fun SearchFromContentText(contentText: String) {
-    val formattedJson = remember(contentText) { formatJson(contentText) }
+    val formattedJson = remember(contentText) { contentText.formatJson() }
     val lines = remember(formattedJson) { formattedJson.lines() }
     val listState = rememberLazyListState()
     var searchQuery by remember { mutableStateOf("") }
     var targetMatchIndex by remember { mutableStateOf(0) }
 
     // Build the full list of lines with highlights and match info
-    val highlightedLines: List<HighlightedLine> = remember(lines, searchQuery) {
+    val highlightedTextLines: List<HighlightedTextLine> = remember(lines, searchQuery) {
         lines.map { line ->
             val lowerLine = line.lowercase()
             val lowerTerm = searchQuery.lowercase()
@@ -310,12 +308,12 @@ fun SearchFromContentText(contentText: String) {
                 }
             }
 
-            HighlightedLine(annotated, matchPositions)
+            HighlightedTextLine(annotated, matchPositions)
         }
     }
 
-    val allMatches = remember(highlightedLines) {
-        highlightedLines.flatMapIndexed { lineIndex, line ->
+    val allMatches = remember(highlightedTextLines) {
+        highlightedTextLines.flatMapIndexed { lineIndex, line ->
             line.matchPositions.map { lineIndex }
         }
     }
@@ -385,7 +383,7 @@ fun SearchFromContentText(contentText: String) {
         Spacer(modifier = Modifier.height(8.dp))
 
         LazyColumn(state = listState) {
-            itemsIndexed(highlightedLines) { index, item ->
+            itemsIndexed(highlightedTextLines) { index, item ->
                 Text(
                     text = item.annotatedString,
                     modifier = Modifier
@@ -400,30 +398,20 @@ fun SearchFromContentText(contentText: String) {
 
 @Composable
 fun ShowApiResponse(
-    uiState: UiState<String>,
+    uiState: BaseUiState<String>,
 ) {
     when (uiState) {
-        is UiState.Success -> {
+        is BaseUiState.Success -> {
             SearchFromContentText(uiState.data)
         }
 
-        is UiState.Error -> Text(
+        is BaseUiState.Error -> Text(
             text = "Error: ${uiState.message}",
             modifier = Modifier.padding(16.dp, top = 0.dp)
         )
 
-        UiState.Loading -> Text(text = "Loading...")
-        UiState.Idle -> {}
-    }
-}
-
-
-fun formatJson(json: String): String {
-    return try {
-        val jsonElement = JsonParser.parseString(json)
-        GsonBuilder().setPrettyPrinting().create().toJson(jsonElement)
-    } catch (e: Exception) {
-        json
+        BaseUiState.Loading -> Text(text = "Loading...")
+        BaseUiState.Idle -> {}
     }
 }
 

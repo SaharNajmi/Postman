@@ -1,4 +1,4 @@
-package com.example.postman.presentation
+package com.example.postman.presentation.navigation
 
 sealed class Screens(val route: String) {
     object HomeScreen : Screens("Home?historyId={historyId}"){ //historyId is optional
