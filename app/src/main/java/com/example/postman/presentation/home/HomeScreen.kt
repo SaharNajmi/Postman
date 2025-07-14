@@ -47,7 +47,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.stylusHoverIcon
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -56,18 +55,11 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
-import androidx.room.Room
 import com.example.postman.R
 import com.example.postman.data.HighlightedLine
-import com.example.postman.data.local.appDatabase.RoomDatabase
-import com.example.postman.data.remote.ApiClient
 import com.example.postman.data.remote.UiState
-import com.example.postman.data.repository.ApiRepositoryImp
-import com.example.postman.data.repository.HistoryRequestRepositoryImp
 import com.example.postman.presentation.MethodName
 import com.example.postman.presentation.Screens
 import com.example.postman.ui.theme.Gray
@@ -88,28 +80,13 @@ import com.google.gson.JsonParser
 //)
 @Composable()
 fun PreviewHomeScreen() {
-    val db = Room.databaseBuilder(
-        LocalContext.current,
-        RoomDatabase::class.java, "history"
-    ).build()
-    val dao = db.historyRequestDao()
-    val historyRepo = HistoryRequestRepositoryImp(dao)
-    val homeViewModel: HomeViewModel = viewModel(
-        factory = object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return HomeViewModel(
-                    ApiRepositoryImp(ApiClient.createApiService()),
-                    historyRequestRepository = historyRepo
-                ) as T
-            }
-        }
-    )
+
     val nav = rememberNavController()
     PostmanTheme {
         Surface {
             HomeScreen(
                 // modifier = Modifier.padding(innerPadding),
-                homeViewModel, -1,
+                hiltViewModel(), -1,
                 onNavigateToHistory = {
                     nav.navigate(Screens.HistoryScreen)
                 }

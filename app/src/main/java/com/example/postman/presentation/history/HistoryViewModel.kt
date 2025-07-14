@@ -1,18 +1,21 @@
 package com.example.postman.presentation.history
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.postman.domain.model.HistoryRequestModel
 import com.example.postman.domain.repository.HistoryRequestRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class HistoryViewModel(private val historyRequestRepository: HistoryRequestRepository) :
+@HiltViewModel
+class HistoryViewModel @Inject constructor(
+    private val historyRequestRepository: HistoryRequestRepository
+) :
     ViewModel() {
 
     private val _historyRequestsModel = MutableStateFlow<List<HistoryRequestModel>>(emptyList())

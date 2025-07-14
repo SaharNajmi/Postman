@@ -7,6 +7,7 @@ import com.example.postman.data.repository.ApiRepository
 import com.example.postman.domain.model.HistoryRequestModel
 import com.example.postman.domain.repository.HistoryRequestRepository
 import com.example.postman.presentation.MethodName
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,8 +17,10 @@ import kotlinx.coroutines.withContext
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
 import retrofit2.Response
+import javax.inject.Inject
 
-class HomeViewModel(
+@HiltViewModel
+class HomeViewModel @Inject constructor(
     private val repository: ApiRepository,
     private val historyRequestRepository: HistoryRequestRepository
 ) : ViewModel() {
