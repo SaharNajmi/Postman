@@ -17,8 +17,8 @@ class HistoryRepositoryImp(private val historyRequestDao: HistoryRequestDao) :
     override suspend fun updateHistoryRequest(history: History) =
         historyRequestDao.updateHistoryRequest(history.toEntity())
 
-    override suspend fun deleteHistoryRequest(history: History) =
-        historyRequestDao.deleteHistoryRequest(history.toEntity())
+    override suspend fun deleteHistoryRequest(historyId: Int) =
+        historyRequestDao.deleteHistoryRequest(historyId)
 
     override suspend fun getHistoryRequest(historyId: Int): History =
         historyRequestDao.getHistoryRequest(historyId).toDomain()

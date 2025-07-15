@@ -59,8 +59,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.postman.R
 import com.example.postman.common.extensions.formatJson
-import com.example.postman.presentation.base.BaseUiState
 import com.example.postman.common.utils.MethodName
+import com.example.postman.presentation.base.Loadable
 import com.example.postman.presentation.navigation.Screens
 import com.example.postman.ui.theme.Gray
 import com.example.postman.ui.theme.Green
@@ -99,28 +99,36 @@ fun HomeScreen(
     historyId: Int,
     onNavigateToHistory: () -> Unit,
 ) {
-    val methodOptions = listOf(
-        MethodName.GET, MethodName.POST, MethodName.PUT, MethodName.PATCH,
-        MethodName.DELETE, MethodName.HEAD, MethodName.OPTIONS
-    )
 
     val uiState by homeViewModel.uiState.collectAsState()
-    val historyModel by homeViewModel.historyRequest.collectAsState()
-    var urlRequest by remember { mutableStateOf<String>("") }
-    var expandedMethodOption by remember { mutableStateOf(false) }
-    var selectedMethodOption by remember { mutableStateOf(methodOptions[0]) }
 
     LaunchedEffect(historyId) {
         if (historyId != -1) {
             homeViewModel.loadRequestFromHistory(historyId)
         }
     }
-    LaunchedEffect(historyModel) {
-        historyModel?.let {
-            urlRequest = it.requestUrl
-            selectedMethodOption = it.methodOption
-        }
-    }
+
+
+    RequestBuilder(
+        uiState,
+        onNavigateToHistory,
+        homeViewModel
+    )
+}
+
+@Composable
+fun RequestBuilder(
+    uiState: HomeUiState,
+    onNavigateToHistory: () -> Unit,
+    homeViewModel: HomeViewModel
+) {
+    val request = uiState.data
+    val methodOptions = listOf(
+        MethodName.GET, MethodName.POST, MethodName.PUT, MethodName.PATCH,
+        MethodName.DELETE, MethodName.HEAD, MethodName.OPTIONS
+    )
+    var expandedMethodOption by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -161,8 +169,8 @@ fun HomeScreen(
                     ),
             ) {
                 Text(
-                    selectedMethodOption.name,
-                    color = selectedMethodOption.color,
+                    request.methodOption.name,
+                    color = request.methodOption.color,
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier
                         .padding(12.dp)
@@ -183,8 +191,8 @@ fun HomeScreen(
                         DropdownMenuItem(
                             text = { Text(option.name, color = option.color) },
                             onClick = {
-                                selectedMethodOption = option
                                 expandedMethodOption = false
+                                homeViewModel.updateRequest(request.copy(methodOption = option))
                             })
                     }
                 }
@@ -196,8 +204,10 @@ fun HomeScreen(
                 )
 
                 TextField(
-                    value = urlRequest,
-                    onValueChange = { urlRequest = it },
+                    value = request.requestUrl,
+                    onValueChange = {
+                        homeViewModel.updateRequest(request.copy(requestUrl = it))
+                    },
                     maxLines = 3,
                     modifier = Modifier.padding(0.dp),
                     colors = TextFieldDefaults.colors(
@@ -214,8 +224,8 @@ fun HomeScreen(
                 colors = ButtonDefaults.buttonColors(containerColor = LightBlue),
                 shape = RoundedCornerShape(4.dp),
                 onClick = {
-                    if (urlRequest.isNotEmpty())
-                        homeViewModel.sendRequest(selectedMethodOption, urlRequest)
+                    if (request.requestUrl.isNotEmpty())
+                        homeViewModel.sendRequest(request.methodOption, request.requestUrl)
                 }) {
                 Text(text = "Send", fontWeight = FontWeight.Bold)
             }
@@ -234,18 +244,20 @@ fun HomeScreen(
                     .padding(6.dp, 2.dp)
             )
 
-            historyModel?.statusCode?.takeIf { it != -1 }?.let { statusCode ->
-                Text(
-                    modifier = Modifier
-                        .padding(start = 24.dp)
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(
-                            LightGreen
-                        )
-                        .padding(horizontal = 4.dp),
-                    color = Green,
-                    text = statusCode.toString(),
-                )
+            uiState.response?.let {
+                if (uiState.response is Loadable.Success) {
+                    Text(
+                        modifier = Modifier
+                            .padding(start = 24.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(
+                                LightGreen
+                            )
+                            .padding(horizontal = 4.dp),
+                        color = Green,
+                        text = uiState.response.data.statusCode.toString(),
+                    )
+                }
             }
 
             Spacer(Modifier.weight(1f))
@@ -260,7 +272,7 @@ fun HomeScreen(
             )
         }
         HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(4.dp))
-        ShowApiResponse(uiState)
+        ResponseBody(uiState)
     }
 }
 
@@ -397,21 +409,27 @@ fun SearchFromContentText(contentText: String) {
 }
 
 @Composable
-fun ShowApiResponse(
-    uiState: BaseUiState<String>,
+fun ResponseBody(
+    uiState: HomeUiState,
 ) {
-    when (uiState) {
-        is BaseUiState.Success -> {
-            SearchFromContentText(uiState.data)
+    when (uiState.response) {
+        is Loadable.Success -> {
+            SearchFromContentText(uiState.response.data.response)
+
         }
 
-        is BaseUiState.Error -> Text(
-            text = "Error: ${uiState.message}",
-            modifier = Modifier.padding(16.dp, top = 0.dp)
+        is Loadable.Error -> Text(
+            text = "Error: ${uiState.response.message}",
+            modifier = Modifier.padding(16.dp)
         )
 
-        BaseUiState.Loading -> Text(text = "Loading...")
-        BaseUiState.Idle -> {}
+        Loadable.Loading -> Text(text = "Loading...")
+        is Loadable.NetworkError -> Text(
+            text = "Error: ${uiState.response.message}",
+            modifier = Modifier.padding(16.dp)
+        )
+
+        null -> {}
     }
 }
 

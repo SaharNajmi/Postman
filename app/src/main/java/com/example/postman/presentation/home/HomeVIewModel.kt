@@ -2,11 +2,13 @@ package com.example.postman.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.postman.presentation.base.BaseUiState
-import com.example.postman.domain.repository.ApiRepository
-import com.example.postman.domain.model.History
-import com.example.postman.domain.repository.HistoryRepository
 import com.example.postman.common.utils.MethodName
+import com.example.postman.domain.model.History
+import com.example.postman.domain.model.HttpRequest
+import com.example.postman.domain.model.HttpResponse
+import com.example.postman.domain.repository.ApiRepository
+import com.example.postman.domain.repository.HistoryRepository
+import com.example.postman.presentation.base.Loadable
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,11 +27,17 @@ class HomeViewModel @Inject constructor(
     private val historyRepository: HistoryRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<BaseUiState<String>>(BaseUiState.Idle)
-    val uiState: StateFlow<BaseUiState<String>> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow<HomeUiState>(
+        HomeUiState(
+            HttpRequest( requestUrl = "", methodOption =  MethodName.GET)
+        )
+    )
 
-    private val _historyRequest = MutableStateFlow<History?>(null)
-    val historyRequest: StateFlow<History?> = _historyRequest.asStateFlow()
+    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+
+    fun updateRequest(request: HttpRequest) {
+        _uiState.value = _uiState.value.copy(request)
+    }
 
     fun sendRequest(
         methodName: MethodName,
@@ -37,44 +45,81 @@ class HomeViewModel @Inject constructor(
         body: String? = null
     ) {
         viewModelScope.launch {
-            _uiState.value = BaseUiState.Loading
+            _uiState.value = HomeUiState(HttpRequest(requestUrl = url, methodOption =  methodName), Loadable.Loading)
             var result: Response<ResponseBody>? = null
             var statusCode = -1
             var body = ""
             try {
                 result = withContext(Dispatchers.IO) {
-                    repository.request(methodName.name, url, body?.toRequestBody())
+                    repository.request(methodName.name, url, body.toRequestBody())
                 }
                 statusCode = result.code()
                 body = result.body()?.string() ?: "Empty"
-                _uiState.value = when (result.code()) {
-                    200 -> BaseUiState.Success(body)
-                    404 -> BaseUiState.Error("${result.code()}: ${result.message()} Not Found")
-                    else -> BaseUiState.Error("error: ${result.code()}")
-                }
-            } catch (e: Exception) {
-                statusCode = 404
-                _uiState.value = BaseUiState.Error("Network error: ${e.message}")
-            } finally {
-                saveToHistory(
-                    History(
+                _uiState.value = HomeUiState(
+                    HttpRequest(
                         requestUrl = url,
                         methodOption = methodName,
+                    ), Loadable.Success(
+                        HttpResponse(
+                            response = body,
+                            statusCode = statusCode
+                        )
+                    )
+                )
+                saveToHistory(
+                    HttpRequest(
+                        requestUrl = url,
+                        methodOption = methodName,
+                    ), HttpResponse(
                         response = body,
                         statusCode = statusCode
                     )
+                )
+            } catch (e: Exception) {
+                _uiState.value = HomeUiState(
+                    HttpRequest(
+                        requestUrl = url,
+                        methodOption = methodName,
+                    ), Loadable.NetworkError(getNetworkErrorMessage(e))
                 )
             }
         }
     }
 
+
+    fun getNetworkErrorMessage(e: Exception): String {
+        return when (e) {
+            is java.net.UnknownHostException -> "No internet connection"
+            is java.net.SocketTimeoutException -> "Connection timed out"
+            is java.net.ConnectException -> "Couldn't connect to the server"
+            is retrofit2.HttpException -> {
+                val code = e.code()
+                when (code) {
+                    401 -> "Unauthorized"
+                    404 -> "Not found"
+                    500 -> "Server error"
+                    else -> "HTTP error: $code"
+                }
+            }
+
+            else -> "Unexpected error: ${e.localizedMessage}"
+        }
+    }
+
     fun saveToHistory(
-        history: History
+        httpRequest: HttpRequest,
+        response: HttpResponse
     ) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 historyRepository.insertHistoryRequest(
-                    history
+                    History(
+                        requestUrl = httpRequest.requestUrl,
+                        methodOption = httpRequest.methodOption,
+                        createdAt = httpRequest.createdAt,
+                        response = response.response,
+                        statusCode = response.statusCode
+                    )
                 )
             }
         }
@@ -82,16 +127,20 @@ class HomeViewModel @Inject constructor(
 
     fun loadRequestFromHistory(historyId: Int) {
         viewModelScope.launch {
-            _uiState.value = BaseUiState.Loading
             val saved = withContext(Dispatchers.IO) {
                 historyRepository.getHistoryRequest(historyId)
             }
-            _historyRequest.value = saved
-            _uiState.value = when (saved.statusCode) {
-                200 -> BaseUiState.Success(saved.response)
-                404 -> BaseUiState.Error("${saved.statusCode} Not Found")
-                else -> BaseUiState.Error("error: ${saved.statusCode}")
-            }
+            _uiState.value = HomeUiState(
+                HttpRequest(
+                    requestUrl = saved.requestUrl,
+                    methodOption = saved.methodOption,
+                ), Loadable.Success(
+                    HttpResponse(
+                        response = saved.response,
+                        statusCode = saved.statusCode
+                    )
+                )
+            )
         }
     }
 }

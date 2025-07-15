@@ -17,52 +17,24 @@ class HistoryViewModel @Inject constructor(
     private val historyRepository: HistoryRepository
 ) : ViewModel() {
 
-    private val _history = MutableStateFlow<List<History>>(emptyList())
-    val historyRequestsModel: StateFlow<List<History>> = _history
-
-    private val _historyItem = MutableStateFlow<History?>(null)
-    val historyItem: StateFlow<History?> = _historyItem
+    private val _httpRequestRequestsModel = MutableStateFlow<List<History>>(emptyList())
+    val httpRequestRequestsModel: StateFlow<List<History>> = _httpRequestRequestsModel
 
     fun getAllHistories() {
         viewModelScope.launch {
             val result = withContext(Dispatchers.IO) {
                 historyRepository.getAllHistories()
             }
-            _history.value = result // main thread
+            _httpRequestRequestsModel.value = result // main thread
         }
     }
 
-    fun insertHistoryRequest(history: History) {
+    fun deleteHistoryRequest(historyId: Int) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                historyRepository.insertHistoryRequest(history)
-            }
-        }
-    }
-
-    fun updateHistoryRequest(historyItem: History) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                historyRepository.updateHistoryRequest(historyItem)
-            }
-        }
-    }
-
-    fun deleteHistoryRequest(history: History) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                historyRepository.deleteHistoryRequest(history)
+                historyRepository.deleteHistoryRequest(historyId)
             }
             getAllHistories()
-        }
-    }
-
-    fun getHistoryRequest(historyId: Int) {
-        viewModelScope.launch {
-            val result = withContext(Dispatchers.IO) {
-                historyRepository.getHistoryRequest(historyId)
-            }
-            _historyItem.value = result
         }
     }
 }

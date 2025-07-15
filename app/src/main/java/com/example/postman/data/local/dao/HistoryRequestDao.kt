@@ -19,8 +19,8 @@ interface HistoryRequestDao {
     @Update
     suspend fun updateHistoryRequest(history: HistoryEntity)
 
-    @Delete
-    suspend fun deleteHistoryRequest(history: HistoryEntity)
+    @Query("DELETE FROM histories WHERE id = :historyId")
+    suspend fun deleteHistoryRequest(historyId: Int)
 
     @Query("SELECT * FROM histories WHERE id= :historyId ")
     fun getHistoryRequest(historyId: Int): HistoryEntity

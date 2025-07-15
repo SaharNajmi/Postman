@@ -9,7 +9,7 @@ interface HistoryRepository {
 
     suspend fun updateHistoryRequest(historyItem: History)
 
-    suspend fun deleteHistoryRequest(history: History)
+    suspend fun deleteHistoryRequest(historyId: Int)
 
     suspend fun getHistoryRequest(historyId: Int): History
 }

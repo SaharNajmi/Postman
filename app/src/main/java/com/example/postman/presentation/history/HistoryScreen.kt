@@ -41,7 +41,7 @@ fun HistoryScreen(
         viewModel.getAllHistories()
     }
 
-    val historyRequest by viewModel.historyRequestsModel.collectAsState()
+    val historyRequest by viewModel.httpRequestRequestsModel.collectAsState()
 
     Column(modifier = Modifier.padding(12.dp)) {
         Spacer(modifier = Modifier.height(24.dp))
@@ -97,7 +97,7 @@ fun HistoryScreen(
                         Modifier
                             .padding(horizontal = 4.dp)
                             .clickable {
-                                viewModel.deleteHistoryRequest(historyRequest[index])
+                                viewModel.deleteHistoryRequest(historyRequest[index].id)
                             })
                 }
             }
