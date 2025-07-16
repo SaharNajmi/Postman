@@ -1,6 +1,11 @@
 package com.example.postman.presentation.home
 
+import android.R.attr.bitmap
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.Base64
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,6 +28,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -45,6 +51,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.stylusHoverIcon
 import androidx.compose.ui.res.painterResource
@@ -416,20 +424,26 @@ fun ResponseBody(
         is Loadable.Success -> {
             SearchFromContentText(uiState.response.data.response)
 
+            if (uiState.response.data.imageResponse != null) {
+                Image(
+                    bitmap = uiState.response.data.imageResponse,
+                    contentDescription = "Decoded Image",
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
         }
 
         is Loadable.Error -> Text(
             text = "Error: ${uiState.response.message}",
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp), color = Color.Red
         )
 
-        Loadable.Loading -> Text(text = "Loading...")
+        Loadable.Loading -> CircularProgressIndicator()
         is Loadable.NetworkError -> Text(
             text = "Error: ${uiState.response.message}",
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp), color = Color.Red
         )
 
         null -> {}
     }
 }
-

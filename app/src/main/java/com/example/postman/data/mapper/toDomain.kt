@@ -1,5 +1,7 @@
 package com.example.postman.data.mapper
 
+import com.example.postman.common.extensions.toByteArray
+import com.example.postman.common.extensions.toImageBitmap
 import com.example.postman.data.local.entity.HistoryEntity
 import com.example.postman.domain.model.History
 import java.time.Instant
@@ -14,7 +16,8 @@ fun HistoryEntity.toDomain(): History {
         createdAt = Instant.ofEpochMilli(createdAt)
             .atZone(ZoneId.systemDefault())
             .toLocalDate(),
-        statusCode = statusCode
+        statusCode = statusCode,
+        imageResponse = imageResponse?.toImageBitmap()
     )
 }
 
@@ -28,6 +31,7 @@ fun History.toEntity(): HistoryEntity {
             .atStartOfDay(ZoneId.systemDefault())
             .toInstant()
             .toEpochMilli(),
-        statusCode = statusCode
+        statusCode = statusCode,
+        imageResponse = imageResponse?.toByteArray()
     )
 }

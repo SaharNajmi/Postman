@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.postman.common.utils.MethodName
 
+@Suppress("ArrayInDataClass")
 @Entity(tableName = "histories")
 data class HistoryEntity(
     @PrimaryKey(autoGenerate = true)
@@ -11,6 +12,7 @@ data class HistoryEntity(
     val requestUrl: String,
     val methodOption: MethodName,
     val response: String,
+    val imageResponse: ByteArray?=null,
     val createdAt: Long,
     val statusCode : Int
 )

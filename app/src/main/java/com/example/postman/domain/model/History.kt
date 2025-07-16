@@ -1,5 +1,6 @@
 package com.example.postman.domain.model
 
+import androidx.compose.ui.graphics.ImageBitmap
 import com.example.postman.common.utils.MethodName
 import java.time.LocalDate
 
@@ -9,5 +10,6 @@ data class History(
     val methodOption: MethodName,
     val createdAt: LocalDate = LocalDate.now(),
     val response: String,
+    val imageResponse: ImageBitmap? = null,
     val statusCode: Int,
 )

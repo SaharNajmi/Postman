@@ -1,5 +1,8 @@
 package com.example.postman.presentation.home
 
+import android.graphics.BitmapFactory
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.postman.common.utils.MethodName
@@ -29,7 +32,7 @@ class HomeViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow<HomeUiState>(
         HomeUiState(
-            HttpRequest( requestUrl = "", methodOption =  MethodName.GET)
+            HttpRequest(requestUrl = "", methodOption = MethodName.GET)
         )
     )
 
@@ -45,16 +48,39 @@ class HomeViewModel @Inject constructor(
         body: String? = null
     ) {
         viewModelScope.launch {
-            _uiState.value = HomeUiState(HttpRequest(requestUrl = url, methodOption =  methodName), Loadable.Loading)
+            _uiState.value = HomeUiState(
+                HttpRequest(requestUrl = url, methodOption = methodName),
+                Loadable.Loading
+            )
             var result: Response<ResponseBody>? = null
             var statusCode = -1
             var body = ""
+            var imageResponse: ImageBitmap? = null
             try {
                 result = withContext(Dispatchers.IO) {
                     repository.request(methodName.name, url, body.toRequestBody())
                 }
                 statusCode = result.code()
-                body = result.body()?.string() ?: "Empty"
+
+                body = if (result.isSuccessful) {
+                    val contentType = result.body()?.contentType()?.toString() ?: ""
+
+                    if (contentType.startsWith("image/")) {
+                        val imageBytes = result.body()?.bytes()
+                        val bitmap =
+                            BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes?.size ?: 0)
+                        imageResponse = bitmap.asImageBitmap()
+
+                        "This is an image of type $contentType with ${imageBytes?.size} bytes."
+
+                    } else {
+                        result.body()?.string() ?: "Empty"
+                    }
+                } else {
+                    result.errorBody()?.string() ?: "Something wrong!!!"
+                }
+
+
                 _uiState.value = HomeUiState(
                     HttpRequest(
                         requestUrl = url,
@@ -62,7 +88,8 @@ class HomeViewModel @Inject constructor(
                     ), Loadable.Success(
                         HttpResponse(
                             response = body,
-                            statusCode = statusCode
+                            statusCode = statusCode,
+                            imageResponse = imageResponse
                         )
                     )
                 )
@@ -72,7 +99,8 @@ class HomeViewModel @Inject constructor(
                         methodOption = methodName,
                     ), HttpResponse(
                         response = body,
-                        statusCode = statusCode
+                        statusCode = statusCode,
+                        imageResponse = imageResponse
                     )
                 )
             } catch (e: Exception) {
@@ -86,18 +114,20 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-
     fun getNetworkErrorMessage(e: Exception): String {
         return when (e) {
-            is java.net.UnknownHostException -> "No internet connection"
+            is java.net.UnknownHostException -> "Network issue"
             is java.net.SocketTimeoutException -> "Connection timed out"
             is java.net.ConnectException -> "Couldn't connect to the server"
             is retrofit2.HttpException -> {
                 val code = e.code()
                 when (code) {
-                    401 -> "Unauthorized"
-                    404 -> "Not found"
-                    500 -> "Server error"
+                    400 -> "Bad request."
+                    401 -> "You are not authorized."
+                    403 -> "Access denied."
+                    404 -> "Not found."
+                    405 -> "This operation isn’t allowed."
+                    500 -> "Server error. Please try again later."
                     else -> "HTTP error: $code"
                 }
             }
@@ -118,7 +148,8 @@ class HomeViewModel @Inject constructor(
                         methodOption = httpRequest.methodOption,
                         createdAt = httpRequest.createdAt,
                         response = response.response,
-                        statusCode = response.statusCode
+                        statusCode = response.statusCode,
+                        imageResponse = response.imageResponse
                     )
                 )
             }
@@ -137,7 +168,8 @@ class HomeViewModel @Inject constructor(
                 ), Loadable.Success(
                     HttpResponse(
                         response = saved.response,
-                        statusCode = saved.statusCode
+                        statusCode = saved.statusCode,
+                        imageResponse = saved.imageResponse
                     )
                 )
             )
