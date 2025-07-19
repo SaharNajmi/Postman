@@ -7,6 +7,7 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.HEAD
+import retrofit2.http.HeaderMap
 import retrofit2.http.OPTIONS
 import retrofit2.http.PATCH
 import retrofit2.http.POST
@@ -19,6 +20,7 @@ interface ApiService {
 
     @POST
     suspend fun postRequest(
+        @HeaderMap headers: Map<String, String>? = null,
         @Url url: String,
         @Body body: RequestBody? = null
     ): Response<ResponseBody>

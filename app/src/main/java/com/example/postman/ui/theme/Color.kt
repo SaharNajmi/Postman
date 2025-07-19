@@ -10,6 +10,7 @@ val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
+val RadioButtonSelectedColor= Color(0xFF23FF29)
 val Green= Color(0xFF1F7922)
 val LightGreen= Color(0xFFBDF1BE)
 val Brown= Color(0xFF853924)

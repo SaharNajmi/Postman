@@ -1,17 +1,15 @@
 package com.example.postman.presentation.home
 
-import android.R.attr.bitmap
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.util.Base64
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,8 +20,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
@@ -35,7 +37,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -44,6 +47,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -51,54 +55,240 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.stylusHoverIcon
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.compose.rememberNavController
 import com.example.postman.R
 import com.example.postman.common.extensions.formatJson
 import com.example.postman.common.utils.MethodName
+import com.example.postman.domain.model.HeaderItem
 import com.example.postman.presentation.base.Loadable
-import com.example.postman.presentation.navigation.Screens
 import com.example.postman.ui.theme.Gray
 import com.example.postman.ui.theme.Green
 import com.example.postman.ui.theme.LightBlue
 import com.example.postman.ui.theme.LightGray
 import com.example.postman.ui.theme.LightGreen
 import com.example.postman.ui.theme.LightYellow
-import com.example.postman.ui.theme.PostmanTheme
+import com.example.postman.ui.theme.RadioButtonSelectedColor
 
-@Preview(name = "Light Mode")
-//@Preview(
-//    uiMode = Configuration.UI_MODE_NIGHT_YES,
-//    showBackground = true,
-//    name = "Dark Mode"
-//)
-@Composable()
-fun PreviewHomeScreen() {
+enum class RadioHttpParameterOptions {
+    Params, Auth, Header, Body
+}
 
-    val nav = rememberNavController()
-    PostmanTheme {
-        Surface {
-            HomeScreen(
-                // modifier = Modifier.padding(innerPadding),
-                hiltViewModel(), -1,
-                onNavigateToHistory = {
-                    nav.navigate(Screens.HistoryScreen)
+
+@Composable
+fun RequestParametersSection(
+    modifier: Modifier,
+    uiState: HomeUiState,
+    homeViewModel: HomeViewModel,
+//    headers: (Map<String, String>) -> Unit
+) {
+    val radioHttpParameterOptions = RadioHttpParameterOptions.entries.toList()
+    var (selectedOption, onOptionSelected) = remember { mutableStateOf(radioHttpParameterOptions[0]) }
+
+    Column(modifier = modifier.fillMaxWidth()) {
+        FlowRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .selectableGroup()
+                .padding(horizontal = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            radioHttpParameterOptions.forEach { option ->
+                Row(
+                    modifier = Modifier
+                        .selectable(
+                            selected = (option == selectedOption),
+                            onClick = {
+                                onOptionSelected(option)
+                            }, role = Role.RadioButton
+                        )
+                        .padding(bottom = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = (option == selectedOption), onClick = null,
+                        colors = RadioButtonDefaults.colors(
+                            selectedColor = RadioButtonSelectedColor,
+                            unselectedColor = RadioButtonSelectedColor
+                        ), modifier = Modifier.padding(end = 2.dp)
+                    )
+                    Text(text = option.name)
                 }
+            }
+        }
+
+        when (selectedOption) {
+            RadioHttpParameterOptions.Auth -> AuthSection(
+                modifier
+                    .height(120.dp)
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+            )
+
+            RadioHttpParameterOptions.Params -> ParamsSection(
+                modifier
+                    .height(120.dp)
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+            )
+
+            RadioHttpParameterOptions.Header -> HeaderSection(
+                modifier
+                    .height(120.dp)
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp), uiState, homeViewModel
+            )
+
+            RadioHttpParameterOptions.Body -> BodySection(
+                modifier
+                    .height(120.dp)
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp), uiState, homeViewModel
             )
         }
     }
+}
+
+@Composable
+fun ParamsSection(modifier: Modifier) {
+    Column(modifier) { }
+}
+
+@Composable
+fun AuthSection(modifier: Modifier) {
+    Column(modifier) { }
+}
+
+@Composable
+fun HeaderSection(
+    modifier: Modifier,
+    uiState: HomeUiState,
+    homeViewModel: HomeViewModel
+) {
+    var header by remember { mutableStateOf(HeaderItem()) }
+
+    Column(modifier) {
+        RemovableTagList(
+            items = uiState.data.headers,
+            onRemoveItem = { key, value ->
+                homeViewModel.removeHeader(key, value)
+            }
+        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            TextField(
+                modifier = Modifier
+                    .weight(1f)
+                    .border(
+                        width = 1.dp,
+                        color = LightGreen,
+                        shape = RoundedCornerShape(8.dp)
+                    ),
+                value = header.key,
+                maxLines = 1,
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                ),
+                onValueChange = {
+                    header = header.copy(key = it)
+                },
+                label = { Text("Key") }
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            TextField(
+                modifier = Modifier
+                    .weight(1f)
+                    .border(
+                        width = 1.dp,
+                        color = LightGreen,
+                        shape = RoundedCornerShape(8.dp)
+                    ),
+                value = header.value,
+                maxLines = 1,
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                ),
+                onValueChange = {
+                    header = header.copy(value = it)
+                },
+                label = { Text("Value") }
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "headers",
+                modifier = Modifier.clickable {
+                    homeViewModel.addHeader(header.key, header.value)
+                    header = HeaderItem()
+                })
+        }
+    }
+}
+
+@Composable
+fun RemovableTagList(items: Map<String, String>?, onRemoveItem: (String, String) -> Unit) {
+    val scrollState = rememberScrollState()
+
+    Row(
+        modifier = Modifier
+            .height(46.dp)
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .background(LightGreen)
+            .horizontalScroll(scrollState),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        items?.forEach { (key, value) ->
+            Text(
+                text = "$key : $value",
+                modifier = Modifier
+                    .clickable {
+                        onRemoveItem(key, value)
+                    }
+                    .padding(8.dp)
+                    .background(LightGray, shape = MaterialTheme.shapes.small)
+                    .padding(4.dp),
+            )
+        }
+    }
+}
+
+@Composable
+fun BodySection(
+    modifier: Modifier,
+    uiState: HomeUiState,
+    homeViewModel: HomeViewModel
+) {
+
+    TextField(
+        value = uiState.data.body ?: "",
+        onValueChange = {
+            homeViewModel.updateRequest(uiState.data.copy(body = it))
+        },
+        maxLines = Int.MAX_VALUE,
+        modifier = modifier
+            .padding(0.dp)
+            .border(1.dp, Color.Gray, shape = RoundedCornerShape(8.dp)),
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+        )
+    )
 }
 
 @Composable()
@@ -115,7 +305,6 @@ fun HomeScreen(
             homeViewModel.loadRequestFromHistory(historyId)
         }
     }
-
 
     RequestBuilder(
         uiState,
@@ -231,13 +420,18 @@ fun RequestBuilder(
                     .padding(4.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = LightBlue),
                 shape = RoundedCornerShape(4.dp),
-                onClick = {
-                    if (request.requestUrl.isNotEmpty())
-                        homeViewModel.sendRequest(request.methodOption, request.requestUrl)
-                }) {
+                onClick = { homeViewModel.sendRequest() }
+            ) {
                 Text(text = "Send", fontWeight = FontWeight.Bold)
             }
         }
+        RequestParametersSection(
+            modifier = Modifier,
+            homeViewModel = homeViewModel,
+            uiState = uiState,
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -428,7 +622,7 @@ fun ResponseBody(
                 Image(
                     bitmap = uiState.response.data.imageResponse,
                     contentDescription = "Decoded Image",
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.fillMaxWidth(), alignment = Alignment.Center,
                 )
             }
         }

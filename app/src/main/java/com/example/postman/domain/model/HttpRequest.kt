@@ -6,8 +6,10 @@ import java.time.LocalDate
 
 data class HttpRequest(
     val id: Int = 0,
-    val requestUrl: String,
-    val methodOption: MethodName,
+    val requestUrl: String = "",
+    val methodOption: MethodName = MethodName.GET,
+    val body: String? = null,
+    val headers: Map<String, String>? = null,
     val createdAt: LocalDate = LocalDate.now(),
 )
 

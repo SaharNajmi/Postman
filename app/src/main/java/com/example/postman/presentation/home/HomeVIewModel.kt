@@ -1,11 +1,11 @@
 package com.example.postman.presentation.home
 
 import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.postman.common.utils.MethodName
 import com.example.postman.domain.model.History
 import com.example.postman.domain.model.HttpRequest
 import com.example.postman.domain.model.HttpResponse
@@ -31,9 +31,7 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HomeUiState>(
-        HomeUiState(
-            HttpRequest(requestUrl = "", methodOption = MethodName.GET)
-        )
+        HomeUiState(HttpRequest())
     )
 
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
@@ -42,76 +40,107 @@ class HomeViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(request)
     }
 
-    fun sendRequest(
-        methodName: MethodName,
-        url: String,
-        body: String? = null
-    ) {
-        viewModelScope.launch {
-            _uiState.value = HomeUiState(
-                HttpRequest(requestUrl = url, methodOption = methodName),
-                Loadable.Loading
-            )
-            var result: Response<ResponseBody>? = null
-            var statusCode = -1
-            var body = ""
-            var imageResponse: ImageBitmap? = null
-            try {
-                result = withContext(Dispatchers.IO) {
-                    repository.request(methodName.name, url, body.toRequestBody())
-                }
-                statusCode = result.code()
+    fun addHeader(key: String, value: String) {
+        if (key.isNotBlank() && value.isNotBlank()) {
+            val updatedHeaders = _uiState.value.data.headers?.toMutableMap() ?: mutableMapOf()
+            updatedHeaders[key] = value
+            _uiState.value = _uiState.value.copy(data = _uiState.value.data.copy(headers = updatedHeaders))
+        }
+    }
 
-                body = if (result.isSuccessful) {
-                    val contentType = result.body()?.contentType()?.toString() ?: ""
+    fun removeHeader(key: String,value: String) {
+        val updatedHeaders = _uiState.value.data.headers?.toMutableMap() ?: return
+        updatedHeaders.remove(key,value)
+        _uiState.value = _uiState.value.copy(data = _uiState.value.data.copy(headers = updatedHeaders))
+    }
 
-                    if (contentType.startsWith("image/")) {
-                        val imageBytes = result.body()?.bytes()
-                        val bitmap =
-                            BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes?.size ?: 0)
-                        imageResponse = bitmap.asImageBitmap()
-
-                        "This is an image of type $contentType with ${imageBytes?.size} bytes."
-
-                    } else {
-                        result.body()?.string() ?: "Empty"
-                    }
-                } else {
-                    result.errorBody()?.string() ?: "Something wrong!!!"
-                }
-
-
+    fun sendRequest() {
+        val requestData = uiState.value.data
+        if (requestData.requestUrl != "")
+            viewModelScope.launch {
                 _uiState.value = HomeUiState(
                     HttpRequest(
-                        requestUrl = url,
-                        methodOption = methodName,
-                    ), Loadable.Success(
-                        HttpResponse(
-                            response = body,
+                        requestUrl = requestData.requestUrl,
+                        methodOption = requestData.methodOption
+                    ),
+                    Loadable.Loading
+                )
+                var result: Response<ResponseBody>? = null
+                var statusCode = -1
+                var responseBody = ""
+                var imageResponse: ImageBitmap? = null
+                try {
+                    result = withContext(Dispatchers.IO) {
+                        repository.request(
+                            method = requestData.methodOption.name,
+                            url = requestData.requestUrl,
+                            body = requestData.body?.toRequestBody(),
+                            headers = requestData.headers
+                        )
+                    }
+
+                    statusCode = result.code()
+                    responseBody = if (result.isSuccessful) {
+
+                        val contentType = result.body()?.contentType()?.toString() ?: ""
+                        when {
+                            contentType == "image/svg+xml" -> {
+                                result.body()?.string() ?: "Empty svg"
+                            }
+
+                            contentType.startsWith("image/") -> {
+                                val imageBytes = result.body()?.bytes()
+                                val bitmap =
+                                    BitmapFactory.decodeByteArray(
+                                        imageBytes,
+                                        0,
+                                        imageBytes?.size ?: 0
+                                    )
+                                imageResponse = bitmap.asImageBitmap()
+
+                                "This is an image of type $contentType with ${(imageBytes?.size ?: 0) / 1024} KB."
+                            }
+
+                            else -> {
+                                result.body()?.string() ?: "Empty"
+                            }
+                        }
+                    } else {
+                        result.errorBody()?.string() ?: "Something wrong!!!"
+                    }
+
+
+                    _uiState.value = HomeUiState(
+                        HttpRequest(
+                            requestUrl = requestData.requestUrl,
+                            methodOption = requestData.methodOption,
+                        ), Loadable.Success(
+                            HttpResponse(
+                                response = responseBody,
+                                statusCode = statusCode,
+                                imageResponse = imageResponse
+                            )
+                        )
+                    )
+                    saveToHistory(
+                        HttpRequest(
+                            requestUrl = requestData.requestUrl,
+                            methodOption = requestData.methodOption,
+                        ), HttpResponse(
+                            response = responseBody,
                             statusCode = statusCode,
                             imageResponse = imageResponse
                         )
                     )
-                )
-                saveToHistory(
-                    HttpRequest(
-                        requestUrl = url,
-                        methodOption = methodName,
-                    ), HttpResponse(
-                        response = body,
-                        statusCode = statusCode,
-                        imageResponse = imageResponse
+                } catch (e: Exception) {
+                    _uiState.value = HomeUiState(
+                        HttpRequest(
+                            requestUrl = requestData.requestUrl,
+                            methodOption = requestData.methodOption,
+                        ), Loadable.NetworkError(getNetworkErrorMessage(e))
                     )
-                )
-            } catch (e: Exception) {
-                _uiState.value = HomeUiState(
-                    HttpRequest(
-                        requestUrl = url,
-                        methodOption = methodName,
-                    ), Loadable.NetworkError(getNetworkErrorMessage(e))
-                )
+                }
             }
-        }
     }
 
     fun getNetworkErrorMessage(e: Exception): String {
