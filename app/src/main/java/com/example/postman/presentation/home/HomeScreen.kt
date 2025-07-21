@@ -68,7 +68,6 @@ import androidx.compose.ui.unit.sp
 import com.example.postman.R
 import com.example.postman.common.extensions.formatJson
 import com.example.postman.common.utils.MethodName
-import com.example.postman.domain.model.HeaderItem
 import com.example.postman.presentation.base.Loadable
 import com.example.postman.ui.theme.Gray
 import com.example.postman.ui.theme.Green
@@ -88,7 +87,6 @@ fun RequestParametersSection(
     modifier: Modifier,
     uiState: HomeUiState,
     homeViewModel: HomeViewModel,
-//    headers: (Map<String, String>) -> Unit
 ) {
     val radioHttpParameterOptions = RadioHttpParameterOptions.entries.toList()
     var (selectedOption, onOptionSelected) = remember { mutableStateOf(radioHttpParameterOptions[0]) }
@@ -173,8 +171,8 @@ fun HeaderSection(
     uiState: HomeUiState,
     homeViewModel: HomeViewModel
 ) {
-    var header by remember { mutableStateOf(HeaderItem()) }
-
+    var key by remember { mutableStateOf("") }
+    var value by remember { mutableStateOf("") }
     Column(modifier) {
         RemovableTagList(
             items = uiState.data.headers,
@@ -191,8 +189,8 @@ fun HeaderSection(
                         color = LightGreen,
                         shape = RoundedCornerShape(8.dp)
                     ),
-                value = header.key,
-                maxLines = 1,
+                value = key,
+                singleLine = true,
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
@@ -200,7 +198,7 @@ fun HeaderSection(
                     unfocusedIndicatorColor = Color.Transparent,
                 ),
                 onValueChange = {
-                    header = header.copy(key = it)
+                    key = it
                 },
                 label = { Text("Key") }
             )
@@ -213,8 +211,8 @@ fun HeaderSection(
                         color = LightGreen,
                         shape = RoundedCornerShape(8.dp)
                     ),
-                value = header.value,
-                maxLines = 1,
+                value = value,
+                singleLine = true,
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
@@ -222,7 +220,7 @@ fun HeaderSection(
                     unfocusedIndicatorColor = Color.Transparent,
                 ),
                 onValueChange = {
-                    header = header.copy(value = it)
+                    value = it
                 },
                 label = { Text("Value") }
             )
@@ -231,8 +229,9 @@ fun HeaderSection(
                 imageVector = Icons.Default.Add,
                 contentDescription = "headers",
                 modifier = Modifier.clickable {
-                    homeViewModel.addHeader(header.key, header.value)
-                    header = HeaderItem()
+                    homeViewModel.addHeader(key.trim(), value.trim())
+                    key = ""
+                    value = ""
                 })
         }
     }
@@ -253,7 +252,7 @@ fun RemovableTagList(items: Map<String, String>?, onRemoveItem: (String, String)
     ) {
         items?.forEach { (key, value) ->
             Text(
-                text = "$key : $value",
+                text = "$key: $value",
                 modifier = Modifier
                     .clickable {
                         onRemoveItem(key, value)

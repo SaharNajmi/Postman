@@ -17,7 +17,9 @@ fun HistoryEntity.toDomain(): History {
             .atZone(ZoneId.systemDefault())
             .toLocalDate(),
         statusCode = statusCode,
-        imageResponse = imageResponse?.toImageBitmap()
+        imageResponse = imageResponse?.toImageBitmap(),
+        body = body,
+        headers = headers
     )
 }
 
@@ -32,6 +34,8 @@ fun History.toEntity(): HistoryEntity {
             .toInstant()
             .toEpochMilli(),
         statusCode = statusCode,
-        imageResponse = imageResponse?.toByteArray()
+        imageResponse = imageResponse?.toByteArray(),
+        body = body,
+        headers = headers
     )
 }

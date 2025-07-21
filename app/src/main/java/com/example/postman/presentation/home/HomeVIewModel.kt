@@ -44,14 +44,16 @@ class HomeViewModel @Inject constructor(
         if (key.isNotBlank() && value.isNotBlank()) {
             val updatedHeaders = _uiState.value.data.headers?.toMutableMap() ?: mutableMapOf()
             updatedHeaders[key] = value
-            _uiState.value = _uiState.value.copy(data = _uiState.value.data.copy(headers = updatedHeaders))
+            _uiState.value =
+                _uiState.value.copy(data = _uiState.value.data.copy(headers = updatedHeaders))
         }
     }
 
-    fun removeHeader(key: String,value: String) {
+    fun removeHeader(key: String, value: String) {
         val updatedHeaders = _uiState.value.data.headers?.toMutableMap() ?: return
-        updatedHeaders.remove(key,value)
-        _uiState.value = _uiState.value.copy(data = _uiState.value.data.copy(headers = updatedHeaders))
+        updatedHeaders.remove(key, value)
+        _uiState.value =
+            _uiState.value.copy(data = _uiState.value.data.copy(headers = updatedHeaders))
     }
 
     fun sendRequest() {
@@ -61,7 +63,9 @@ class HomeViewModel @Inject constructor(
                 _uiState.value = HomeUiState(
                     HttpRequest(
                         requestUrl = requestData.requestUrl,
-                        methodOption = requestData.methodOption
+                        methodOption = requestData.methodOption,
+                        body = requestData.body,
+                        headers = requestData.headers
                     ),
                     Loadable.Loading
                 )
@@ -114,6 +118,8 @@ class HomeViewModel @Inject constructor(
                         HttpRequest(
                             requestUrl = requestData.requestUrl,
                             methodOption = requestData.methodOption,
+                            body = requestData.body,
+                            headers = requestData.headers
                         ), Loadable.Success(
                             HttpResponse(
                                 response = responseBody,
@@ -126,6 +132,8 @@ class HomeViewModel @Inject constructor(
                         HttpRequest(
                             requestUrl = requestData.requestUrl,
                             methodOption = requestData.methodOption,
+                            body = requestData.body,
+                            headers = requestData.headers
                         ), HttpResponse(
                             response = responseBody,
                             statusCode = statusCode,
@@ -137,6 +145,8 @@ class HomeViewModel @Inject constructor(
                         HttpRequest(
                             requestUrl = requestData.requestUrl,
                             methodOption = requestData.methodOption,
+                            body = requestData.body,
+                            headers = requestData.headers
                         ), Loadable.NetworkError(getNetworkErrorMessage(e))
                     )
                 }
@@ -178,7 +188,9 @@ class HomeViewModel @Inject constructor(
                         createdAt = httpRequest.createdAt,
                         response = response.response,
                         statusCode = response.statusCode,
-                        imageResponse = response.imageResponse
+                        imageResponse = response.imageResponse,
+                        body = httpRequest.body,
+                        headers = httpRequest.headers
                     )
                 )
             }
@@ -194,6 +206,8 @@ class HomeViewModel @Inject constructor(
                 HttpRequest(
                     requestUrl = saved.requestUrl,
                     methodOption = saved.methodOption,
+                    body = saved.body,
+                    headers = saved.headers
                 ), Loadable.Success(
                     HttpResponse(
                         response = saved.response,
