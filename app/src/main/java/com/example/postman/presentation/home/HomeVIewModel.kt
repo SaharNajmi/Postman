@@ -5,7 +5,9 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.postman.domain.model.History
+import com.example.postman.data.mapper.HistoryMapper
+import com.example.postman.data.mapper.HistoryMapper.toHttpRequest
+import com.example.postman.data.mapper.HistoryMapper.toHttpResponse
 import com.example.postman.domain.model.HttpRequest
 import com.example.postman.domain.model.HttpResponse
 import com.example.postman.domain.repository.ApiRepository
@@ -55,19 +57,9 @@ class HomeViewModel @Inject constructor(
         val requestData = uiState.value.data
         if (requestData.requestUrl.isNotBlank())
             viewModelScope.launch {
-                _uiState.value = _uiState.value.copy(
-                    HttpRequest(
-                        requestUrl = requestData.requestUrl,
-                        methodOption = requestData.methodOption,
-                        body = requestData.body,
-                        headers = requestData.headers
-                    ),
-                    Loadable.Loading
-                )
-                var statusCode = -1
-                var responseBody = ""
-                var imageResponse: ImageBitmap? = null
+                _uiState.value = _uiState.value.copy(response = Loadable.Loading)
                 try {
+                    var imageResponse: ImageBitmap? = null
                     val result = repository.request(
                         method = requestData.methodOption.name,
                         url = requestData.requestUrl,
@@ -75,9 +67,7 @@ class HomeViewModel @Inject constructor(
                         headers = requestData.headers
                     )
 
-                    statusCode = result.code()
-                    responseBody = if (result.isSuccessful) {
-
+                    val responseBody = if (result.isSuccessful) {
                         val contentType = result.body()?.contentType()?.toString() ?: ""
                         when {
                             contentType == "image/svg+xml" -> {
@@ -105,40 +95,28 @@ class HomeViewModel @Inject constructor(
                         result.errorBody()?.string() ?: "Something wrong!!!"
                     }
 
-                    _uiState.value = HomeUiState(
-                        HttpRequest(
-                            requestUrl = requestData.requestUrl,
-                            methodOption = requestData.methodOption,
-                            body = requestData.body,
-                            headers = requestData.headers
-                        ), Loadable.Success(
+                    _uiState.value = _uiState.value.copy(
+                        response = Loadable.Success(
                             HttpResponse(
                                 response = responseBody,
-                                statusCode = statusCode,
+                                statusCode = result.code(),
                                 imageResponse = imageResponse
                             )
                         )
                     )
                     saveToHistory(
-                        HttpRequest(
-                            requestUrl = requestData.requestUrl,
-                            methodOption = requestData.methodOption,
-                            body = requestData.body,
-                            headers = requestData.headers
-                        ), HttpResponse(
+                        requestData,
+                        HttpResponse(
                             response = responseBody,
-                            statusCode = statusCode,
+                            statusCode = result.code(),
                             imageResponse = imageResponse
                         )
                     )
                 } catch (e: Exception) {
-                    _uiState.value = HomeUiState(
-                        HttpRequest(
-                            requestUrl = requestData.requestUrl,
-                            methodOption = requestData.methodOption,
-                            body = requestData.body,
-                            headers = requestData.headers
-                        ), Loadable.NetworkError(getNetworkErrorMessage(e))
+                    _uiState.value = _uiState.value.copy(
+                        response = Loadable.NetworkError(
+                            getNetworkErrorMessage(e)
+                        )
                     )
                 }
             }
@@ -171,18 +149,9 @@ class HomeViewModel @Inject constructor(
         response: HttpResponse
     ) {
         viewModelScope.launch {
-                historyRepository.insertHistoryRequest(
-                    History(
-                        requestUrl = httpRequest.requestUrl,
-                        methodOption = httpRequest.methodOption,
-                        createdAt = httpRequest.createdAt,
-                        response = response.response,
-                        statusCode = response.statusCode,
-                        imageResponse = response.imageResponse,
-                        body = httpRequest.body,
-                        headers = httpRequest.headers
-                    )
-                )
+            historyRepository.insertHistoryRequest(
+                HistoryMapper.httpRequestToHistory(httpRequest, response)
+            )
         }
     }
 
@@ -191,19 +160,9 @@ class HomeViewModel @Inject constructor(
             val saved = historyRepository.getHistoryRequest(historyId)
 
             _uiState.value = HomeUiState(
-                HttpRequest(
-                    requestUrl = saved.requestUrl,
-                    methodOption = saved.methodOption,
-                    body = saved.body,
-                    headers = saved.headers
-                ), Loadable.Success(
-                    HttpResponse(
-                        response = saved.response,
-                        statusCode = saved.statusCode,
-                        imageResponse = saved.imageResponse
-                    )
-                )
-            )
+                saved.toHttpRequest(),
+                Loadable.Success(
+                    saved.toHttpResponse()))
         }
     }
 }
