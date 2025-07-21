@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.postman.common.extensions.getNetworkErrorMessage
 import com.example.postman.data.mapper.HistoryMapper
 import com.example.postman.data.mapper.HistoryMapper.toHttpRequest
 import com.example.postman.data.mapper.HistoryMapper.toHttpResponse
@@ -112,36 +113,14 @@ class HomeViewModel @Inject constructor(
                             imageResponse = imageResponse
                         )
                     )
-                } catch (e: Exception) {
+                } catch (error: Exception) {
                     _uiState.value = _uiState.value.copy(
                         response = Loadable.NetworkError(
-                            getNetworkErrorMessage(e)
+                            error.getNetworkErrorMessage()
                         )
                     )
                 }
             }
-    }
-
-    fun getNetworkErrorMessage(e: Exception): String {
-        return when (e) {
-            is java.net.UnknownHostException -> "Unknown Host"
-            is java.net.SocketTimeoutException -> "Connection timed out"
-            is java.net.ConnectException -> "Couldn't connect to the server"
-            is retrofit2.HttpException -> {
-                val code = e.code()
-                when (code) {
-                    400 -> "Bad request."
-                    401 -> "You are not authorized."
-                    403 -> "Access denied."
-                    404 -> "Not found."
-                    405 -> "This operation isn’t allowed."
-                    500 -> "Server error. Please try again later."
-                    else -> "HTTP error: $code"
-                }
-            }
-
-            else -> "Unexpected error: ${e.localizedMessage}"
-        }
     }
 
     fun saveToHistory(
