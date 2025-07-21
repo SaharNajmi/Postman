@@ -20,6 +20,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.ResponseBody
+import retrofit2.Response
 import javax.inject.Inject
 
 @HiltViewModel
@@ -56,71 +58,72 @@ class HomeViewModel @Inject constructor(
 
     fun sendRequest() {
         val requestData = uiState.value.data
-        if (requestData.requestUrl.isNotBlank())
-            viewModelScope.launch {
-                _uiState.value = _uiState.value.copy(response = Loadable.Loading)
-                try {
-                    var imageResponse: ImageBitmap? = null
-                    val result = repository.request(
-                        method = requestData.methodOption.name,
-                        url = requestData.requestUrl,
-                        body = requestData.body?.toRequestBody(),
-                        headers = requestData.headers
+        if (requestData.requestUrl.isBlank()) return
+
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(response = Loadable.Loading)
+            try {
+                val result = repository.request(
+                    method = requestData.methodOption.name,
+                    url = requestData.requestUrl,
+                    body = requestData.body?.toRequestBody(),
+                    headers = requestData.headers
+                )
+                val response = buildHttpResponse(result)
+
+                _uiState.value = _uiState.value.copy(
+                    response = Loadable.Success(response)
+                )
+                saveToHistory(
+                    requestData,
+                    response
+                )
+            } catch (error: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    response = Loadable.NetworkError(
+                        error.getNetworkErrorMessage()
                     )
+                )
+            }
+        }
+    }
 
-                    val responseBody = if (result.isSuccessful) {
-                        val contentType = result.body()?.contentType()?.toString() ?: ""
-                        when {
-                            contentType == "image/svg+xml" -> {
-                                result.body()?.string() ?: "Empty svg"
-                            }
+    fun buildHttpResponse(result: Response<ResponseBody>): HttpResponse {
+        var imageResponse: ImageBitmap? = null
 
-                            contentType.startsWith("image/") -> {
-                                val imageBytes = result.body()?.bytes()
-                                val bitmap =
-                                    BitmapFactory.decodeByteArray(
-                                        imageBytes,
-                                        0,
-                                        imageBytes?.size ?: 0
-                                    )
-                                imageResponse = bitmap.asImageBitmap()
+        val responseBody = if (result.isSuccessful) {
+            val contentType = result.body()?.contentType()?.toString() ?: ""
+            when {
+                contentType == "image/svg+xml" -> {
+                    result.body()?.string() ?: "Empty svg"
+                }
 
-                                "This is an image of type $contentType with ${(imageBytes?.size ?: 0) / 1024} KB."
-                            }
-
-                            else -> {
-                                result.body()?.string() ?: "Empty"
-                            }
-                        }
-                    } else {
-                        result.errorBody()?.string() ?: "Something wrong!!!"
-                    }
-
-                    _uiState.value = _uiState.value.copy(
-                        response = Loadable.Success(
-                            HttpResponse(
-                                response = responseBody,
-                                statusCode = result.code(),
-                                imageResponse = imageResponse
-                            )
+                contentType.startsWith("image/") -> {
+                    val imageBytes = result.body()?.bytes()
+                    val bitmap =
+                        BitmapFactory.decodeByteArray(
+                            imageBytes,
+                            0,
+                            imageBytes?.size ?: 0
                         )
-                    )
-                    saveToHistory(
-                        requestData,
-                        HttpResponse(
-                            response = responseBody,
-                            statusCode = result.code(),
-                            imageResponse = imageResponse
-                        )
-                    )
-                } catch (error: Exception) {
-                    _uiState.value = _uiState.value.copy(
-                        response = Loadable.NetworkError(
-                            error.getNetworkErrorMessage()
-                        )
-                    )
+                    imageResponse = bitmap.asImageBitmap()
+
+                    "This is an image of type $contentType with ${(imageBytes?.size ?: 0) / 1024} KB."
+                }
+
+                else -> {
+                    result.body()?.string() ?: "Empty"
                 }
             }
+        } else {
+            result.errorBody()?.string() ?: "Something wrong!!!"
+        }
+
+        return HttpResponse(
+            response = responseBody,
+            statusCode = result.code(),
+            imageResponse = imageResponse
+        )
     }
 
     fun saveToHistory(
@@ -141,7 +144,9 @@ class HomeViewModel @Inject constructor(
             _uiState.value = HomeUiState(
                 saved.toHttpRequest(),
                 Loadable.Success(
-                    saved.toHttpResponse()))
+                    saved.toHttpResponse()
+                )
+            )
         }
     }
 }
