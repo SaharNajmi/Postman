@@ -1,7 +1,6 @@
 package com.example.postman.presentation.home
 
 import android.graphics.BitmapFactory
-import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
@@ -13,15 +12,11 @@ import com.example.postman.domain.repository.ApiRepository
 import com.example.postman.domain.repository.HistoryRepository
 import com.example.postman.presentation.base.Loadable
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.ResponseBody
-import retrofit2.Response
 import javax.inject.Inject
 
 @HiltViewModel
@@ -58,9 +53,9 @@ class HomeViewModel @Inject constructor(
 
     fun sendRequest() {
         val requestData = uiState.value.data
-        if (requestData.requestUrl != "")
+        if (requestData.requestUrl.isNotBlank())
             viewModelScope.launch {
-                _uiState.value = HomeUiState(
+                _uiState.value = _uiState.value.copy(
                     HttpRequest(
                         requestUrl = requestData.requestUrl,
                         methodOption = requestData.methodOption,
@@ -69,19 +64,16 @@ class HomeViewModel @Inject constructor(
                     ),
                     Loadable.Loading
                 )
-                var result: Response<ResponseBody>? = null
                 var statusCode = -1
                 var responseBody = ""
                 var imageResponse: ImageBitmap? = null
                 try {
-                    result = withContext(Dispatchers.IO) {
-                        repository.request(
-                            method = requestData.methodOption.name,
-                            url = requestData.requestUrl,
-                            body = requestData.body?.toRequestBody(),
-                            headers = requestData.headers
-                        )
-                    }
+                    val result = repository.request(
+                        method = requestData.methodOption.name,
+                        url = requestData.requestUrl,
+                        body = requestData.body?.toRequestBody(),
+                        headers = requestData.headers
+                    )
 
                     statusCode = result.code()
                     responseBody = if (result.isSuccessful) {
@@ -112,7 +104,6 @@ class HomeViewModel @Inject constructor(
                     } else {
                         result.errorBody()?.string() ?: "Something wrong!!!"
                     }
-
 
                     _uiState.value = HomeUiState(
                         HttpRequest(
@@ -155,7 +146,7 @@ class HomeViewModel @Inject constructor(
 
     fun getNetworkErrorMessage(e: Exception): String {
         return when (e) {
-            is java.net.UnknownHostException -> "Network issue"
+            is java.net.UnknownHostException -> "Unknown Host"
             is java.net.SocketTimeoutException -> "Connection timed out"
             is java.net.ConnectException -> "Couldn't connect to the server"
             is retrofit2.HttpException -> {
@@ -180,7 +171,6 @@ class HomeViewModel @Inject constructor(
         response: HttpResponse
     ) {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
                 historyRepository.insertHistoryRequest(
                     History(
                         requestUrl = httpRequest.requestUrl,
@@ -193,15 +183,13 @@ class HomeViewModel @Inject constructor(
                         headers = httpRequest.headers
                     )
                 )
-            }
         }
     }
 
     fun loadRequestFromHistory(historyId: Int) {
         viewModelScope.launch {
-            val saved = withContext(Dispatchers.IO) {
-                historyRepository.getHistoryRequest(historyId)
-            }
+            val saved = historyRepository.getHistoryRequest(historyId)
+
             _uiState.value = HomeUiState(
                 HttpRequest(
                     requestUrl = saved.requestUrl,

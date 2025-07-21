@@ -3,20 +3,23 @@ package com.example.postman.data.repository
 import com.example.postman.data.remote.ApiService
 import com.example.postman.common.utils.MethodName
 import com.example.postman.domain.repository.ApiRepository
-import okhttp3.Headers
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Response
 
 class ApiRepositoryImp(
-    private val apiService: ApiService
+    private val apiService: ApiService,
+    private val dispatcher: CoroutineDispatcher
 ) : ApiRepository {
     override suspend fun request(
         method: String,
         url: String,
         body: RequestBody?,
         headers: Map<String, String>?
-    ): Response<ResponseBody> {
+    ): Response<ResponseBody> = withContext(dispatcher) {
         val response = when (method) {
             MethodName.GET.name -> apiService.getRequest(url)
             MethodName.POST.name -> apiService.postRequest(headers, url, body)
@@ -29,6 +32,6 @@ class ApiRepositoryImp(
                 throw IllegalArgumentException("unsupported method: $method")
             }
         }
-        return response
+        response
     }
 }

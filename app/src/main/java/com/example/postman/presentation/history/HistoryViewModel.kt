@@ -5,11 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.postman.domain.model.History
 import com.example.postman.domain.repository.HistoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,18 +20,15 @@ class HistoryViewModel @Inject constructor(
 
     fun getAllHistories() {
         viewModelScope.launch {
-            val result = withContext(Dispatchers.IO) {
+            val result =
                 historyRepository.getAllHistories()
-            }
-            _httpRequestRequestsModel.value = result // main thread
+            _httpRequestRequestsModel.value = result
         }
     }
 
     fun deleteHistoryRequest(historyId: Int) {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
                 historyRepository.deleteHistoryRequest(historyId)
-            }
             getAllHistories()
         }
     }

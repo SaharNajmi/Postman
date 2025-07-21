@@ -5,22 +5,26 @@ import com.example.postman.data.mapper.toDomain
 import com.example.postman.data.mapper.toEntity
 import com.example.postman.domain.model.History
 import com.example.postman.domain.repository.HistoryRepository
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 
-class HistoryRepositoryImp(private val historyRequestDao: HistoryRequestDao) :
-    HistoryRepository {
+class HistoryRepositoryImp(
+    private val historyRequestDao: HistoryRequestDao,
+    private val dispatcher: CoroutineDispatcher
+) : HistoryRepository {
     override suspend fun getAllHistories(): List<History> =
-        historyRequestDao.getAllHistories().map { it.toDomain() }
+        withContext(dispatcher) { historyRequestDao.getAllHistories().map { it.toDomain() } }
 
     override suspend fun insertHistoryRequest(history: History) =
-        historyRequestDao.insertHistoryRequest(history.toEntity())
+        withContext(dispatcher) { historyRequestDao.insertHistoryRequest(history.toEntity()) }
 
     override suspend fun updateHistoryRequest(history: History) =
-        historyRequestDao.updateHistoryRequest(history.toEntity())
+        withContext(dispatcher) { historyRequestDao.updateHistoryRequest(history.toEntity()) }
 
     override suspend fun deleteHistoryRequest(historyId: Int) =
-        historyRequestDao.deleteHistoryRequest(historyId)
+        withContext(dispatcher) { historyRequestDao.deleteHistoryRequest(historyId) }
 
     override suspend fun getHistoryRequest(historyId: Int): History =
-        historyRequestDao.getHistoryRequest(historyId).toDomain()
+        withContext(dispatcher) { historyRequestDao.getHistoryRequest(historyId).toDomain() }
 
 }
