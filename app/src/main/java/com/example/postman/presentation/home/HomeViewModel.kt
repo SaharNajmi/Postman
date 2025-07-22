@@ -40,6 +40,11 @@ class HomeViewModel @Inject constructor(
 
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
+
+    fun clearData() {
+        _uiState.value = HomeUiState(HttpRequest(), null)
+    }
+
     fun updateRequest(request: HttpRequest) {
         _uiState.value = _uiState.value.copy(request)
     }

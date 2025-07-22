@@ -85,7 +85,11 @@ fun HomeScreen(
             .fillMaxSize()
             .padding(horizontal = 8.dp)
     ) {
-        HistoryButton(onNavigateToHistory)
+        Row {
+            HistoryButton(onNavigateToHistory)
+            Spacer(modifier = Modifier.width(4.dp))
+            NewRequest(homeViewModel)
+        }
         RequestBuilder(
             uiState,
             homeViewModel
@@ -111,6 +115,28 @@ fun HistoryButton(
                 contentDescription = "history"
             )
             Text("History")
+        }
+    }
+}
+
+@Composable
+fun NewRequest(
+    homeViewModel: HomeViewModel
+) {
+    TextButton(
+        modifier = Modifier
+            .padding(top = 12.dp)
+            .stylusHoverIcon(
+                icon = PointerIcon(R.drawable.arrow_upward)
+            ), onClick = {
+            homeViewModel.clearData()
+        }) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "new request"
+            )
+            Text("Create new request")
         }
     }
 }
@@ -434,7 +460,8 @@ fun HttpParameterBodySection(
             homeViewModel.updateRequest(uiState.data.copy(body = it))
         },
         maxLines = Int.MAX_VALUE,
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
             .padding(0.dp)
             .border(1.dp, Color.Gray, shape = RoundedCornerShape(8.dp)),
         colors = TextFieldDefaults.colors(
