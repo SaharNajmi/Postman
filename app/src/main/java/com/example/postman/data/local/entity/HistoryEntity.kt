@@ -14,7 +14,7 @@ data class HistoryEntity(
     val response: String,
     val imageResponse: ByteArray?=null,
     val createdAt: Long,
-    val statusCode : Int,
+    val statusCode : Int?,
     val body: String? = null,
     val headers: Map<String, String>? = null
 )

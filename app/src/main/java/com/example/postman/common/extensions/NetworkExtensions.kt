@@ -18,6 +18,6 @@ fun Exception.getNetworkErrorMessage(): String {
             }
         }
 
-        else -> "Unexpected error: ${this.localizedMessage}"
+        else -> this.localizedMessage
     }
 }

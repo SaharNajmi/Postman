@@ -15,7 +15,7 @@ data class HttpRequest(
 
 data class HttpResponse(
     val response: String,
-    val statusCode: Int,
+    val statusCode: Int? = null,
     val imageResponse: ImageBitmap? = null
 )
 

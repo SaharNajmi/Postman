@@ -7,7 +7,7 @@ import com.example.postman.data.local.dao.HistoryRequestDao
 import com.example.postman.data.local.entity.HistoryEntity
 import com.example.postman.data.mapper.Converters
 
-@Database(entities = [HistoryEntity::class], version = 1, exportSchema = false)
+@Database(entities = [HistoryEntity::class], version = 2, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class RoomDatabase : RoomDatabase() {
     abstract fun historyRequestDao(): HistoryRequestDao

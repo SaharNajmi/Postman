@@ -11,7 +11,7 @@ data class History(
     val createdAt: LocalDate = LocalDate.now(),
     val response: String,
     val imageResponse: ImageBitmap? = null,
-    val statusCode: Int,
+    val statusCode: Int?,
     val body: String? = null,
     val headers: Map<String, String>? = null
 )
