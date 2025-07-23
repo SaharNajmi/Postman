@@ -16,7 +16,9 @@ import retrofit2.http.Url
 
 interface ApiService {
     @GET
-    suspend fun getRequest(@Url url: String): Response<ResponseBody>
+    suspend fun getRequest(
+        @HeaderMap headers: Map<String, String>? = null,
+        @Url url: String): Response<ResponseBody>
 
     @POST
     suspend fun postRequest(
@@ -26,24 +28,32 @@ interface ApiService {
     ): Response<ResponseBody>
 
     @DELETE
-    suspend fun deleteRequest(@Url url: String): Response<ResponseBody>
+    suspend fun deleteRequest(
+        @HeaderMap headers: Map<String, String>? = null,
+        @Url url: String): Response<ResponseBody>
 
     @PUT
     suspend fun putRequest(
+        @HeaderMap headers: Map<String, String>? = null,
         @Url url: String,
         @Body body: RequestBody? = null
     ): Response<ResponseBody>
 
     @PATCH
     suspend fun patchRequest(
+        @HeaderMap headers: Map<String, String>? = null,
         @Url url: String,
         @Body body: RequestBody? = null
     ): Response<ResponseBody>
 
     @HEAD
-    suspend fun headRequest(@Url url: String): Response<ResponseBody>
+    suspend fun headRequest(
+        @HeaderMap headers: Map<String, String>? = null,
+        @Url url: String): Response<ResponseBody>
 
     @OPTIONS
-    suspend fun optionsRequest(@Url url: String): Response<ResponseBody>
+    suspend fun optionsRequest(
+        @HeaderMap headers: Map<String, String>? = null,
+        @Url url: String): Response<ResponseBody>
 
 }
