@@ -2,6 +2,7 @@ package com.example.postman.presentation.history
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.postman.common.utils.formatDate
 import com.example.postman.domain.model.History
 import com.example.postman.domain.repository.HistoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,20 +16,21 @@ class HistoryViewModel @Inject constructor(
     private val historyRepository: HistoryRepository
 ) : ViewModel() {
 
-    private val _httpRequestRequestsModel = MutableStateFlow<List<History>>(emptyList())
-    val httpRequestRequestsModel: StateFlow<List<History>> = _httpRequestRequestsModel
+    private val _httpRequestRequestsModel =
+        MutableStateFlow<Map<String, List<History>>>(mapOf())
+    val httpRequestRequestsModel: StateFlow<Map<String, List<History>>> = _httpRequestRequestsModel
 
     fun getAllHistories() {
         viewModelScope.launch {
             val result =
                 historyRepository.getAllHistories()
-            _httpRequestRequestsModel.value = result
+            _httpRequestRequestsModel.value = result.groupBy { formatDate(it.createdAt) }
         }
     }
 
     fun deleteHistoryRequest(historyId: Int) {
         viewModelScope.launch {
-                historyRepository.deleteHistoryRequest(historyId)
+            historyRepository.deleteHistoryRequest(historyId)
             getAllHistories()
         }
     }
