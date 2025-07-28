@@ -1,5 +1,6 @@
 package com.example.postman.presentation.history
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -81,9 +82,12 @@ private fun ExpandedHistoryItem(
     LazyColumn {
         historyRequest.forEach { header, items ->
             item {
-                HistoryHeader(header, expandedStates[header] ?: false, {
-                    expandedStates[header] = !(expandedStates[header] ?: false)
-                })
+                HistoryHeader(
+                    header, expandedStates[header] ?: false,
+                    { expandedStates[header] = !(expandedStates[header] ?: false) },
+                    {
+                        viewModel.deleteHistoriesRequest(items.map { it.id })
+                    })
             }
             items(items.size) { index ->
                 AnimatedVisibility(
@@ -99,7 +103,12 @@ private fun ExpandedHistoryItem(
 }
 
 @Composable
-fun HistoryHeader(header: String, isExpanded: Boolean, onHeaderClicked: () -> Unit) {
+fun HistoryHeader(
+    header: String,
+    isExpanded: Boolean,
+    onHeaderClicked: () -> Unit,
+    onDeleteHistoriesClicked: () -> Unit
+) {
     val icon = if (isExpanded) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowRight
     Row(
         modifier = Modifier
@@ -123,7 +132,7 @@ fun HistoryHeader(header: String, isExpanded: Boolean, onHeaderClicked: () -> Un
             Modifier
                 .padding(horizontal = 4.dp)
                 .clickable {
-                    //todo delete list
+                    onDeleteHistoriesClicked()
                 })
     }
 }

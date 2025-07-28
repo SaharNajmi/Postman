@@ -11,5 +11,7 @@ interface HistoryRepository {
 
     suspend fun deleteHistoryRequest(historyId: Int)
 
+    suspend fun deleteHistoriesRequest(ids: List<Int>)
+
     suspend fun getHistoryRequest(historyId: Int): History
 }

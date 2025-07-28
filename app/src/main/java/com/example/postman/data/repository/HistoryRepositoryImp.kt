@@ -24,6 +24,9 @@ class HistoryRepositoryImp(
     override suspend fun deleteHistoryRequest(historyId: Int) =
         withContext(dispatcher) { historyRequestDao.deleteHistoryRequest(historyId) }
 
+    override suspend fun deleteHistoriesRequest(ids: List<Int>) =
+        withContext(dispatcher) { historyRequestDao.deleteHistoriesRequest(ids) }
+
     override suspend fun getHistoryRequest(historyId: Int): History =
         withContext(dispatcher) { historyRequestDao.getHistoryRequest(historyId).toDomain() }
 

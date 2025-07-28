@@ -34,4 +34,11 @@ class HistoryViewModel @Inject constructor(
             getAllHistories()
         }
     }
+
+    fun deleteHistoriesRequest(historyIds: List<Int>) {
+        viewModelScope.launch {
+            historyRepository.deleteHistoriesRequest(historyIds)
+            getAllHistories()
+        }
+    }
 }
