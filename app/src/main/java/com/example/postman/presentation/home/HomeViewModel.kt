@@ -1,6 +1,7 @@
 package com.example.postman.presentation.home
 
 import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
@@ -13,6 +14,7 @@ import com.example.postman.domain.model.HttpRequest
 import com.example.postman.domain.model.HttpResponse
 import com.example.postman.domain.repository.ApiRepository
 import com.example.postman.domain.repository.HistoryRepository
+import com.example.postman.domain.repository.RequestHeaderRepository
 import com.example.postman.presentation.base.Loadable
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,6 +29,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val repository: ApiRepository,
+    private val headerRepository: RequestHeaderRepository,
     private val historyRepository: HistoryRepository
 ) : ViewModel() {
 
@@ -36,8 +39,8 @@ class HomeViewModel @Inject constructor(
 
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
-
     fun clearData() {
+        clearHeaders()
         _uiState.value = HomeUiState(HttpRequest(), null)
     }
 
@@ -45,20 +48,27 @@ class HomeViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(request)
     }
 
+    private fun getHeaders(): List<Pair<String, String>>? {
+        return headerRepository.getHeaders().toList()
+    }
+
     fun addHeader(key: String, value: String) {
-        if (key.isNotBlank() && value.isNotBlank()) {
-            val updatedHeaders = _uiState.value.data.headers?.toMutableMap() ?: mutableMapOf()
-            updatedHeaders[key] = value
-            _uiState.value =
-                _uiState.value.copy(data = _uiState.value.data.copy(headers = updatedHeaders))
-        }
+        headerRepository.addHeader(key, value)
+        _uiState.value =
+            _uiState.value.copy(
+                data = _uiState.value.data.copy(
+                    headers = getHeaders())
+            )
     }
 
     fun removeHeader(key: String, value: String) {
-        val updatedHeaders = _uiState.value.data.headers?.toMutableMap() ?: return
-        updatedHeaders.remove(key, value)
+        headerRepository.removeHeader(key, value)
         _uiState.value =
-            _uiState.value.copy(data = _uiState.value.data.copy(headers = updatedHeaders))
+            _uiState.value.copy(data = _uiState.value.data.copy(headers = getHeaders()))
+    }
+
+    fun clearHeaders() {
+        headerRepository.clearHeaders()
     }
 
     fun sendRequest() {
@@ -71,8 +81,7 @@ class HomeViewModel @Inject constructor(
                 val result = repository.request(
                     method = requestData.methodOption.name,
                     url = requestData.requestUrl,
-                    body = requestData.body?.toRequestBody(),
-                    headers = requestData.headers
+                    body = requestData.body?.toRequestBody()
                 )
                 val response = buildHttpResponse(result)
 

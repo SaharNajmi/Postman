@@ -9,7 +9,7 @@ data class HttpRequest(
     val requestUrl: String = "",
     val methodOption: MethodName = MethodName.GET,
     val body: String? = null,
-    val headers: Map<String, String>? = null,
+    val headers: List<Pair<String, String>>? = null,
     val createdAt: LocalDate = LocalDate.now(),
 )
 
@@ -18,6 +18,3 @@ data class HttpResponse(
     val statusCode: Int? = null,
     val imageResponse: ImageBitmap? = null
 )
-
-
-//data class HttpResponseBody(val stringBody: String = "", val imageBody: ImageBitmap? = null)

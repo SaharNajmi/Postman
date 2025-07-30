@@ -1,5 +1,6 @@
 package com.example.postman.presentation.home
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -56,11 +57,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFirstOrNull
 import com.example.postman.R
+import com.example.postman.common.extensions.getHeaderValue
 import com.example.postman.common.utils.MethodName
 import com.example.postman.domain.model.HttpRequest
 import com.example.postman.presentation.base.Loadable
-import com.example.postman.ui.theme.Gray
 import com.example.postman.ui.theme.Green
 import com.example.postman.ui.theme.LightBlue
 import com.example.postman.ui.theme.LightGray
@@ -230,12 +232,6 @@ private fun RowScope.RequestLine(
                     })
             }
         }
-        Box(
-            modifier = Modifier
-                .width(1.dp)
-                .height(38.dp)
-                .background(Gray)
-        )
 
         TextField(
             value = request.requestUrl,
@@ -322,7 +318,7 @@ private fun HttpParameterBody(
     ) {
         when (selectedOption) {
             RadioHttpParameterOptions.Auth -> AuthSection(
-                Modifier
+                Modifier, uiState, homeViewModel
             )
 
             RadioHttpParameterOptions.Params -> ParamsSection(
@@ -365,9 +361,26 @@ fun ParamsSection(modifier: Modifier) {
 }
 
 @Composable
-fun AuthSection(modifier: Modifier) {
-    Column(modifier) { }
+fun AuthSection(modifier: Modifier, uiState: HomeUiState, viewModel: HomeViewModel) {
+    Column(modifier) {
+        Text(
+            text = "Bearer Token", modifier = Modifier
+                .border(
+                    width = 1.dp,
+                    color = LightGreen,
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .padding(12.dp)
+        )
+        Spacer(Modifier.height(8.dp))
+        TextVisibilityTextField(
+            uiState.data.headers?.getHeaderValue("Authorization") ?: "",
+            onTextChange = {
+                viewModel.addHeader("Authorization", it)
+            })
+    }
 }
+
 
 @Composable
 fun HeaderSection(
@@ -376,6 +389,8 @@ fun HeaderSection(
     homeViewModel: HomeViewModel
 ) {
     Column(modifier) {
+        Log.e("cvehw",uiState.data.headers.toString())
+
         RemovableTagList(
             items = uiState.data.headers,
             onRemoveItem = { key, value ->

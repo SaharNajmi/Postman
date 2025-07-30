@@ -9,7 +9,6 @@ interface ApiRepository {
         method: String,
         url: String,
         body: RequestBody? = null,
-        headers: Map<String, String>? = null
     ): Response<ResponseBody>
 
 //    suspend fun getRequest(url: String): Response<ResponseBody>

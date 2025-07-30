@@ -18,7 +18,7 @@ import com.example.postman.ui.theme.LightGray
 import com.example.postman.ui.theme.LightGreen
 
 @Composable
-fun RemovableTagList(items: Map<String, String>?, onRemoveItem: (String, String) -> Unit) {
+fun RemovableTagList(items: List<Pair<String, String>>?, onRemoveItem: (String, String) -> Unit) {
     val scrollState = rememberScrollState()
 
     Row(

@@ -25,15 +25,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.postman.R
 import com.example.postman.common.compose.rememberMutableStateMapOf
 import com.example.postman.domain.model.History
+import com.example.postman.ui.theme.Blue
+import com.example.postman.ui.theme.Gray
+import com.example.postman.ui.theme.Green
 import com.example.postman.ui.theme.LightGray
+import com.example.postman.ui.theme.Purple
+import com.example.postman.ui.theme.Red
 
 @Composable
 fun HistoryScreen(
@@ -133,7 +140,9 @@ fun HistoryHeader(
                 .padding(horizontal = 4.dp)
                 .clickable {
                     onDeleteHistoriesClicked()
-                })
+                },
+            tint = Blue
+        )
     }
 }
 
@@ -146,7 +155,7 @@ private fun HistoryItem(
 ) {
     Row(
         modifier = Modifier
-            .padding(vertical = 12.dp)
+            .padding(top = 8.dp, bottom = 8.dp, start = 12.dp)
             .clickable {
                 onHistoryItemClick(items[index].id)
             },
@@ -156,12 +165,15 @@ private fun HistoryItem(
         Text(
             text = items[index].methodOption.name,
             color = items[index].methodOption.color,
+            fontSize = 12.sp,
             modifier = Modifier.padding(end = 8.dp)
         )
 
         Text(
             text = items[index].requestUrl.toString(),
             fontSize = 12.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .weight(1f)
                 .padding(end = 4.dp)
