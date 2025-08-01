@@ -1,7 +1,6 @@
 package com.example.postman.presentation.home
 
 import android.graphics.BitmapFactory
-import android.util.Log
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
@@ -14,6 +13,7 @@ import com.example.postman.domain.model.HttpRequest
 import com.example.postman.domain.model.HttpResponse
 import com.example.postman.domain.repository.ApiRepository
 import com.example.postman.domain.repository.HistoryRepository
+import com.example.postman.domain.repository.QueryParamsRepository
 import com.example.postman.domain.repository.RequestHeaderRepository
 import com.example.postman.presentation.base.Loadable
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,12 +24,14 @@ import kotlinx.coroutines.launch
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
 import retrofit2.Response
+import retrofit2.http.Url
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val repository: ApiRepository,
     private val headerRepository: RequestHeaderRepository,
+    private val parameterRepository: QueryParamsRepository,
     private val historyRepository: HistoryRepository
 ) : ViewModel() {
 
@@ -41,6 +43,7 @@ class HomeViewModel @Inject constructor(
 
     fun clearData() {
         clearHeaders()
+        clearParameters()
         _uiState.value = HomeUiState(HttpRequest(), null)
     }
 
@@ -57,7 +60,8 @@ class HomeViewModel @Inject constructor(
         _uiState.value =
             _uiState.value.copy(
                 data = _uiState.value.data.copy(
-                    headers = getHeaders())
+                    headers = getHeaders()
+                )
             )
     }
 
@@ -67,7 +71,7 @@ class HomeViewModel @Inject constructor(
             _uiState.value.copy(data = _uiState.value.data.copy(headers = getHeaders()))
     }
 
-    fun clearHeaders() {
+    private fun clearHeaders() {
         headerRepository.clearHeaders()
     }
 
@@ -105,6 +109,31 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
+    private fun getParameters(): List<Pair<String, String>> =
+        parameterRepository.getParameters().toList()
+
+    fun addParameter(key: String, value: String) {
+        parameterRepository.addParameter(key, value)
+        val params = getParameters()
+        _uiState.value =
+            _uiState.value.copy(
+                data = _uiState.value.data.copy(
+                    params = params
+                )
+            )
+    }
+
+    fun removeParameter(key: String, value: String) {
+        parameterRepository.removeParameter(key, value)
+        _uiState.value =
+            _uiState.value.copy(data = _uiState.value.data.copy(params = getParameters()))
+    }
+
+    private fun clearParameters() {
+        parameterRepository.clearParameters()
+    }
+
 
     fun buildHttpResponse(result: Response<ResponseBody>): HttpResponse {
         var imageResponse: ImageBitmap? = null

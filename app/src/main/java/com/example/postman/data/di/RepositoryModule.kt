@@ -3,12 +3,15 @@ package com.example.postman.data.di
 import com.example.postman.common.constants.NetworkConstants
 import com.example.postman.data.local.dao.HistoryRequestDao
 import com.example.postman.data.remote.ApiService
+import com.example.postman.data.remote.QueryParamsInterceptor
 import com.example.postman.data.remote.RequestHeadersInterceptor
 import com.example.postman.data.repository.ApiRepositoryImp
 import com.example.postman.data.repository.HistoryRepositoryImp
+import com.example.postman.data.repository.QueryParamsRepositoryImp
 import com.example.postman.data.repository.RequestHeaderRepositoryImp
 import com.example.postman.domain.repository.ApiRepository
 import com.example.postman.domain.repository.HistoryRepository
+import com.example.postman.domain.repository.QueryParamsRepository
 import com.example.postman.domain.repository.RequestHeaderRepository
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -51,13 +54,29 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideRequestHeadersInterceptor(requestHeaderRepository: RequestHeaderRepository): Interceptor =
-        RequestHeadersInterceptor(requestHeaderRepository)
+    fun provideQueryParamsRepository(): QueryParamsRepository = QueryParamsRepositoryImp()
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(interceptor: Interceptor): OkHttpClient =
-        OkHttpClient.Builder().addInterceptor(interceptor).build()
+    fun provideRequestHeadersInterceptor(requestHeaderRepository: RequestHeaderRepository): RequestHeadersInterceptor =
+        RequestHeadersInterceptor(requestHeaderRepository)
+
+
+    @Provides
+    @Singleton
+    fun provideQueryParamsInterceptor(queryParamsRepository: QueryParamsRepository): QueryParamsInterceptor =
+        QueryParamsInterceptor(queryParamsRepository)
+
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(
+        headersInterceptor: RequestHeadersInterceptor,
+        paramsInterceptor: QueryParamsInterceptor,
+    ): OkHttpClient =
+        OkHttpClient.Builder()
+            .addInterceptor(headersInterceptor)
+            .addInterceptor(paramsInterceptor)
+            .build()
 
     @Provides
     fun provideRetrofit(baseUrl: String, okHttpClient: OkHttpClient): Retrofit = Retrofit.Builder()

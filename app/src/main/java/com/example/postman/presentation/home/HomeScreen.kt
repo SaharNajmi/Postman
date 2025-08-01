@@ -1,6 +1,5 @@
 package com.example.postman.presentation.home
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -57,12 +56,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastFirstOrNull
+import androidx.compose.ui.unit.sp
 import com.example.postman.R
 import com.example.postman.common.extensions.getHeaderValue
 import com.example.postman.common.utils.MethodName
 import com.example.postman.domain.model.HttpRequest
 import com.example.postman.presentation.base.Loadable
+import com.example.postman.ui.theme.Gray
 import com.example.postman.ui.theme.Green
 import com.example.postman.ui.theme.LightBlue
 import com.example.postman.ui.theme.LightGray
@@ -322,7 +322,7 @@ private fun HttpParameterBody(
             )
 
             RadioHttpParameterOptions.Params -> ParamsSection(
-                Modifier
+                Modifier, uiState, homeViewModel
             )
 
             RadioHttpParameterOptions.Header -> HeaderSection(
@@ -340,24 +340,39 @@ private fun HttpParameterBody(
 private fun StatusCode(uiState: HomeUiState) {
     uiState.response?.let {
         if (uiState.response is Loadable.Success) {
-            Text(
-                modifier = Modifier
-                    .padding(start = 24.dp)
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(
-                        LightGreen
-                    )
-                    .padding(horizontal = 4.dp),
-                color = Green,
-                text = uiState.response.data.statusCode.toString(),
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "Status ", modifier = Modifier
+                        .padding(start = 24.dp), color = Gray, fontSize = 12.sp
+                )
+                Text(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(
+                            LightGreen
+                        )
+                        .padding(horizontal = 4.dp),
+                    color = Green,
+                    text = uiState.response.data.statusCode.toString(),
+                )
+            }
         }
     }
 }
 
 @Composable
-fun ParamsSection(modifier: Modifier) {
-    Column(modifier) { }
+fun ParamsSection(modifier: Modifier, uiState: HomeUiState, homeViewModel: HomeViewModel) {
+    Column(modifier) {
+        RemovableTagList(
+            items = uiState.data.params,
+            onRemoveItem = { key, value ->
+                homeViewModel.removeParameter(key, value)
+            }
+        )
+        KeyValueInput { key, value ->
+            homeViewModel.addParameter(key, value)
+        }
+    }
 }
 
 @Composable
@@ -389,79 +404,18 @@ fun HeaderSection(
     homeViewModel: HomeViewModel
 ) {
     Column(modifier) {
-        Log.e("cvehw",uiState.data.headers.toString())
-
         RemovableTagList(
             items = uiState.data.headers,
             onRemoveItem = { key, value ->
                 homeViewModel.removeHeader(key, value)
             }
         )
-        AddHeader(homeViewModel)
+        KeyValueInput { key, value ->
+            homeViewModel.addHeader(key, value)
+        }
     }
 }
 
-@Composable
-private fun AddHeader(
-    homeViewModel: HomeViewModel
-) {
-    var key by remember { mutableStateOf("") }
-    var value by remember { mutableStateOf("") }
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        TextField(
-            modifier = Modifier
-                .weight(1f)
-                .border(
-                    width = 1.dp,
-                    color = LightGreen,
-                    shape = RoundedCornerShape(8.dp)
-                ),
-            value = key,
-            singleLine = true,
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-            ),
-            onValueChange = {
-                key = it
-            },
-            label = { Text("Key") }
-        )
-        Spacer(modifier = Modifier.width(4.dp))
-        TextField(
-            modifier = Modifier
-                .weight(1f)
-                .border(
-                    width = 1.dp,
-                    color = LightGreen,
-                    shape = RoundedCornerShape(8.dp)
-                ),
-            value = value,
-            singleLine = true,
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-            ),
-            onValueChange = {
-                value = it
-            },
-            label = { Text("Value") }
-        )
-        Spacer(modifier = Modifier.width(4.dp))
-        Icon(
-            imageVector = Icons.Default.Add,
-            contentDescription = "headers",
-            modifier = Modifier.clickable {
-                homeViewModel.addHeader(key.trim(), value.trim())
-                key = ""
-                value = ""
-            })
-    }
-}
 
 @Composable
 fun HttpParameterBodySection(

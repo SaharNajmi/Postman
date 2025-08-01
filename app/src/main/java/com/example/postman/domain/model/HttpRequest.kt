@@ -10,6 +10,7 @@ data class HttpRequest(
     val methodOption: MethodName = MethodName.GET,
     val body: String? = null,
     val headers: List<Pair<String, String>>? = null,
+    val params: List<Pair<String, String>>? = null,
     val createdAt: LocalDate = LocalDate.now(),
 )
 
