@@ -1,6 +1,7 @@
 package com.example.postman.domain.model
 
 import androidx.compose.ui.graphics.ImageBitmap
+import com.example.postman.common.extensions.mapStringToKeyValuePairs
 import com.example.postman.common.utils.MethodName
 import java.time.LocalDate
 
@@ -10,9 +11,11 @@ data class HttpRequest(
     val methodOption: MethodName = MethodName.GET,
     val body: String? = null,
     val headers: List<Pair<String, String>>? = null,
-    val params: List<Pair<String, String>>? = null,
     val createdAt: LocalDate = LocalDate.now(),
-)
+) {
+    val params: List<Pair<String, String>>?
+        get() = requestUrl.mapStringToKeyValuePairs()
+}
 
 data class HttpResponse(
     val response: String,

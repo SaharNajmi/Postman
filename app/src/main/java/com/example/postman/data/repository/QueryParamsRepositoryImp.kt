@@ -3,12 +3,16 @@ package com.example.postman.data.repository
 import com.example.postman.domain.repository.QueryParamsRepository
 
 class QueryParamsRepositoryImp : QueryParamsRepository {
-    private val params = mutableListOf<Pair<String, String>>()
+    private var params = mutableListOf<Pair<String, String>>()
 
     override fun addParameter(key: String, value: String) {
         if (key.isBlank() || value.isBlank())
             return
-        params.add(Pair(key,value))
+        params.add(Pair(key, value))
+    }
+
+    override fun updateParameter(newParams: List<Pair<String, String>>) {
+        params = newParams.toMutableList()
     }
 
     override fun removeParameter(key: String, value: String) {
@@ -19,5 +23,5 @@ class QueryParamsRepositoryImp : QueryParamsRepository {
         params.clear()
     }
 
-    override fun getParameters(): List<Pair<String, String>> =params
+    override fun getParameters(): List<Pair<String, String>> = params
 }

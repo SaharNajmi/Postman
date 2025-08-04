@@ -11,3 +11,37 @@ fun String.formatJson(): String {
         this
     }
 }
+
+fun String.mapStringToKeyValuePairs(): List<Pair<String, String>> {
+    if (this.isEmpty())
+        return emptyList()
+
+    val query = this.substringAfter("?", "")
+
+    if (query.isEmpty())
+        return emptyList()
+
+    return query
+        .split("&")
+        .filter { it.isNotBlank() }
+        .map {
+            val parts = it.split("=")
+            val key = parts.getOrNull(0) ?: ""
+            val value = parts.getOrNull(1) ?: ""
+            key to value
+        }
+}
+
+fun List<Pair<String, String>>.mapKeyValuePairsToQueryParameter(): String {
+    return this.joinToString("&") { (prefix, postfix) ->
+        "$prefix=$postfix"
+    }
+}
+
+fun buildUrlWithParams(requestUrl: String, queryParams: String): String {
+    val baseUrl = requestUrl.substringBefore("?")
+    return if (queryParams.isEmpty())
+        requestUrl
+    else
+        "$baseUrl?$queryParams"
+}

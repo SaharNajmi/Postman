@@ -60,7 +60,6 @@ import androidx.compose.ui.unit.sp
 import com.example.postman.R
 import com.example.postman.common.extensions.getHeaderValue
 import com.example.postman.common.utils.MethodName
-import com.example.postman.domain.model.HttpRequest
 import com.example.postman.presentation.base.Loadable
 import com.example.postman.ui.theme.Gray
 import com.example.postman.ui.theme.Green
@@ -148,7 +147,6 @@ fun RequestBuilder(
     uiState: HomeUiState,
     homeViewModel: HomeViewModel
 ) {
-    val request = uiState.data
     val methodOptions = listOf(
         MethodName.GET, MethodName.POST, MethodName.PUT, MethodName.PATCH,
         MethodName.DELETE, MethodName.HEAD, MethodName.OPTIONS
@@ -160,7 +158,7 @@ fun RequestBuilder(
             .padding(bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        RequestLine(request, methodOptions, homeViewModel)
+        RequestLine(methodOptions, uiState, homeViewModel)
         Button(
             modifier = Modifier
                 .padding(4.dp),
@@ -189,8 +187,8 @@ fun RequestBuilder(
 
 @Composable
 private fun RowScope.RequestLine(
-    request: HttpRequest,
     methodOptions: List<MethodName>,
+    uiState: HomeUiState,
     homeViewModel: HomeViewModel
 ) {
     var expandedMethodOption by remember { mutableStateOf(false) }
@@ -205,8 +203,8 @@ private fun RowScope.RequestLine(
             ),
     ) {
         Text(
-            request.methodOption.name,
-            color = request.methodOption.color,
+            uiState.data.methodOption.name,
+            color = uiState.data.methodOption.color,
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier
                 .padding(12.dp)
@@ -228,15 +226,15 @@ private fun RowScope.RequestLine(
                     text = { Text(option.name, color = option.color) },
                     onClick = {
                         expandedMethodOption = false
-                        homeViewModel.updateRequest(request.copy(methodOption = option))
+                        homeViewModel.updateMethodName(option)
                     })
             }
         }
 
         TextField(
-            value = request.requestUrl,
+            value = uiState.data.requestUrl,
             onValueChange = {
-                homeViewModel.updateRequest(request.copy(requestUrl = it))
+                homeViewModel.updateRequestUrl(it)
             },
             maxLines = 3,
             modifier = Modifier.padding(0.dp),
@@ -426,7 +424,7 @@ fun HttpParameterBodySection(
     TextField(
         value = uiState.data.body ?: "",
         onValueChange = {
-            homeViewModel.updateRequest(uiState.data.copy(body = it))
+            homeViewModel.updateBody(it)
         },
         maxLines = Int.MAX_VALUE,
         modifier = modifier
