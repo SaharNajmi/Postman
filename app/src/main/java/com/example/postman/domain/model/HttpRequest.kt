@@ -15,9 +15,11 @@ data class HttpRequest(
 ) {
     val params: List<Pair<String, String>>?
         get() = requestUrl.mapStringToKeyValuePairs()
+    val baseUrl: String
+        get()=requestUrl.substringBefore("?")
 }
 
-data class HttpResponse(
+data class HttpResult(
     val response: String,
     val statusCode: Int? = null,
     val imageResponse: ImageBitmap? = null

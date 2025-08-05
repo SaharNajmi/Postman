@@ -3,6 +3,7 @@ package com.example.postman.presentation.home
 import android.graphics.BitmapFactory
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.postman.common.extensions.buildUrlWithParams
@@ -13,28 +14,24 @@ import com.example.postman.data.mapper.HistoryMapper
 import com.example.postman.data.mapper.HistoryMapper.toHttpRequest
 import com.example.postman.data.mapper.HistoryMapper.toHttpResponse
 import com.example.postman.domain.model.HttpRequest
-import com.example.postman.domain.model.HttpResponse
-import com.example.postman.domain.repository.ApiRepository
+import com.example.postman.domain.model.HttpResult
+import com.example.postman.domain.repository.ApiService
 import com.example.postman.domain.repository.HistoryRepository
-import com.example.postman.domain.repository.QueryParamsRepository
-import com.example.postman.domain.repository.RequestHeaderRepository
 import com.example.postman.presentation.base.Loadable
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
+import io.ktor.client.statement.readBytes
+import io.ktor.http.contentType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.ResponseBody
-import retrofit2.Response
 import javax.inject.Inject
-import androidx.core.net.toUri
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val repository: ApiRepository,
-    private val headerRepository: RequestHeaderRepository,
-    private val parameterRepository: QueryParamsRepository,
+    private val repository: ApiService,
     private val historyRepository: HistoryRepository
 ) : ViewModel() {
 
@@ -51,10 +48,12 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(response = Loadable.Loading)
             try {
-                val result = repository.request(
+                val result = repository.sendRequest(
                     method = requestData.methodOption.name,
-                    url = requestData.requestUrl,
-                    body = requestData.body?.toRequestBody()
+                    url = requestData.baseUrl,
+                    headers = requestData.headers,
+                    parameters = requestData.params,
+                    body = requestData.body
                 )
                 val response = buildHttpResponse(result)
 
@@ -73,21 +72,17 @@ class HomeViewModel @Inject constructor(
                 )
                 saveToHistory(
                     requestData,
-                    HttpResponse(error.getNetworkErrorMessage())
+                    HttpResult(error.getNetworkErrorMessage())
                 )
             }
         }
     }
 
     fun clearData() {
-        clearHeaders()
-        clearParameters()
         _uiState.value = HomeUiState(HttpRequest(), null)
     }
 
     fun updateRequestUrl(newUrl: String) {
-//        parameterRepository.updateParameter(newUrl.mapStringToKeyValuePairs())
-
         _uiState.value =
             _uiState.value.copy(
                 data = _uiState.value.data.copy(
@@ -104,54 +99,56 @@ class HomeViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(_uiState.value.data.copy(body = body))
     }
 
-    private fun getHeaders(): List<Pair<String, String>>? {
-        return headerRepository.getHeaders().toList()
+    fun addHeader(key: String, value: String) {
+        val currentHeaders = _uiState.value.data.headers.orEmpty().toMutableList()
+
+        if (key.isBlank() || value.isBlank())
+            return
+        val modifiedValue = if (key.equals("Authorization", ignoreCase = true)) {
+            currentHeaders.removeIf { it.first.equals("Authorization", ignoreCase = true) }
+            if (value.startsWith("Bearer ")) {
+                value
+            } else "Bearer $value"
+        } else {
+            value
+        }
+
+        currentHeaders.add(key to modifiedValue)
+
+        _uiState.value =
+            _uiState.value.copy(data = _uiState.value.data.copy(headers = currentHeaders))
     }
 
-    fun addHeader(key: String, value: String) {
-        headerRepository.addHeader(key, value)
+    fun removeHeader(key: String, value: String) {
+        val currentHeaders = _uiState.value.data.headers
+        val updatedHeaders = currentHeaders?.filterNot { it.first == key && it.second == value }
         _uiState.value =
             _uiState.value.copy(
                 data = _uiState.value.data.copy(
-                    headers = getHeaders()
+                    headers = updatedHeaders,
                 )
             )
     }
 
-    fun removeHeader(key: String, value: String) {
-        headerRepository.removeHeader(key, value)
-        _uiState.value =
-            _uiState.value.copy(data = _uiState.value.data.copy(headers = getHeaders()))
-    }
-
-    private fun clearHeaders() {
-        headerRepository.clearHeaders()
-    }
-
     fun addParameter(key: String, value: String) {
-        // parameterRepository.addParameter(key, value)
-        val newParams = _uiState.value.data.params?.toMutableList()?.apply {
-            if (key.isBlank() || value.isBlank())
-                return@apply
-            add(Pair(key, value))
-        } ?: emptyList()
-        updateParamsUiState(newParams)
+        if (key.isBlank()) return
+        val currentParams = _uiState.value.data.params
+        val updatedParams = currentParams.orEmpty() + (key to value)
+        updateParamsUiState(updatedParams)
     }
 
     fun removeParameter(key: String, value: String) {
         val originalUrl = _uiState.value.data.requestUrl
         val uri = originalUrl.toUri()
 
-        val newParams = uri.queryParameterNames
-            .flatMap { paramKey ->
-                uri.getQueryParameters(paramKey).mapNotNull { paramValue ->
-                    if (paramKey == key && paramValue == value) null else "$paramKey=$paramValue"
-                }
+        val newParams = uri.queryParameterNames.flatMap { paramKey ->
+            uri.getQueryParameters(paramKey).mapNotNull { paramValue ->
+                if (paramKey == key && paramValue == value) null else "$paramKey=$paramValue"
             }
+        }
 
         val baseUrl = originalUrl.substringBefore("?")
-        val newUrl = if (newParams.isEmpty()) baseUrl
-        else "$baseUrl?${newParams.joinToString("&")}"
+        val newUrl = if (newParams.isEmpty()) baseUrl else "$baseUrl?${newParams.joinToString("&")}"
 
         updateRequestUrl(newUrl)
     }
@@ -169,62 +166,51 @@ class HomeViewModel @Inject constructor(
             )
     }
 
-    private fun getParameters(): List<Pair<String, String>> {
-        return parameterRepository.getParameters().toList()
-    }
-
-    private fun clearParameters() {
-        parameterRepository.clearParameters()
-    }
-
-
-    fun buildHttpResponse(result: Response<ResponseBody>): HttpResponse {
+    suspend fun buildHttpResponse(result: HttpResponse): HttpResult {
         val (responseBody, imageResponse) = buildResponseBody(result)
-        return HttpResponse(
+        return HttpResult(
             response = responseBody,
-            statusCode = result.code(),
+            statusCode = result.status.value,
             imageResponse = imageResponse
         )
     }
 
-    private fun buildResponseBody(
-        result: Response<ResponseBody>,
+    suspend fun buildResponseBody(
+        result: HttpResponse
     ): Pair<String, ImageBitmap?> {
         var imageResponse: ImageBitmap? = null
 
-        val responseBody = if (result.isSuccessful) {
-            val contentType = result.body()?.contentType()?.toString() ?: ""
+        val statusCode = result.status.value
+        val contentType = result.contentType()?.toString() ?: ""
+
+        val responseBody = if (statusCode in 200..299) {
             when {
                 contentType == "image/svg+xml" -> {
-                    result.body()?.string() ?: "Empty svg"
+                    result.bodyAsText()
                 }
 
                 contentType.startsWith("image/") -> {
-                    val imageBytes = result.body()?.bytes()
-                    val bitmap =
-                        BitmapFactory.decodeByteArray(
-                            imageBytes,
-                            0,
-                            imageBytes?.size ?: 0
-                        )
+                    val imageBytes = result.readBytes()
+                    val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
                     imageResponse = bitmap.asImageBitmap()
 
-                    "This is an image of type $contentType with ${(imageBytes?.size ?: 0) / 1024} KB."
+                    "This is an image of type $contentType with ${imageBytes.size / 1024} KB."
                 }
 
                 else -> {
-                    result.body()?.string() ?: "Empty"
+                    result.bodyAsText()
                 }
             }
         } else {
-            result.errorBody()?.string() ?: "Something wrong!!!"
+            result.bodyAsText()
         }
+
         return Pair(responseBody, imageResponse)
     }
 
     fun saveToHistory(
         httpRequest: HttpRequest,
-        response: HttpResponse
+        response: HttpResult
     ) {
         viewModelScope.launch {
             historyRepository.insertHistoryRequest(
