@@ -1,3 +1,5 @@
+import org.gradle.internal.classpath.Instrumented.systemProperty
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -42,15 +44,15 @@ android {
     }
 }
 
-tasks.withType<Test>().configureEach {
-    useJUnitPlatform()
-}
+//tasks.withType<Test>().configureEach {
+//    useJUnitPlatform()
+//}
 
-android.testOptions {
-    unitTests.all {
-        it.useJUnitPlatform()
-    }
-}
+//android.testOptions {
+//    unitTests.all {
+//        it.useJUnitPlatform()
+//    }
+//}
 
 dependencies {
     implementation(libs.androidx.core.ktx)
@@ -71,9 +73,10 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
-    testImplementation (libs.kotest.runner.junit5)
+    testImplementation(libs.kotest.runner.junit5)
     testImplementation(libs.kotest.assertions.core)
-    testImplementation (libs.kotest.property)
+    testImplementation(libs.kotest.property)
+    testImplementation(libs.kotlin.reflect)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.gson)

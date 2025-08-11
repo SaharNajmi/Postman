@@ -3,6 +3,9 @@ package com.example.postman
 import com.example.postman.common.extensions.buildUrlWithParams
 import com.example.postman.common.extensions.mapKeyValuePairsToQueryParameter
 import com.example.postman.common.extensions.mapStringToKeyValuePairs
+import io.kotest.assertions.withClue
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.shouldBe
 import org.junit.Test
 
 class QueryParameterParserTest {
@@ -13,7 +16,9 @@ class QueryParameterParserTest {
         val expected = listOf("offset" to "1", "limit" to "2")
 
         expected.forEachIndexed { i, pair ->
-            assert(output[i] == pair, { "expectd $pair but got ${output[i]}" })
+            withClue("expected $pair but got ${output[i]}") {
+                output[i] shouldBe pair
+            }
         }
     }
 
@@ -22,13 +27,14 @@ class QueryParameterParserTest {
         val input = ""
         val output = input.mapStringToKeyValuePairs()
         assert(output.isEmpty())
+        output.shouldBeEmpty()
     }
 
     @Test
     fun shouldReturnEmptyListGivenInvalidUrl() {
         val input = "s"
         val output = input.mapStringToKeyValuePairs()
-        assert(output.isEmpty())
+        output.shouldBeEmpty()
     }
 
     @Test
@@ -36,16 +42,16 @@ class QueryParameterParserTest {
         val input = "url?n"
         val outPut = input.mapStringToKeyValuePairs()
         val expected = listOf("n" to "")
-        assert(outPut == expected)
+        outPut shouldBe expected
     }
 
     @Test
     fun returnQueryParametersByGivenPairs() {
         val input = listOf("offset" to "3", "limit" to "4")
-       // val input = listOf("offset" to "3", "limit" to "4")
+        // val input = listOf("offset" to "3", "limit" to "4")
         val outPut = input.mapKeyValuePairsToQueryParameter()
         val expected = "offset=3&limit=4"
-        assert(outPut == expected)
+        outPut shouldBe expected
     }
 
     @Test
@@ -53,14 +59,6 @@ class QueryParameterParserTest {
         val url = "url?"
         val params = ""
         val output = buildUrlWithParams(url, params)
-        assert(output == url)
+        output shouldBe url
     }
-
-//    @Test
-//    fun returnUrlIfThereIsNoQueryParameters() {
-//        val url = "url?1=3"
-//        val params = ""
-//        val output = buildUrlWithParams(url, params)
-//        assert(output == url)
-//    }
 }
