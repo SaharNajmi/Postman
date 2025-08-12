@@ -1,6 +1,5 @@
 package com.example.postman.presentation.history
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,15 +16,19 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -39,8 +42,6 @@ import com.example.postman.ui.theme.Blue
 import com.example.postman.ui.theme.Gray
 import com.example.postman.ui.theme.Green
 import com.example.postman.ui.theme.LightGray
-import com.example.postman.ui.theme.Purple
-import com.example.postman.ui.theme.Red
 
 @Composable
 fun HistoryScreen(
@@ -53,11 +54,14 @@ fun HistoryScreen(
     }
 
     val historyRequest by viewModel.httpRequestRequestsModel.collectAsState()
+    var searchQuery by remember { mutableStateOf("") }
+    val filteredHistoryRequest = searchByUrl(historyRequest, searchQuery)
 
     Column(modifier = Modifier.padding(12.dp)) {
         Spacer(modifier = Modifier.height(24.dp))
         Toolbar(navController)
-        ExpandedHistoryItem(historyRequest, onHistoryItemClick, viewModel)
+        SearchBar(searchQuery) { searchQuery = it }
+        ExpandedHistoryItem(filteredHistoryRequest, onHistoryItemClick, viewModel)
     }
 }
 
@@ -79,6 +83,39 @@ private fun Toolbar(navController: NavController) {
 }
 
 @Composable
+fun SearchBar(searchQuery: String, onSearchQueryChanged: (String) -> Unit) {
+    OutlinedTextField(
+        value = searchQuery,
+        onValueChange = { onSearchQueryChanged(it) },
+        label = { Text("Search by URL") },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        singleLine = true,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Green,
+            unfocusedBorderColor = Gray,
+            focusedLabelColor = Green,
+            unfocusedLabelColor = Gray
+        )
+    )
+}
+
+private fun searchByUrl(
+    historyRequest: Map<String, List<History>>,
+    searchQuery: String
+): Map<String, List<History>> {
+
+    return if (searchQuery.isBlank()) {
+        historyRequest
+    } else {
+        historyRequest.mapValues { (requestDate, items) ->
+            items.filter { it.requestUrl.contains(searchQuery, ignoreCase = true) }
+        }.filterValues { it.isNotEmpty() }
+    }
+}
+
+@Composable
 private fun ExpandedHistoryItem(
     historyRequest: Map<String, List<History>>,
     onHistoryItemClick: (Int) -> Unit,
@@ -88,10 +125,11 @@ private fun ExpandedHistoryItem(
 
     LazyColumn {
         historyRequest.forEach { header, items ->
+            expandedStates[header] = true
             item {
                 HistoryHeader(
-                    header, expandedStates[header] ?: false,
-                    { expandedStates[header] = !(expandedStates[header] ?: false) },
+                    header, expandedStates[header] == true,
+                    { expandedStates[header] = expandedStates[header] != true },
                     {
                         viewModel.deleteHistoriesRequest(items.map { it.id })
                     })
@@ -100,7 +138,7 @@ private fun ExpandedHistoryItem(
                 AnimatedVisibility(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    visible = expandedStates[header] ?: false
+                    visible = expandedStates[header] == true
                 ) {
                     HistoryItem(items, index, onHistoryItemClick, viewModel)
                 }
