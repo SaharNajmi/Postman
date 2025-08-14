@@ -1,5 +1,6 @@
 package com.example.postman.presentation.history
 
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.postman.common.utils.formatDate
@@ -20,12 +21,20 @@ class HistoryViewModel @Inject constructor(
         MutableStateFlow<Map<String, List<History>>>(mapOf())
     val httpRequestRequestsModel: StateFlow<Map<String, List<History>>> = _httpRequestRequestsModel
 
+    private val _expandedStates = MutableStateFlow<Map<String, Boolean>>(mapOf())
+    val expandedStates: StateFlow<Map<String, Boolean>> = _expandedStates
+
     fun getAllHistories() {
         viewModelScope.launch {
             val result =
                 historyRepository.getAllHistories()
             _httpRequestRequestsModel.value = result.groupBy { formatDate(it.createdAt) }
         }
+    }
+
+    fun toggleExpanded(date: String) {
+        _expandedStates.value =
+            _expandedStates.value.toMutableMap().apply { this[date] = this[date]?.not() ?: false }
     }
 
     fun deleteHistoryRequest(historyId: Int) {

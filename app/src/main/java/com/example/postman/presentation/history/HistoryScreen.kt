@@ -47,6 +47,7 @@ import com.example.postman.ui.theme.Gray
 import com.example.postman.ui.theme.Green
 import com.example.postman.ui.theme.LightGray
 import com.example.postman.ui.theme.LightGreen
+import kotlin.math.exp
 
 @Composable
 fun HistoryScreen(
@@ -150,15 +151,16 @@ private fun ExpandedHistoryItem(
     onHistoryItemClick: (Int) -> Unit,
     viewModel: HistoryViewModel
 ) {
-    val expandedStates = rememberMutableStateMapOf<String, Boolean>()
+    val expandedStates =viewModel.expandedStates.collectAsState()
 
     LazyColumn {
         historyRequest.forEach { header, items ->
-            expandedStates[header] = true
             item {
                 HistoryHeader(
-                    header, expandedStates[header] == true,
-                    { expandedStates[header] = expandedStates[header] != true },
+                    header, expandedStates.value[header]?:false,
+                    {
+                        viewModel.toggleExpanded(header)
+                    },
                     {
                         viewModel.deleteHistoriesRequest(items.map { it.id })
                     })
@@ -167,7 +169,7 @@ private fun ExpandedHistoryItem(
                 AnimatedVisibility(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    visible = expandedStates[header] == true
+                    visible = expandedStates.value[header] == true
                 ) {
                     HistoryItem(items, index, onHistoryItemClick, viewModel)
                 }
