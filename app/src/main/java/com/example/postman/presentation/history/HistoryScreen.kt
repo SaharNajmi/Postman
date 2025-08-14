@@ -130,7 +130,7 @@ fun SearchBar(searchQuery: String, onSearchQueryChanged: (String) -> Unit) {
     )
 }
 
-private fun searchByUrl(
+fun searchByUrl(
     historyRequest: Map<String, List<History>>,
     searchQuery: String
 ): Map<String, List<History>> {

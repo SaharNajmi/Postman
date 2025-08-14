@@ -7,11 +7,11 @@ import java.time.LocalDate
 data class History(
     val id: Int = 0,
     val requestUrl: String,
-    val methodOption: MethodName,
+    val methodOption: MethodName = MethodName.GET,
     val createdAt: LocalDate = LocalDate.now(),
-    val response: String,
+    val response: String = "",
     val imageResponse: ImageBitmap? = null,
-    val statusCode: Int?,
+    val statusCode: Int? = null,
     val body: String? = null,
     val headers: List<Pair<String, String>>? = null
 )
