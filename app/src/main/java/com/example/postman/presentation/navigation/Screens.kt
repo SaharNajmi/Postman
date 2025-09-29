@@ -5,4 +5,5 @@ sealed class Screens(val route: String) {
         fun createRoute(historyId: Int) = "Home?historyId=$historyId"
     }
     object HistoryScreen : Screens("History")
+    object CollectionScreen: Screens("Collections")
 }

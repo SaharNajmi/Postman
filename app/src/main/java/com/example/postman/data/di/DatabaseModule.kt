@@ -3,6 +3,7 @@ package com.example.postman.data.di
 import android.content.Context
 import androidx.room.Room
 import com.example.postman.data.local.appDatabase.RoomDatabase
+import com.example.postman.data.local.dao.CollectionDao
 import com.example.postman.data.local.dao.HistoryRequestDao
 import dagger.Module
 import dagger.Provides
@@ -26,4 +27,7 @@ object DatabaseModule {
     @Provides
     fun provideHistoryDao(db: RoomDatabase): HistoryRequestDao =
         db.historyRequestDao()
+
+    @Provides
+    fun provideCollocationDao(db: RoomDatabase): CollectionDao = db.collectionDao()
 }

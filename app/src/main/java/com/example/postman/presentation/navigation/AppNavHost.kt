@@ -8,6 +8,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.postman.presentation.collection.CollectionScreen
+import com.example.postman.presentation.collection.CollectionViewModel
 import com.example.postman.presentation.history.HistoryScreen
 import com.example.postman.presentation.history.HistoryViewModel
 import com.example.postman.presentation.home.HomeScreen
@@ -17,7 +19,8 @@ import com.example.postman.presentation.home.HomeViewModel
 fun AppNavHost(
     navController: NavHostController = rememberNavController(),
     homeViewModel: HomeViewModel = hiltViewModel(),
-    historyViewModel: HistoryViewModel = hiltViewModel()
+    historyViewModel: HistoryViewModel = hiltViewModel(),
+    collectionViewModel: CollectionViewModel = hiltViewModel()
 ) {
     NavHost(
         navController = navController,
@@ -37,6 +40,9 @@ fun AppNavHost(
                 onNavigateToHistory = {
                     historyId = -1
                     navController.navigate(Screens.HistoryScreen.route)
+                },
+                onNavigateToCollection = {
+                    navController.navigate(Screens.CollectionScreen.route)
                 }
             )
         }
@@ -49,6 +55,9 @@ fun AppNavHost(
                     navController.navigate(Screens.HomeScreen.createRoute(historyId))
                 }
             )
+        }
+        composable(Screens.CollectionScreen.route) {
+            CollectionScreen(navController, collectionViewModel, onCollectionItemClick = {})
         }
     }
 }

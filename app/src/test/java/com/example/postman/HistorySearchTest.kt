@@ -1,7 +1,7 @@
 package com.example.postman
 
 import com.example.postman.domain.model.History
-import com.example.postman.presentation.history.searchByUrl
+import com.example.postman.presentation.history.searchEntries
 import io.kotest.matchers.maps.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import org.junit.Test
@@ -20,7 +20,7 @@ class HistorySearchTest {
             "12 Aug" to history,
             "14 Aug" to history.toMutableList()
                 .also { it.add(History(requestUrl = "request55")) }) //toMutableList() for new copy not the same reference
-        val result = searchByUrl(historyRequests, "5")
+        val result = searchEntries(historyRequests, "5")
         result shouldBe mapOf(
             "12 Aug" to listOf(History(requestUrl = "url5")),
             "14 Aug" to listOf(History(requestUrl = "url5"), History(requestUrl = "request55"))
@@ -37,7 +37,7 @@ class HistorySearchTest {
             "12 Aug" to history,
             "14 Aug" to history.toMutableList()
                 .also { it.add(History(requestUrl = "url3")) })
-        val result = searchByUrl(historyRequests, "4")
+        val result = searchEntries(historyRequests, "4")
         result.shouldBeEmpty()
     }
 }

@@ -1,20 +1,25 @@
 package com.example.postman.presentation.history
 
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.postman.common.utils.formatDate
+import com.example.postman.data.local.dao.CollectionDao
+import com.example.postman.data.mapper.toCollection
+import com.example.postman.data.mapper.toEntity
 import com.example.postman.domain.model.History
 import com.example.postman.domain.repository.HistoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import okhttp3.Dispatcher
 import javax.inject.Inject
 
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
-    private val historyRepository: HistoryRepository
+    private val historyRepository: HistoryRepository,
+    val collectionDao: CollectionDao
 ) : ViewModel() {
 
     private val _httpRequestRequestsModel =
@@ -48,6 +53,20 @@ class HistoryViewModel @Inject constructor(
         viewModelScope.launch {
             historyRepository.deleteHistoriesRequest(historyIds)
             getAllHistories()
+        }
+    }
+
+    fun addRequestToCollection(request: History) {
+        viewModelScope.launch(Dispatchers.IO) {
+            collectionDao.insertRequestToCollections(request.toCollection().toEntity())
+        }
+    }
+
+    fun addRequestsToCollection(requests: List<History>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            requests.forEach {
+                collectionDao.insertRequestToCollections(it.toCollection().toEntity())
+            }
         }
     }
 }

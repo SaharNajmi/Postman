@@ -1,10 +1,12 @@
-package com.example.postman.presentation.history
+package com.example.postman.presentation.collection
 
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,14 +14,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,113 +34,143 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.postman.R
-import com.example.postman.domain.model.History
+import com.example.postman.domain.model.Collection
 import com.example.postman.presentation.base.CustomSearchBar
 import com.example.postman.presentation.base.CustomToolbar
 import com.example.postman.presentation.base.NotFoundMessage
 import com.example.postman.presentation.base.searchEntries
 import com.example.postman.ui.theme.Blue
+import com.example.postman.ui.theme.Gray
 import com.example.postman.ui.theme.LightGray
+import com.example.postman.ui.theme.LightGreen
+import com.example.postman.ui.theme.Red
+import com.example.postman.ui.theme.Silver
 
 @Composable
-fun HistoryScreen(
+fun CollectionScreen(
     navController: NavController,
-    viewModel: HistoryViewModel,
-    onHistoryItemClick: (Int) -> Unit
+    viewModel: CollectionViewModel,
+    onCollectionItemClick: (Int) -> Unit
 ) {
-    val context = LocalContext.current
     LaunchedEffect(Unit) {
-        viewModel.getAllHistories()
+        viewModel.getAllCollections()
     }
-
-    val historyRequest by viewModel.httpRequestRequestsModel.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
-//    val historyUrls = historyRequest.mapValues { (key, values) ->
-//        values.map { it.requestUrl }
-//    }
-    val filteredHistoryRequest = searchEntries(
-        historyRequest, searchQuery,
+    val collections by viewModel.collections.collectAsState()
+    val expandedStates = viewModel.expandedStates.collectAsState()
+    val filteredItems = searchEntries(
+        collections, searchQuery,
         { item, query ->
             item.requestUrl.contains(query, ignoreCase = true)
         })
 
     Column(modifier = Modifier.padding(12.dp)) {
         Spacer(modifier = Modifier.height(24.dp))
-        CustomToolbar("History", navController)
-        CustomSearchBar("Search by URl", searchQuery) { searchQuery = it }
-        if (filteredHistoryRequest.isEmpty()) {
-            NotFoundMessage(searchQuery)
-        } else {
-            ExpandedHistoryItem(
-                filteredHistoryRequest,
-                onHistoryItemClick,
-                {
-                    viewModel.addRequestToCollection(it)
-                    Toast.makeText(
-                        context,
-                        "successfully added to collections",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                },
-                viewModel
+        CustomToolbar("Collections", navController)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = {
+                //todo add new collection
+            }, Modifier.size(24.dp)) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "create new collection",
+                )
+            }
+            CustomSearchBar("Search collections", searchQuery) { searchQuery = it }
+        }
+        when {
+            collections.isEmpty() -> CreateACollection {
+                //todo add new collection
+            }
+
+            filteredItems.isEmpty() -> NotFoundMessage(searchQuery)
+            else -> ExpandedCollectionItems(
+                filteredItems,
+                expandedStates,
+                viewModel,
+                onCollectionItemClick
+            )
+        }
+    }
+}
+
+
+@Composable
+private fun CreateACollection(onCreateCollection: () -> Unit) {
+    Column(
+        Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = "Create a collection for your requests",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = "A collection lets you group related requests",
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Light
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        TextButton(
+            modifier = Modifier.border(width = 1.dp, color = Silver, RoundedCornerShape(8.dp)),
+            onClick = { onCreateCollection }) {
+            Text(
+                "Create Collection",
+                color = Color.Black,
+                fontWeight = FontWeight.Normal,
+                fontSize = 12.sp
             )
         }
     }
 }
 
 @Composable
-private fun ExpandedHistoryItem(
-    historyRequest: Map<String, List<History>>,
-    onHistoryItemClick: (Int) -> Unit,
-    onAddToCollection: (History) -> Unit,
-    viewModel: HistoryViewModel
+private fun ExpandedCollectionItems(
+    collections: Map<String, List<Collection>>,
+    expandedStates: State<Map<String, Boolean>>,
+    viewModel: CollectionViewModel,
+    onCollectionItemClick: (Int) -> Unit
 ) {
-    val expandedStates = viewModel.expandedStates.collectAsState()
-
     LazyColumn {
-        historyRequest.forEach { header, items ->
+        collections.entries.forEach { (collectionName, values) ->
             item {
-                HistoryHeader(
-                    header, expandedStates.value[header] ?: false,
+                CollectionHeader(
+                    collectionName,
+                    expandedStates.value[collectionName] ?: false,
                     {
-                        viewModel.toggleExpanded(header)
-                    },
-                    {
-                        viewModel.deleteHistoriesRequest(items.map { it.id })
-                    },
-                    {
-                        viewModel.addRequestsToCollection(items)
-                    }
-                )
+                        viewModel.toggleExpanded(collectionName)
+                    }, {
+                        viewModel.deleteRequests(values.map { it.id })
+                    })
             }
-            items(items.size) { index ->
+            items(values.size) { index ->
                 AnimatedVisibility(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    visible = expandedStates.value[header] == true
-                ) {
-                    HistoryItem(items, index, onHistoryItemClick, onAddToCollection, viewModel)
-                }
+                    visible = expandedStates.value[collectionName] == true
+                ) { CollectionItem(values, index, onCollectionItemClick, viewModel) }
             }
         }
     }
 }
 
 @Composable
-fun HistoryHeader(
+fun CollectionHeader(
     header: String,
     isExpanded: Boolean,
     onHeaderClicked: () -> Unit,
-    onDeleteHistoriesClicked: () -> Unit,
-    onAddToCollection: () -> Unit
+    onDeleteClicked: () -> Unit,
 ) {
     val icon = if (isExpanded) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowRight
     Row(
@@ -154,20 +190,13 @@ fun HistoryHeader(
             modifier = Modifier.padding(start = 8.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
-        Icon(
-            imageVector = Icons.Default.Add, contentDescription = "add requests to collections",
-            modifier = Modifier
-                .size(20.dp)
-                .clickable {
-                    onAddToCollection()
-                }, tint = Blue
-        )
+
         Icon(
             painterResource(R.drawable.ic_delete_sweep), contentDescription = "delete list by date",
             Modifier
                 .padding(horizontal = 4.dp)
                 .clickable {
-                    onDeleteHistoriesClicked()
+                    onDeleteClicked()
                 },
             tint = Blue
         )
@@ -175,18 +204,17 @@ fun HistoryHeader(
 }
 
 @Composable
-private fun HistoryItem(
-    items: List<History>,
+private fun CollectionItem(
+    items: List<Collection>,
     index: Int,
-    onHistoryItemClick: (Int) -> Unit,
-    onAddToCollection: (History) -> Unit,
-    viewModel: HistoryViewModel
+    onCollectionItemClick: (Int) -> Unit,
+    viewModel: CollectionViewModel
 ) {
     Row(
         modifier = Modifier
             .padding(top = 8.dp, bottom = 8.dp, start = 12.dp)
             .clickable {
-                onHistoryItemClick(items[index].id)
+                onCollectionItemClick(items[index].id)
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -208,25 +236,13 @@ private fun HistoryItem(
                 .padding(end = 4.dp)
         )
         Icon(
-            imageVector = Icons.Default.Add, contentDescription = "add request to collections",
-            modifier = Modifier
-                .size(20.dp)
-                .clickable {
-                    onAddToCollection(items[index])
-                }
-        )
-        Icon(
             painter = painterResource(R.drawable.ic_delete), contentDescription = "delete",
             Modifier
                 .padding(horizontal = 4.dp)
                 .size(20.dp)
                 .clickable {
-                    viewModel.deleteHistoryRequest(items[index].id)
+                    viewModel.deleteRequestItem(items[index].id)
                 }
         )
     }
 }
-
-
-
-

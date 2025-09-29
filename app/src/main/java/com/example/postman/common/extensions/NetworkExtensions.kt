@@ -20,4 +20,5 @@ fun Exception.getNetworkErrorMessage(): String {
 
         else -> this.localizedMessage
     }
+
 }

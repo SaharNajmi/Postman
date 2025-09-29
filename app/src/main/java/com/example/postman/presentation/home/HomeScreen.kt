@@ -73,6 +73,7 @@ fun HomeScreen(
     homeViewModel: HomeViewModel,
     historyId: Int,
     onNavigateToHistory: () -> Unit,
+    onNavigateToCollection: () -> Unit
 ) {
     val uiState by homeViewModel.uiState.collectAsState()
 
@@ -89,6 +90,8 @@ fun HomeScreen(
         Row {
             HistoryButton(onNavigateToHistory)
             Spacer(modifier = Modifier.width(4.dp))
+            CollectionButton(onNavigateToCollection)
+            Spacer(modifier = Modifier.width(4.dp))
             NewRequest(homeViewModel)
         }
         RequestBuilder(
@@ -104,10 +107,8 @@ fun HistoryButton(
 ) {
     TextButton(
         modifier = Modifier
-            .padding(top = 12.dp)
-            .stylusHoverIcon(
-                icon = PointerIcon(R.drawable.arrow_upward)
-            ), onClick = {
+            .padding(top = 12.dp),
+        onClick = {
             onNavigateToHistory()
         }) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -116,6 +117,26 @@ fun HistoryButton(
                 contentDescription = "history"
             )
             Text("History")
+        }
+    }
+}
+
+@Composable
+fun CollectionButton(
+    onNavigateToCollection: () -> Unit,
+) {
+    TextButton(
+        modifier = Modifier
+            .padding(top = 12.dp),
+        onClick = {
+            onNavigateToCollection()
+        }) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                painter = painterResource(R.drawable.collection),
+                contentDescription = "collection"
+            )
+            Text("Collection")
         }
     }
 }
