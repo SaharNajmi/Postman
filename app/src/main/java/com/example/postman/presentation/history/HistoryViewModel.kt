@@ -56,16 +56,18 @@ class HistoryViewModel @Inject constructor(
         }
     }
 
-    fun addRequestToCollection(request: History) {
+    fun addRequestToCollection(request: History, collectionName: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            collectionDao.insertRequestToCollections(request.toCollection().toEntity())
+            collectionDao.insertRequestToCollections(
+                request.toCollection(collectionName).toEntity()
+            )
         }
     }
 
-    fun addRequestsToCollection(requests: List<History>) {
+    fun addRequestsToCollection(requests: List<History>, collectionName: String) {
         viewModelScope.launch(Dispatchers.IO) {
             requests.forEach {
-                collectionDao.insertRequestToCollections(it.toCollection().toEntity())
+                collectionDao.insertRequestToCollections(it.toCollection(collectionName).toEntity())
             }
         }
     }

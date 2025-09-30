@@ -6,7 +6,8 @@ import java.time.LocalDate
 
 data class Collection(
     val id: Int = 0,
-    val requestUrl: String,
+    val collectionName: String = "New Collection",
+    val requestUrl: String = "",
     val methodOption: MethodName = MethodName.GET,
     val createdAt: LocalDate = LocalDate.now(),
     val response: String = "",
@@ -14,4 +15,9 @@ data class Collection(
     val statusCode: Int? = null,
     val body: String? = null,
     val headers: List<Pair<String, String>>? = null
+)
+
+data class CollectionGroup(
+    val collectionName: String = "New Collection",
+    val requests: List<Collection> = listOf()
 )

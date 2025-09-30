@@ -9,6 +9,7 @@ import com.example.postman.common.utils.MethodName
 data class CollectionEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
+    val collectionName: String,
     val requestUrl: String,
     val methodOption: MethodName,
     val response: String,

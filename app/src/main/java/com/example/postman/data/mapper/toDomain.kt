@@ -13,6 +13,7 @@ import java.time.ZoneId
 fun CollectionEntity.toDomain(): Collection {
     return Collection(
         id = id,
+        collectionName = collectionName,
         requestUrl = requestUrl,
         methodOption = methodOption,
         response = response,
@@ -26,9 +27,10 @@ fun CollectionEntity.toDomain(): Collection {
     )
 }
 
-fun History.toCollection(): Collection {
+fun History.toCollection(collectionName: String): Collection {
     return Collection(
         requestUrl = requestUrl,
+        collectionName = collectionName,
         methodOption = methodOption,
         response = response,
         createdAt = createdAt,
@@ -42,6 +44,7 @@ fun History.toCollection(): Collection {
 fun Collection.toEntity(): CollectionEntity {
     return CollectionEntity(
         id = id,
+        collectionName = collectionName,
         requestUrl = requestUrl,
         methodOption = methodOption,
         response = response,

@@ -42,9 +42,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.postman.R
 import com.example.postman.domain.model.Collection
+import com.example.postman.domain.model.CollectionGroup
 import com.example.postman.presentation.base.CustomSearchBar
 import com.example.postman.presentation.base.CustomToolbar
 import com.example.postman.presentation.base.NotFoundMessage
+import com.example.postman.presentation.base.searchCollections
 import com.example.postman.presentation.base.searchEntries
 import com.example.postman.ui.theme.Blue
 import com.example.postman.ui.theme.Gray
@@ -65,18 +67,16 @@ fun CollectionScreen(
     var searchQuery by remember { mutableStateOf("") }
     val collections by viewModel.collections.collectAsState()
     val expandedStates = viewModel.expandedStates.collectAsState()
-    val filteredItems = searchEntries(
-        collections, searchQuery,
-        { item, query ->
-            item.requestUrl.contains(query, ignoreCase = true)
-        })
+    val filteredItems = searchCollections(
+        collections, searchQuery
+    )
 
     Column(modifier = Modifier.padding(12.dp)) {
         Spacer(modifier = Modifier.height(24.dp))
         CustomToolbar("Collections", navController)
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = {
-                //todo add new collection
+                viewModel.createNewCollection()
             }, Modifier.size(24.dp)) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -137,29 +137,29 @@ private fun CreateACollection(onCreateCollection: () -> Unit) {
 
 @Composable
 private fun ExpandedCollectionItems(
-    collections: Map<String, List<Collection>>,
+    collections: List<CollectionGroup>,
     expandedStates: State<Map<String, Boolean>>,
     viewModel: CollectionViewModel,
     onCollectionItemClick: (Int) -> Unit
 ) {
     LazyColumn {
-        collections.entries.forEach { (collectionName, values) ->
+        collections.forEach {
             item {
                 CollectionHeader(
-                    collectionName,
-                    expandedStates.value[collectionName] ?: false,
+                    it.collectionName,
+                    expandedStates.value[it.collectionName] ?: false,
                     {
-                        viewModel.toggleExpanded(collectionName)
+                        viewModel.toggleExpanded(it.collectionName)
                     }, {
-                        viewModel.deleteRequests(values.map { it.id })
+                        viewModel.deleteRequests(it.requests.map { it.id })
                     })
             }
-            items(values.size) { index ->
+            items(it.requests.size) { index ->
                 AnimatedVisibility(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    visible = expandedStates.value[collectionName] == true
-                ) { CollectionItem(values, index, onCollectionItemClick, viewModel) }
+                    visible = expandedStates.value[it.collectionName] == true
+                ) { CollectionItem(it.requests, index, onCollectionItemClick, viewModel) }
             }
         }
     }

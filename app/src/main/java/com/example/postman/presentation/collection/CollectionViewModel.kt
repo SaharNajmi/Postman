@@ -4,8 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.postman.common.utils.formatDate
 import com.example.postman.data.local.dao.CollectionDao
+import com.example.postman.data.mapper.toCollection
 import com.example.postman.data.mapper.toDomain
+import com.example.postman.data.mapper.toEntity
 import com.example.postman.domain.model.Collection
+import com.example.postman.domain.model.CollectionGroup
+import com.example.postman.domain.model.History
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,17 +24,23 @@ class CollectionViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _collections =
-        MutableStateFlow<Map<String, List<Collection>>>(mapOf())
-    val collections: StateFlow<Map<String, List<Collection>>> = _collections
+        MutableStateFlow<List<CollectionGroup>>(emptyList())
+    val collections: StateFlow<List<CollectionGroup>> = _collections
+
 
     private val _expandedStates = MutableStateFlow<Map<String, Boolean>>(mapOf())
     val expandedStates: StateFlow<Map<String, Boolean>> = _expandedStates
 
     fun getAllCollections() {
         val thread = Thread {
-            val result =
-                collectionDao.getAllCollections().map { it.toDomain() }
-            _collections.value = result.groupBy { formatDate(it.createdAt) }
+            _collections.value = collectionDao.getAllCollections()
+                .groupBy { it.collectionName }
+                .map { (name, items) ->
+                    CollectionGroup(
+                        requests = items.map { it.toDomain() },
+                        collectionName = name
+                    )
+                }
         }
         thread.start()
     }
@@ -51,6 +61,18 @@ class CollectionViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             collectionDao.deleteRequestsFromCollection(requestIds)
             getAllCollections()
+        }
+    }
+
+    fun createNewCollection() {
+        viewModelScope.launch(Dispatchers.IO) {
+            collectionDao.insertRequestToCollections(Collection().toEntity())
+        }
+    }
+
+    fun addNewRequest() {
+        viewModelScope.launch(Dispatchers.IO) {
+            collectionDao.insertRequestToCollections(Collection().toEntity())
         }
     }
 }
