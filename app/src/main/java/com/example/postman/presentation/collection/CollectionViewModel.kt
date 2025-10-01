@@ -2,21 +2,16 @@ package com.example.postman.presentation.collection
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.postman.common.utils.formatDate
 import com.example.postman.data.local.dao.CollectionDao
-import com.example.postman.data.mapper.toCollection
 import com.example.postman.data.mapper.toDomain
 import com.example.postman.data.mapper.toEntity
 import com.example.postman.domain.model.Collection
-import com.example.postman.domain.model.CollectionGroup
-import com.example.postman.domain.model.History
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.concurrent.thread
 
 @HiltViewModel
 class CollectionViewModel @Inject constructor(
@@ -24,8 +19,8 @@ class CollectionViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _collections =
-        MutableStateFlow<List<CollectionGroup>>(emptyList())
-    val collections: StateFlow<List<CollectionGroup>> = _collections
+        MutableStateFlow<List<Collection>>(emptyList())
+    val collections: StateFlow<List<Collection>> = _collections
 
 
     private val _expandedStates = MutableStateFlow<Map<String, Boolean>>(mapOf())
@@ -33,14 +28,14 @@ class CollectionViewModel @Inject constructor(
 
     fun getAllCollections() {
         val thread = Thread {
-            _collections.value = collectionDao.getAllCollections()
-                .groupBy { it.collectionName }
-                .map { (name, items) ->
-                    CollectionGroup(
-                        requests = items.map { it.toDomain() },
-                        collectionName = name
-                    )
-                }
+            _collections.value = collectionDao.getAllCollections().map { it.toDomain() }
+//                .groupBy { it.collectionName }
+//                .map { (name, items) ->
+//                    Collection(
+//                        requests = items.map { it.toDomain() },
+//                        collectionName = name
+//                    )
+//                }
         }
         thread.start()
     }
@@ -70,9 +65,11 @@ class CollectionViewModel @Inject constructor(
         }
     }
 
-    fun addNewRequest() {
+    fun createAnEmptyRequest(collectionId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            collectionDao.insertRequestToCollections(Collection().toEntity())
+            val newCollection = Collection(id = collectionId)
+            collectionDao.insertRequestToCollections(newCollection.toEntity())
+            getAllCollections()
         }
     }
 }

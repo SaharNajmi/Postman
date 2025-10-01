@@ -1,12 +1,10 @@
 package com.example.postman.presentation.collection
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,6 +26,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -42,18 +41,15 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.postman.R
 import com.example.postman.domain.model.Collection
-import com.example.postman.domain.model.CollectionGroup
 import com.example.postman.presentation.base.CustomSearchBar
 import com.example.postman.presentation.base.CustomToolbar
 import com.example.postman.presentation.base.NotFoundMessage
 import com.example.postman.presentation.base.searchCollections
-import com.example.postman.presentation.base.searchEntries
 import com.example.postman.ui.theme.Blue
-import com.example.postman.ui.theme.Gray
 import com.example.postman.ui.theme.LightGray
-import com.example.postman.ui.theme.LightGreen
-import com.example.postman.ui.theme.Red
 import com.example.postman.ui.theme.Silver
+import kotlin.collections.component1
+import kotlin.collections.component2
 
 @Composable
 fun CollectionScreen(
@@ -137,29 +133,33 @@ private fun CreateACollection(onCreateCollection: () -> Unit) {
 
 @Composable
 private fun ExpandedCollectionItems(
-    collections: List<CollectionGroup>,
+    collections: List<Collection>,
     expandedStates: State<Map<String, Boolean>>,
     viewModel: CollectionViewModel,
     onCollectionItemClick: (Int) -> Unit
 ) {
     LazyColumn {
-        collections.forEach {
+        collections.groupBy { it.collectionId to it.collectionName }.map { (key, requests) ->
+            val (id, name) = key
             item {
                 CollectionHeader(
-                    it.collectionName,
-                    expandedStates.value[it.collectionName] ?: false,
+                    name,
+                    expandedStates.value[name] ?: false,
                     {
-                        viewModel.toggleExpanded(it.collectionName)
+                        viewModel.toggleExpanded(name)
                     }, {
-                        viewModel.deleteRequests(it.requests.map { it.id })
+                        viewModel.deleteRequests(requests.map { it.id })
+                    },
+                    {
+                        viewModel.createAnEmptyRequest(id)
                     })
             }
-            items(it.requests.size) { index ->
+            items(requests.size) { index ->
                 AnimatedVisibility(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    visible = expandedStates.value[it.collectionName] == true
-                ) { CollectionItem(it.requests, index, onCollectionItemClick, viewModel) }
+                    visible = expandedStates.value[name] == true
+                ) { CollectionItem(requests, index, onCollectionItemClick, viewModel) }
             }
         }
     }
@@ -171,6 +171,7 @@ fun CollectionHeader(
     isExpanded: Boolean,
     onHeaderClicked: () -> Unit,
     onDeleteClicked: () -> Unit,
+    onAddNewRequestClick: () -> Unit
 ) {
     val icon = if (isExpanded) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowRight
     Row(
@@ -192,7 +193,16 @@ fun CollectionHeader(
         Spacer(modifier = Modifier.weight(1f))
 
         Icon(
-            painterResource(R.drawable.ic_delete_sweep), contentDescription = "delete list by date",
+            Icons.Default.Add, contentDescription = "add new request",
+            Modifier
+                .padding(horizontal = 4.dp)
+                .clickable {
+                    onAddNewRequestClick()
+                },
+            tint = Blue
+        )
+        Icon(
+            painterResource(R.drawable.ic_delete_sweep), contentDescription = "delete lists",
             Modifier
                 .padding(horizontal = 4.dp)
                 .clickable {
@@ -227,7 +237,7 @@ private fun CollectionItem(
         )
 
         Text(
-            text = items[index].requestUrl.toString(),
+            text = items[index].requestName.toString(),
             fontSize = 12.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

@@ -1,6 +1,6 @@
 package com.example.postman.presentation.base
 
-import com.example.postman.domain.model.CollectionGroup
+import com.example.postman.domain.model.Collection
 
 fun <T> searchEntries(
     entries: Map<String, List<T>>,
@@ -21,26 +21,28 @@ fun <T> searchEntries(
 }
 
 fun searchCollections(
-    items: List<CollectionGroup>,
+    items: List<Collection>,
     searchQuery: String,
-): List<CollectionGroup> {
+): List<Collection> {
     if (searchQuery.isBlank()) return items
 
-    val result = mutableListOf<CollectionGroup>()
-    for (group in items) {
-        if (group.collectionName.contains(searchQuery, ignoreCase = true)) {
-            result.add(group)
-        } else {
-            val filteredRequests = group.requests.filter { request ->
-                request.requestUrl.contains(
+    val result = mutableListOf<Collection>()
+    items.groupBy { it.id to it.collectionName }.map { (key, requests) ->
+        val (id, name) = key
+        for (collection in requests) {
+            if (collection.collectionName.contains(searchQuery, ignoreCase = true)) {
+                result.add(collection)
+            } else {
+                val filteredRequests = collection.requestUrl.contains(
                     searchQuery,
                     ignoreCase = true
                 )
-            }
-            if (filteredRequests.isNotEmpty()) {
-                result.add(CollectionGroup(group.collectionName, filteredRequests))
+                if (filteredRequests) {
+                    result.add(collection)
+                }
             }
         }
     }
+
     return result
 }

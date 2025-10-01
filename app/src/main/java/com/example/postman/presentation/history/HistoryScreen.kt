@@ -30,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,12 +53,8 @@ fun HistoryScreen(
     LaunchedEffect(Unit) {
         viewModel.getAllHistories()
     }
-
     val historyRequest by viewModel.httpRequestRequestsModel.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
-//    val historyUrls = historyRequest.mapValues { (key, values) ->
-//        values.map { it.requestUrl }
-//    }
     val filteredHistoryRequest = searchEntries(
         historyRequest, searchQuery,
         { item, query ->
@@ -76,8 +71,12 @@ fun HistoryScreen(
             ExpandedHistoryItem(
                 filteredHistoryRequest,
                 onHistoryItemClick,
-                {
-                    viewModel.addRequestToCollection(it,"NEW")
+                { history ->
+                    viewModel.addRequestToCollection(
+                        history,
+                        "new",
+                        collectionId = 3
+                    )
                     Toast.makeText(
                         context,
                         "successfully added to collections",
@@ -97,6 +96,7 @@ private fun ExpandedHistoryItem(
     onAddToCollection: (History) -> Unit,
     viewModel: HistoryViewModel
 ) {
+    val context = LocalContext.current
     val expandedStates = viewModel.expandedStates.collectAsState()
 
     LazyColumn {
@@ -111,7 +111,12 @@ private fun ExpandedHistoryItem(
                         viewModel.deleteHistoriesRequest(items.map { it.id })
                     },
                     {
-                        viewModel.addRequestsToCollection(items,"TEST")
+                        viewModel.addRequestsToCollection(items, "test2",3)
+                        Toast.makeText(
+                            context,
+                            "successfully added to collections",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 )
             }
