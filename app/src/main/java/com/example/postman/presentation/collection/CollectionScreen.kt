@@ -26,7 +26,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -48,8 +47,6 @@ import com.example.postman.presentation.base.searchCollections
 import com.example.postman.ui.theme.Blue
 import com.example.postman.ui.theme.LightGray
 import com.example.postman.ui.theme.Silver
-import kotlin.collections.component1
-import kotlin.collections.component2
 
 @Composable
 fun CollectionScreen(
@@ -83,7 +80,7 @@ fun CollectionScreen(
         }
         when {
             collections.isEmpty() -> CreateACollection {
-                //todo add new collection
+               viewModel.createNewCollection()
             }
 
             filteredItems.isEmpty() -> NotFoundMessage(searchQuery)
@@ -140,25 +137,25 @@ private fun ExpandedCollectionItems(
 ) {
     LazyColumn {
         collections.groupBy { it.collectionId to it.collectionName }.map { (key, requests) ->
-            val (id, name) = key
+            val (collectionId, collectionName) = key
             item {
                 CollectionHeader(
-                    name,
-                    expandedStates.value[name] ?: false,
+                    collectionName,
+                    expandedStates.value[collectionId] ?: false,
                     {
-                        viewModel.toggleExpanded(name)
+                        viewModel.toggleExpanded(collectionId)
                     }, {
                         viewModel.deleteRequests(requests.map { it.id })
                     },
                     {
-                        viewModel.createAnEmptyRequest(id)
+                        viewModel.createAnEmptyRequest(collectionId)
                     })
             }
             items(requests.size) { index ->
                 AnimatedVisibility(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    visible = expandedStates.value[name] == true
+                    visible = expandedStates.value[collectionId] == true
                 ) { CollectionItem(requests, index, onCollectionItemClick, viewModel) }
             }
         }
@@ -237,7 +234,7 @@ private fun CollectionItem(
         )
 
         Text(
-            text = items[index].requestName.toString(),
+            text = items[index].collectionId.toString(),
             fontSize = 12.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

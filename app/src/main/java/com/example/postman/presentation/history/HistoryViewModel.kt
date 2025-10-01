@@ -56,7 +56,7 @@ class HistoryViewModel @Inject constructor(
         }
     }
 
-    fun addRequestToCollection(request: History, collectionName: String, collectionId: Int) {
+    fun addRequestToCollection(request: History, collectionName: String, collectionId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             collectionDao.insertRequestToCollections(
                 request.toCollection(collectionName, collectionId).toEntity()
@@ -67,7 +67,7 @@ class HistoryViewModel @Inject constructor(
     fun addRequestsToCollection(
         requests: List<History>,
         collectionName: String,
-        collectionId: Int
+        collectionId: String
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             requests.forEach {

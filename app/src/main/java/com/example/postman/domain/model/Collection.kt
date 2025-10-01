@@ -3,10 +3,11 @@ package com.example.postman.domain.model
 import androidx.compose.ui.graphics.ImageBitmap
 import com.example.postman.common.utils.MethodName
 import java.time.LocalDate
+import java.util.UUID
 
 data class Collection(
     val id: Int = 0,
-    val collectionId: Int = 0,
+    val collectionId: String = UUID.randomUUID().toString(),
     val collectionName: String = "New Collection",
     val requestName: String = "New Request",
     val requestUrl: String = "",

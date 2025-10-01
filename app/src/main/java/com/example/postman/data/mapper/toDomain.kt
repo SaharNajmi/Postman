@@ -29,7 +29,7 @@ fun CollectionEntity.toDomain(): Collection {
     )
 }
 
-fun History.toCollection(collectionName: String, collectionId: Int): Collection {
+fun History.toCollection(collectionName: String, collectionId: String): Collection {
     return Collection(
         collectionId = collectionId,
         requestUrl = requestUrl,

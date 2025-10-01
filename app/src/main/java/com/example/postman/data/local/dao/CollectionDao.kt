@@ -8,7 +8,7 @@ import com.example.postman.data.local.entity.CollectionEntity
 
 @Dao
 interface CollectionDao {
-    @Query("SELECT * FROM collections ORDER by id DESC")
+    @Query("SELECT * FROM collections")
     fun getAllCollections(): List<CollectionEntity>
 
     @Insert

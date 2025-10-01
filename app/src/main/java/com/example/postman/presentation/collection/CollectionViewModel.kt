@@ -40,9 +40,9 @@ class CollectionViewModel @Inject constructor(
         thread.start()
     }
 
-    fun toggleExpanded(date: String) {
+    fun toggleExpanded(collectionId: String) {
         _expandedStates.value =
-            _expandedStates.value.toMutableMap().apply { this[date] = this[date]?.not() ?: false }
+            _expandedStates.value.toMutableMap().apply { this[collectionId] = this[collectionId]?.not() ?: false }
     }
 
     fun deleteRequestItem(requestId: Int) {
@@ -62,12 +62,13 @@ class CollectionViewModel @Inject constructor(
     fun createNewCollection() {
         viewModelScope.launch(Dispatchers.IO) {
             collectionDao.insertRequestToCollections(Collection().toEntity())
+            getAllCollections()
         }
     }
 
-    fun createAnEmptyRequest(collectionId: Int) {
+    fun createAnEmptyRequest(collectionId: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val newCollection = Collection(id = collectionId)
+            val newCollection = Collection(collectionId = collectionId)
             collectionDao.insertRequestToCollections(newCollection.toEntity())
             getAllCollections()
         }
