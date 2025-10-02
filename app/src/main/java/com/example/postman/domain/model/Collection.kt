@@ -6,11 +6,15 @@ import java.time.LocalDate
 import java.util.UUID
 
 data class Collection(
-    val id: Int = 0,
     val collectionId: String = UUID.randomUUID().toString(),
     val collectionName: String = "New Collection",
+    val requests: List<Request>? = null
+)
+
+data class Request(
+    val id: Int = 0,
     val requestName: String = "New Request",
-    val requestUrl: String = "",
+    val requestUrl: String? = null,
     val methodOption: MethodName = MethodName.GET,
     val createdAt: LocalDate = LocalDate.now(),
     val response: String = "",

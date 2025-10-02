@@ -4,8 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.postman.common.utils.formatDate
 import com.example.postman.data.local.dao.CollectionDao
-import com.example.postman.data.mapper.toCollection
-import com.example.postman.data.mapper.toEntity
+import com.example.postman.data.mapper.toRequestEntity
 import com.example.postman.domain.model.History
 import com.example.postman.domain.repository.HistoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,7 +12,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import okhttp3.Dispatcher
 import javax.inject.Inject
 
 @HiltViewModel
@@ -56,27 +54,22 @@ class HistoryViewModel @Inject constructor(
         }
     }
 
-    fun addRequestToCollection(request: History, collectionName: String, collectionId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            collectionDao.insertRequestToCollections(
-                request.toCollection(collectionName, collectionId).toEntity()
-            )
+    fun addRequestToCollection(request: History, collectionId: String) {
+        val thread = Thread {
+            val entity = request.toRequestEntity(collectionId)
+            collectionDao.insertRequestToCollection(entity)
         }
+        thread.start()
     }
 
     fun addRequestsToCollection(
         requests: List<History>,
-        collectionName: String,
         collectionId: String
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            requests.forEach {
-                collectionDao.insertRequestToCollections(
-                    it.toCollection(
-                        collectionName,
-                        collectionId
-                    ).toEntity()
-                )
+            requests.forEach { request ->
+                val entity = request.toRequestEntity(collectionId)
+                collectionDao.insertRequestToCollection(entity)
             }
         }
     }

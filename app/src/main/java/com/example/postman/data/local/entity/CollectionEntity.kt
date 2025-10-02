@@ -1,18 +1,38 @@
 package com.example.postman.data.local.entity
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.example.postman.common.utils.MethodName
 
-@Suppress("ArrayInDataClass")
 @Entity(tableName = "collections")
 data class CollectionEntity(
+    @PrimaryKey
+    val collectionId: String,
+    val collectionName: String
+)
+
+@Entity(
+    tableName = "requests",
+   // primaryKeys = ["collectionId", "id"],
+    foreignKeys = [
+        ForeignKey(
+            entity = CollectionEntity::class,
+            parentColumns = ["collectionId"],
+            childColumns = ["collectionId"],
+            onDelete = ForeignKey.CASCADE // if parent deleted -> children auto deleted
+        )
+    ],
+    indices = [Index("collectionId")]
+)
+@Suppress("ArrayInDataClass")
+data class RequestEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val collectionId: String,
-    val collectionName: String,
     val requestName: String,
-    val requestUrl: String,
+    val requestUrl: String?,
     val methodOption: MethodName,
     val response: String,
     val imageResponse: ByteArray? = null,

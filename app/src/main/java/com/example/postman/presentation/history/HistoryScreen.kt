@@ -74,8 +74,7 @@ fun HistoryScreen(
                 { history ->
                     viewModel.addRequestToCollection(
                         history,
-                        "new",
-                        collectionId = "3"
+                        "8b8e8a3a-ef6a-4090-8c89-15859d09acd7",
                     )
                     Toast.makeText(
                         context,
@@ -111,7 +110,7 @@ private fun ExpandedHistoryItem(
                         viewModel.deleteHistoriesRequest(items.map { it.id })
                     },
                     {
-                        viewModel.addRequestsToCollection(items, "test2","3")
+                        viewModel.addRequestsToCollection(items, "test2")
                         Toast.makeText(
                             context,
                             "successfully added to collections",

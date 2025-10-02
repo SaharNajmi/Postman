@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.postman.R
 import com.example.postman.domain.model.Collection
+import com.example.postman.domain.model.Request
 import com.example.postman.presentation.base.CustomSearchBar
 import com.example.postman.presentation.base.CustomToolbar
 import com.example.postman.presentation.base.NotFoundMessage
@@ -55,7 +56,7 @@ fun CollectionScreen(
     onCollectionItemClick: (Int) -> Unit
 ) {
     LaunchedEffect(Unit) {
-        viewModel.getAllCollections()
+        viewModel.getCollectionsWithRequests()
     }
     var searchQuery by remember { mutableStateOf("") }
     val collections by viewModel.collections.collectAsState()
@@ -80,7 +81,7 @@ fun CollectionScreen(
         }
         when {
             collections.isEmpty() -> CreateACollection {
-               viewModel.createNewCollection()
+                viewModel.createNewCollection()
             }
 
             filteredItems.isEmpty() -> NotFoundMessage(searchQuery)
@@ -136,27 +137,51 @@ private fun ExpandedCollectionItems(
     onCollectionItemClick: (Int) -> Unit
 ) {
     LazyColumn {
-        collections.groupBy { it.collectionId to it.collectionName }.map { (key, requests) ->
-            val (collectionId, collectionName) = key
+        collections.forEach {
+            val allRequests = it.requests ?: listOf(Request())
+            val nonEmptyRequests = allRequests.filter { !it.requestUrl.isNullOrEmpty() }
             item {
                 CollectionHeader(
-                    collectionName,
-                    expandedStates.value[collectionId] ?: false,
+                    it.collectionId,
+                    expandedStates.value[it.collectionId] ?: false,
                     {
-                        viewModel.toggleExpanded(collectionId)
+                        viewModel.toggleExpanded(it.collectionId)
                     }, {
-                        viewModel.deleteRequests(requests.map { it.id })
+                            viewModel.deleteCollection(it.collectionId)
                     },
                     {
-                        viewModel.createAnEmptyRequest(collectionId)
+                        viewModel.createAnEmptyRequest(it.collectionId)
                     })
             }
-            items(requests.size) { index ->
+
+            items(it.requests!!.size) { index ->
                 AnimatedVisibility(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    visible = expandedStates.value[collectionId] == true
-                ) { CollectionItem(requests, index, onCollectionItemClick, viewModel) }
+                    visible = expandedStates.value[it.collectionId] == true
+                ) { CollectionItem(it.requests[index], onCollectionItemClick, viewModel) }
+                /* if (nonEmptyRequests.isEmpty()) {
+                item {
+                    AnimatedVisibility(
+                        visible = expandedStates.value[it.collectionId] == true
+                    ) {
+                        AddARequest {
+                            viewModel.createAnEmptyRequest(it.collectionId)
+                        }
+                    }
+                }
+            } else {
+                items(nonEmptyRequests) { request ->
+                    AnimatedVisibility(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        visible = expandedStates.value[it.collectionName] == true
+                    ) {
+
+                        CollectionItem(request, onCollectionItemClick, viewModel)
+                    }
+
+            }*/
             }
         }
     }
@@ -170,7 +195,8 @@ fun CollectionHeader(
     onDeleteClicked: () -> Unit,
     onAddNewRequestClick: () -> Unit
 ) {
-    val icon = if (isExpanded) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowRight
+    val icon =
+        if (isExpanded) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowRight
     Row(
         modifier = Modifier
             .clickable { onHeaderClicked() }
@@ -211,9 +237,20 @@ fun CollectionHeader(
 }
 
 @Composable
+fun AddARequest(onAddNewRequestClick: () -> Unit) {
+    Column(modifier = Modifier.padding(12.dp)) {
+        Text("This collection is empty")
+        TextButton(onClick = {
+            onAddNewRequestClick()
+        }) {
+            Text("Add a request")
+        }
+    }
+}
+
+@Composable
 private fun CollectionItem(
-    items: List<Collection>,
-    index: Int,
+    request: Request,
     onCollectionItemClick: (Int) -> Unit,
     viewModel: CollectionViewModel
 ) {
@@ -221,20 +258,19 @@ private fun CollectionItem(
         modifier = Modifier
             .padding(top = 8.dp, bottom = 8.dp, start = 12.dp)
             .clickable {
-                onCollectionItemClick(items[index].id)
+                onCollectionItemClick(request.id)
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
-
         Text(
-            text = items[index].methodOption.name,
-            color = items[index].methodOption.color,
+            text = request.methodOption.name,
+            color = request.methodOption.color,
             fontSize = 12.sp,
             modifier = Modifier.padding(end = 8.dp)
         )
 
         Text(
-            text = items[index].collectionId.toString(),
+            text = request.requestName,
             fontSize = 12.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -248,7 +284,7 @@ private fun CollectionItem(
                 .padding(horizontal = 4.dp)
                 .size(20.dp)
                 .clickable {
-                    viewModel.deleteRequestItem(items[index].id)
+                    viewModel.deleteRequestItem(request.id)
                 }
         )
     }

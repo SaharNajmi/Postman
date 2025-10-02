@@ -27,16 +27,15 @@ fun searchCollections(
     if (searchQuery.isBlank()) return items
 
     val result = mutableListOf<Collection>()
-    items.groupBy { it.id to it.collectionName }.map { (key, requests) ->
-        val (id, name) = key
-        for (collection in requests) {
-            if (collection.collectionName.contains(searchQuery, ignoreCase = true)) {
-                result.add(collection)
-            } else {
-                val filteredRequests = collection.requestUrl.contains(
+    items.map { collection ->
+        if (collection.collectionName.contains(searchQuery, ignoreCase = true)) {
+            result.add(collection)
+        } else {
+            collection.requests?.forEach { request ->
+                val filteredRequests = request.requestUrl?.contains(
                     searchQuery,
                     ignoreCase = true
-                )
+                ) == true
                 if (filteredRequests) {
                     result.add(collection)
                 }

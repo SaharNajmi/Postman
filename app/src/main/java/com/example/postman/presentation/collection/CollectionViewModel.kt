@@ -3,9 +3,11 @@ package com.example.postman.presentation.collection
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.postman.data.local.dao.CollectionDao
+import com.example.postman.data.local.entity.RequestEntity
 import com.example.postman.data.mapper.toDomain
 import com.example.postman.data.mapper.toEntity
 import com.example.postman.domain.model.Collection
+import com.example.postman.domain.model.Request
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,51 +28,56 @@ class CollectionViewModel @Inject constructor(
     private val _expandedStates = MutableStateFlow<Map<String, Boolean>>(mapOf())
     val expandedStates: StateFlow<Map<String, Boolean>> = _expandedStates
 
-    fun getAllCollections() {
+    fun getCollectionsWithRequests() {
         val thread = Thread {
-            _collections.value = collectionDao.getAllCollections().map { it.toDomain() }
-//                .groupBy { it.collectionName }
-//                .map { (name, items) ->
-//                    Collection(
-//                        requests = items.map { it.toDomain() },
-//                        collectionName = name
-//                    )
-//                }
+            val collections = collectionDao.getAllCollections()
+            _collections.value = collections.map {
+                val requests = collectionDao.getRequestsForCollection(it.collectionId)
+                it.toDomain(requests)
+            }
         }
         thread.start()
     }
 
+
     fun toggleExpanded(collectionId: String) {
         _expandedStates.value =
-            _expandedStates.value.toMutableMap().apply { this[collectionId] = this[collectionId]?.not() ?: false }
+            _expandedStates.value.toMutableMap()
+                .apply { this[collectionId] = this[collectionId]?.not() ?: false }
     }
 
     fun deleteRequestItem(requestId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             collectionDao.deleteRequestFromCollection(requestId)
-            getAllCollections()
+            getCollectionsWithRequests()
         }
     }
 
     fun deleteRequests(requestIds: List<Int>) {
         viewModelScope.launch(Dispatchers.IO) {
             collectionDao.deleteRequestsFromCollection(requestIds)
-            getAllCollections()
+            getCollectionsWithRequests()
         }
     }
 
+    fun deleteCollection(collectionId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            collectionDao.deleteCollection(collectionId)
+            getCollectionsWithRequests()
+        }
+    }
     fun createNewCollection() {
         viewModelScope.launch(Dispatchers.IO) {
-            collectionDao.insertRequestToCollections(Collection().toEntity())
-            getAllCollections()
+            collectionDao.insertCollection(Collection().toEntity())
+            getCollectionsWithRequests()
         }
     }
 
     fun createAnEmptyRequest(collectionId: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val newCollection = Collection(collectionId = collectionId)
-            collectionDao.insertRequestToCollections(newCollection.toEntity())
-            getAllCollections()
+            val newCollection = Request().toEntity(collectionId)
+            collectionDao.insertRequestToCollection(newCollection)
+            getCollectionsWithRequests()
         }
     }
 }

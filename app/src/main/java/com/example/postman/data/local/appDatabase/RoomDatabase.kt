@@ -7,11 +7,12 @@ import com.example.postman.data.local.dao.CollectionDao
 import com.example.postman.data.local.dao.HistoryRequestDao
 import com.example.postman.data.local.entity.CollectionEntity
 import com.example.postman.data.local.entity.HistoryEntity
+import com.example.postman.data.local.entity.RequestEntity
 import com.example.postman.data.mapper.Converters
 
 @Database(
-    entities = [HistoryEntity::class, CollectionEntity::class],
-    version = 2,
+    entities = [HistoryEntity::class, CollectionEntity::class, RequestEntity::class],
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
