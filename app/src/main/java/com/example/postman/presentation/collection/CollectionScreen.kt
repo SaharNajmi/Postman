@@ -80,10 +80,9 @@ fun CollectionScreen(
             CustomSearchBar("Search collections", searchQuery) { searchQuery = it }
         }
         when {
-            collections.isEmpty() -> CreateACollection {
-                viewModel.createNewCollection()
+            collections.isEmpty() -> CreateNewCollection {
+               viewModel.createNewCollection()
             }
-
             filteredItems.isEmpty() -> NotFoundMessage(searchQuery)
             else -> ExpandedCollectionItems(
                 filteredItems,
@@ -97,7 +96,7 @@ fun CollectionScreen(
 
 
 @Composable
-private fun CreateACollection(onCreateCollection: () -> Unit) {
+private fun CreateNewCollection(onCreateCollectionClick: () -> Unit) {
     Column(
         Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -118,7 +117,7 @@ private fun CreateACollection(onCreateCollection: () -> Unit) {
         Spacer(modifier = Modifier.height(12.dp))
         TextButton(
             modifier = Modifier.border(width = 1.dp, color = Silver, RoundedCornerShape(8.dp)),
-            onClick = { onCreateCollection }) {
+            onClick = { onCreateCollectionClick() }) {
             Text(
                 "Create Collection",
                 color = Color.Black,
@@ -142,7 +141,7 @@ private fun ExpandedCollectionItems(
             val nonEmptyRequests = allRequests.filter { !it.requestUrl.isNullOrEmpty() }
             item {
                 CollectionHeader(
-                    it.collectionId,
+                    it.collectionName,
                     expandedStates.value[it.collectionId] ?: false,
                     {
                         viewModel.toggleExpanded(it.collectionId)
