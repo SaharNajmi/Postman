@@ -41,9 +41,9 @@ class CollectionViewModel @Inject constructor(
 
 
     fun toggleExpanded(collectionId: String) {
-        _expandedStates.value =
-            _expandedStates.value.toMutableMap()
-                .apply { this[collectionId] = this[collectionId]?.not() ?: false }
+            _expandedStates.value =
+                _expandedStates.value.toMutableMap()
+                    .apply { this[collectionId] = this[collectionId]?.not() ?: true }
     }
 
     fun deleteRequestItem(requestId: Int) {
