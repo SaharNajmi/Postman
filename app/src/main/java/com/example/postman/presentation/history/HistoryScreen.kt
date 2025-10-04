@@ -74,7 +74,7 @@ fun HistoryScreen(
                 { history ->
                     viewModel.addRequestToCollection(
                         history,
-                        "8b8e8a3a-ef6a-4090-8c89-15859d09acd7",
+                        "8d3227ef-f63b-4d97-8301-9a4ff80cb409",
                     )
                     Toast.makeText(
                         context,

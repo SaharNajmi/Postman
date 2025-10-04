@@ -81,8 +81,9 @@ fun CollectionScreen(
         }
         when {
             collections.isEmpty() -> CreateNewCollection {
-               viewModel.createNewCollection()
+                viewModel.createNewCollection()
             }
+
             filteredItems.isEmpty() -> NotFoundMessage(searchQuery)
             else -> ExpandedCollectionItems(
                 filteredItems,
@@ -137,8 +138,7 @@ private fun ExpandedCollectionItems(
 ) {
     LazyColumn {
         collections.forEach {
-            val allRequests = it.requests ?: listOf(Request())
-            val nonEmptyRequests = allRequests.filter { !it.requestUrl.isNullOrEmpty() }
+            val allRequests = it.requests
             item {
                 CollectionHeader(
                     it.collectionName,
@@ -146,22 +146,17 @@ private fun ExpandedCollectionItems(
                     {
                         viewModel.toggleExpanded(it.collectionId)
                     }, {
-                            viewModel.deleteCollection(it.collectionId)
+                        viewModel.deleteCollection(it.collectionId)
                     },
                     {
                         viewModel.createAnEmptyRequest(it.collectionId)
                     })
             }
 
-            items(it.requests!!.size) { index ->
-                AnimatedVisibility(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    visible = expandedStates.value[it.collectionId] == true
-                ) { CollectionItem(it.requests[index], onCollectionItemClick, viewModel) }
-                /* if (nonEmptyRequests.isEmpty()) {
+            if (allRequests.isNullOrEmpty()) {
                 item {
                     AnimatedVisibility(
+                        modifier = Modifier.fillMaxWidth(),
                         visible = expandedStates.value[it.collectionId] == true
                     ) {
                         AddARequest {
@@ -170,17 +165,14 @@ private fun ExpandedCollectionItems(
                     }
                 }
             } else {
-                items(nonEmptyRequests) { request ->
+                items(allRequests.size) { index ->
                     AnimatedVisibility(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        visible = expandedStates.value[it.collectionName] == true
+                        modifier = Modifier.fillMaxWidth(),
+                        visible = expandedStates.value[it.collectionId] == true
                     ) {
-
-                        CollectionItem(request, onCollectionItemClick, viewModel)
+                        CollectionItem(allRequests[index], onCollectionItemClick, viewModel)
                     }
-
-            }*/
+                }
             }
         }
     }
@@ -237,7 +229,7 @@ fun CollectionHeader(
 
 @Composable
 fun AddARequest(onAddNewRequestClick: () -> Unit) {
-    Column(modifier = Modifier.padding(12.dp)) {
+    Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
         Text("This collection is empty")
         TextButton(onClick = {
             onAddNewRequestClick()
