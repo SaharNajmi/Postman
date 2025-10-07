@@ -4,21 +4,31 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -31,9 +41,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -64,8 +83,19 @@ fun CollectionScreen(
     val filteredItems = searchCollections(
         collections, searchQuery
     )
-
-    Column(modifier = Modifier.padding(12.dp)) {
+    val focusManager = LocalFocusManager.current
+    val modifier = Modifier
+    Column(
+        modifier = modifier
+            .padding(12.dp)
+            .pointerInput(Unit) {
+                awaitEachGesture {
+                    awaitFirstDown().consume()
+                    waitForUpOrCancellation()?.let { click ->
+                        focusManager.clearFocus()
+                    }
+                }
+            }) {
         Spacer(modifier = Modifier.height(24.dp))
         CustomToolbar("Collections", navController)
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -86,6 +116,7 @@ fun CollectionScreen(
 
             filteredItems.isEmpty() -> NotFoundMessage(searchQuery)
             else -> ExpandedCollectionItems(
+                modifier,
                 filteredItems,
                 expandedStates,
                 viewModel,
@@ -131,16 +162,22 @@ private fun CreateNewCollection(onCreateCollectionClick: () -> Unit) {
 
 @Composable
 private fun ExpandedCollectionItems(
+    modifier: Modifier,
     collections: List<Collection>,
     expandedStates: State<Map<String, Boolean>>,
     viewModel: CollectionViewModel,
     onCollectionItemClick: (Int) -> Unit
 ) {
-    LazyColumn {
-        collections.forEach {
+    LazyColumn(
+        modifier = modifier
+            .fillMaxHeight()
+
+    ) {
+        collections.forEachIndexed { index, it ->
             val allRequests = it.requests
             item {
                 CollectionHeader(
+                    modifier,
                     it.collectionName,
                     expandedStates.value[it.collectionId] ?: false,
                     {
@@ -150,6 +187,10 @@ private fun ExpandedCollectionItems(
                     },
                     {
                         viewModel.createAnEmptyRequest(it.collectionId)
+                    }, { newName ->
+                        if (it.collectionName != newName) {
+                            viewModel.updateCollection(it.copy(collectionName = newName))
+                        }
                     })
             }
 
@@ -180,31 +221,70 @@ private fun ExpandedCollectionItems(
 
 @Composable
 fun CollectionHeader(
+    modifier: Modifier,
     header: String,
     isExpanded: Boolean,
     onHeaderClicked: () -> Unit,
     onDeleteClicked: () -> Unit,
-    onAddNewRequestClick: () -> Unit
+    onAddNewRequestClick: () -> Unit,
+    onRenameCollectionClick: (String) -> Unit
 ) {
+    val focusManager = LocalFocusManager.current
+    val focusRequester = remember { FocusRequester() }
+    var text by remember {
+        mutableStateOf(TextFieldValue(header, TextRange(header.length)))
+    }
+    var isEditable by remember { mutableStateOf(false) }
     val icon =
         if (isExpanded) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowRight
+
     Row(
-        modifier = Modifier
-            .clickable { onHeaderClicked() }
+        modifier = modifier
+            .fillMaxWidth()
             .background(if (isExpanded) LightGray else Color.Transparent)
             .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically) {
+        verticalAlignment = Alignment.CenterVertically
+    ) {
 
-        Icon(
-            imageVector = icon,
-            contentDescription = "isExpandedIcon"
-        )
+        IconButton(onClick = { onHeaderClicked() }) {
+            Icon(
+                imageVector = icon,
+                contentDescription = "isExpandedIcon",
+            )
+        }
 
-        Text(
-            text = header,
-            modifier = Modifier.padding(start = 8.dp)
+        OutlinedTextField(
+            value = text,
+            onValueChange = { text = it },
+            readOnly = !isEditable,
+            maxLines = 1,
+            modifier = Modifier
+                .weight(1f)
+                .height(48.dp)
+                .focusable(isEditable)
+                .focusRequester(focusRequester)
+                .onFocusChanged { focusState ->
+                    if (!focusState.isFocused && isEditable) {
+                        isEditable = false
+                        onRenameCollectionClick(text.text)
+                    }
+                },
+            textStyle = TextStyle(),
+            shape = RoundedCornerShape(8.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = if (isEditable) Blue else Color.Transparent,
+                unfocusedBorderColor = Color.Transparent,
+            ),
+            keyboardOptions = KeyboardOptions.Default.copy(
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    isEditable = false
+                    focusManager.clearFocus()
+                }
+            )
         )
-        Spacer(modifier = Modifier.weight(1f))
 
         Icon(
             Icons.Default.Add, contentDescription = "add new request",
@@ -215,6 +295,24 @@ fun CollectionHeader(
                 },
             tint = Blue
         )
+
+        Icon(
+            Icons.Default.Edit,
+            contentDescription = "rename",
+            Modifier
+                .padding(horizontal = 4.dp)
+                .clickable {
+                    if (isEditable) {
+                        isEditable = false
+                        focusManager.clearFocus()
+                    } else {
+                        isEditable = true
+                        focusRequester.requestFocus()
+                    }
+                },
+            tint = Blue
+        )
+
         Icon(
             painterResource(R.drawable.ic_delete_sweep), contentDescription = "delete lists",
             Modifier
