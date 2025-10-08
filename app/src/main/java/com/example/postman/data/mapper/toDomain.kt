@@ -1,7 +1,9 @@
 package com.example.postman.data.mapper
 
+import androidx.compose.ui.graphics.ImageBitmap
 import com.example.postman.common.extensions.toByteArray
 import com.example.postman.common.extensions.toImageBitmap
+import com.example.postman.common.utils.MethodName
 import com.example.postman.data.local.entity.CollectionEntity
 import com.example.postman.data.local.entity.HistoryEntity
 import com.example.postman.data.local.entity.RequestEntity
@@ -9,6 +11,7 @@ import com.example.postman.domain.model.Collection
 import com.example.postman.domain.model.History
 import com.example.postman.domain.model.Request
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
 
 fun CollectionEntity.toDomain(requests: List<RequestEntity>): Collection {
@@ -52,6 +55,7 @@ fun Request.toEntity(collectionId: String): RequestEntity {
             .toInstant()
             .toEpochMilli(),
         statusCode = statusCode,
+        imageResponse = imageResponse?.toByteArray(),
         body = body,
         headers = headers
     )
@@ -103,6 +107,23 @@ fun History.toEntity(): HistoryEntity {
             .toEpochMilli(),
         statusCode = statusCode,
         imageResponse = imageResponse?.toByteArray(),
+        body = body,
+        headers = headers
+    )
+}
+
+fun RequestEntity.toDomain(): Request {
+    return Request(
+        id = id,
+        requestName = requestName,
+        requestUrl = requestUrl,
+        methodOption = methodOption,
+        response = response,
+        imageResponse = imageResponse?.toImageBitmap(),
+        createdAt = Instant.ofEpochMilli(createdAt)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate(),
+        statusCode = statusCode,
         body = body,
         headers = headers
     )
