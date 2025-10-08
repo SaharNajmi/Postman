@@ -9,7 +9,6 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -76,7 +75,7 @@ fun CollectionScreen(
     onCollectionItemClick: (Int) -> Unit
 ) {
     LaunchedEffect(Unit) {
-        viewModel.getCollectionsWithRequests()
+        viewModel.getCollections()
     }
     var searchQuery by remember { mutableStateOf("") }
     val collections by viewModel.collections.collectAsState()

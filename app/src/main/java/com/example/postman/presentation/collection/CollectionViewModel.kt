@@ -3,7 +3,6 @@ package com.example.postman.presentation.collection
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.postman.data.local.dao.CollectionDao
-import com.example.postman.data.local.entity.RequestEntity
 import com.example.postman.data.mapper.toDomain
 import com.example.postman.data.mapper.toEntity
 import com.example.postman.domain.model.Collection
@@ -28,11 +27,11 @@ class CollectionViewModel @Inject constructor(
     private val _expandedStates = MutableStateFlow<Map<String, Boolean>>(mapOf())
     val expandedStates: StateFlow<Map<String, Boolean>> = _expandedStates
 
-    fun getCollectionsWithRequests() {
+    fun getCollections() {
         val thread = Thread {
             val collections = collectionDao.getAllCollections()
             _collections.value = collections.map {
-                val requests = collectionDao.getRequestsForCollection(it.collectionId)
+                val requests = collectionDao.getCollectionRequests(it.collectionId)
                 it.toDomain(requests)
             }
         }
@@ -49,28 +48,28 @@ class CollectionViewModel @Inject constructor(
     fun deleteRequestItem(requestId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             collectionDao.deleteRequestFromCollection(requestId)
-            getCollectionsWithRequests()
+            getCollections()
         }
     }
 
     fun deleteRequests(requestIds: List<Int>) {
         viewModelScope.launch(Dispatchers.IO) {
             collectionDao.deleteRequestsFromCollection(requestIds)
-            getCollectionsWithRequests()
+            getCollections()
         }
     }
 
     fun deleteCollection(collectionId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             collectionDao.deleteCollection(collectionId)
-            getCollectionsWithRequests()
+            getCollections()
         }
     }
 
     fun createNewCollection() {
         viewModelScope.launch(Dispatchers.IO) {
             collectionDao.insertCollection(Collection().toEntity())
-            getCollectionsWithRequests()
+            getCollections()
         }
     }
 
@@ -78,14 +77,14 @@ class CollectionViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val newCollection = Request().toEntity(collectionId)
             collectionDao.insertRequestToCollection(newCollection)
-            getCollectionsWithRequests()
+            getCollections()
         }
     }
 
     fun updateCollection(collection: Collection) {
         viewModelScope.launch(Dispatchers.IO) {
             collectionDao.updateCollection(collection.toEntity())
-            getCollectionsWithRequests()
+            getCollections()
         }
     }
 }

@@ -52,7 +52,7 @@ fun HistoryScreen(
 ) {
     val context = LocalContext.current
     LaunchedEffect(Unit) {
-        viewModel.getAllHistories()
+        viewModel.getHistories()
         viewModel.getCollections()
     }
     val historyRequest by viewModel.httpRequestRequestsModel.collectAsState()

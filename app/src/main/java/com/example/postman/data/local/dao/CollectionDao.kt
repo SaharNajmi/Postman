@@ -23,10 +23,13 @@ interface CollectionDao {
     suspend fun deleteCollection(collectionId: String)
 
     @Insert
-     fun insertRequestToCollection(request: RequestEntity)
+    fun insertRequestToCollection(request: RequestEntity)
 
     @Query("SELECT * FROM requests WHERE collectionId = :collectionId")
-    fun getRequestsForCollection(collectionId: String): List<RequestEntity>
+    fun getCollectionRequests(collectionId: String): List<RequestEntity>
+
+    @Query("SELECT * FROM requests WHERE id= :requestId ")
+    fun getCollectionRequest(requestId: Int): RequestEntity
 
     @Query("DELETE FROM requests WHERE id = :requestId")
     suspend fun deleteRequestFromCollection(requestId: Int)

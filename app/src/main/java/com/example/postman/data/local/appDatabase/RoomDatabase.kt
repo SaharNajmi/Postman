@@ -12,7 +12,7 @@ import com.example.postman.data.mapper.Converters
 
 @Database(
     entities = [HistoryEntity::class, CollectionEntity::class, RequestEntity::class],
-    version = 3,
+    version = 1,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

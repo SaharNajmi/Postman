@@ -10,9 +10,13 @@ import com.example.postman.common.extensions.buildUrlWithParams
 import com.example.postman.common.extensions.getNetworkErrorMessage
 import com.example.postman.common.extensions.mapKeyValuePairsToQueryParameter
 import com.example.postman.common.utils.MethodName
+import com.example.postman.data.local.dao.CollectionDao
+import com.example.postman.data.mapper.CollectionMapper.toHttpRequest
+import com.example.postman.data.mapper.CollectionMapper.toHttpResponse
 import com.example.postman.data.mapper.HistoryMapper
 import com.example.postman.data.mapper.HistoryMapper.toHttpRequest
 import com.example.postman.data.mapper.HistoryMapper.toHttpResponse
+import com.example.postman.data.mapper.toDomain
 import com.example.postman.domain.model.HttpRequest
 import com.example.postman.domain.model.HttpResult
 import com.example.postman.domain.repository.ApiService
@@ -23,6 +27,7 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.readBytes
 import io.ktor.http.contentType
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,7 +37,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val repository: ApiService,
-    private val historyRepository: HistoryRepository
+    private val historyRepository: HistoryRepository,
+    private val collectionDao: CollectionDao
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HomeUiState>(
@@ -222,6 +228,25 @@ class HomeViewModel @Inject constructor(
     fun loadRequestFromHistory(historyId: Int) {
         viewModelScope.launch {
             val saved = historyRepository.getHistoryRequest(historyId)
+            val response = if (saved.statusCode != null)
+                Loadable.Success(
+                    saved.toHttpResponse()
+                )
+            else
+                Loadable.Error(
+                    saved.toHttpResponse().response
+                )
+
+            _uiState.value = HomeUiState(
+                saved.toHttpRequest(),
+                response
+            )
+        }
+    }
+
+    fun loadRequestFromCollection(requestId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val saved = collectionDao.getCollectionRequest(requestId).toDomain()
             val response = if (saved.statusCode != null)
                 Loadable.Success(
                     saved.toHttpResponse()
