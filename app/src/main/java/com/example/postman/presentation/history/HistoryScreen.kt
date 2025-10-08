@@ -39,6 +39,7 @@ import com.example.postman.domain.model.History
 import com.example.postman.presentation.base.CustomSearchBar
 import com.example.postman.presentation.base.CustomToolbar
 import com.example.postman.presentation.base.NotFoundMessage
+import com.example.postman.presentation.base.PickItemDialog
 import com.example.postman.presentation.base.searchEntries
 import com.example.postman.ui.theme.Blue
 import com.example.postman.ui.theme.LightGray
@@ -52,8 +53,10 @@ fun HistoryScreen(
     val context = LocalContext.current
     LaunchedEffect(Unit) {
         viewModel.getAllHistories()
+        viewModel.getCollections()
     }
     val historyRequest by viewModel.httpRequestRequestsModel.collectAsState()
+    val collectionNames by viewModel.collectionNames.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
     val filteredHistoryRequest = searchEntries(
         historyRequest, searchQuery,
@@ -71,18 +74,24 @@ fun HistoryScreen(
             ExpandedHistoryItem(
                 filteredHistoryRequest,
                 onHistoryItemClick,
-                { history ->
-                    viewModel.addRequestToCollection(
-                        history,
-                        "8d3227ef-f63b-4d97-8301-9a4ff80cb409",
-                    )
+                { history, collectionId ->
+                    viewModel.addRequestToCollection(history, collectionId)
                     Toast.makeText(
                         context,
                         "successfully added to collections",
                         Toast.LENGTH_SHORT
                     ).show()
                 },
-                viewModel
+                { histories, collectionId ->
+                    viewModel.addRequestsToCollection(histories, collectionId)
+                    Toast.makeText(
+                        context,
+                        "successfully added to collections",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                },
+                viewModel,
+                collectionNames
             )
         }
     }
@@ -92,30 +101,28 @@ fun HistoryScreen(
 private fun ExpandedHistoryItem(
     historyRequest: Map<String, List<History>>,
     onHistoryItemClick: (Int) -> Unit,
-    onAddToCollection: (History) -> Unit,
-    viewModel: HistoryViewModel
+    onAddHistoryToCollection: (History, String) -> Unit,
+    onAddHistoriesToCollection: (List<History>, String) -> Unit,
+    viewModel: HistoryViewModel,
+    collectionNames: Map<String, String>
 ) {
-    val context = LocalContext.current
     val expandedStates = viewModel.expandedStates.collectAsState()
 
     LazyColumn {
         historyRequest.forEach { header, items ->
             item {
                 HistoryHeader(
-                    header, expandedStates.value[header] ?: false,
+                    header,
+                    collectionNames,
+                    expandedStates.value[header] ?: false,
                     {
                         viewModel.toggleExpanded(header)
                     },
                     {
                         viewModel.deleteHistoriesRequest(items.map { it.id })
                     },
-                    {
-                        viewModel.addRequestsToCollection(items, "test2")
-                        Toast.makeText(
-                            context,
-                            "successfully added to collections",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                    { collectionId ->
+                        onAddHistoriesToCollection(items, collectionId)
                     }
                 )
             }
@@ -125,7 +132,14 @@ private fun ExpandedHistoryItem(
                         .fillMaxWidth(),
                     visible = expandedStates.value[header] == true
                 ) {
-                    HistoryItem(items, index, onHistoryItemClick, onAddToCollection, viewModel)
+                    HistoryItem(
+                        items,
+                        collectionNames,
+                        index,
+                        onHistoryItemClick,
+                        onAddHistoryToCollection,
+                        viewModel
+                    )
                 }
             }
         }
@@ -135,12 +149,16 @@ private fun ExpandedHistoryItem(
 @Composable
 fun HistoryHeader(
     header: String,
+    collectionNames: Map<String, String>,
     isExpanded: Boolean,
     onHeaderClicked: () -> Unit,
     onDeleteHistoriesClicked: () -> Unit,
-    onAddToCollection: () -> Unit
+    onAddHistoriesToCollection: (String) -> Unit
 ) {
-    val icon = if (isExpanded) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowRight
+    val expandedIcon =
+        if (isExpanded) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowRight
+    var showDropdown by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .clickable { onHeaderClicked() }
@@ -149,7 +167,7 @@ fun HistoryHeader(
         verticalAlignment = Alignment.CenterVertically) {
 
         Icon(
-            imageVector = icon,
+            imageVector = expandedIcon,
             contentDescription = "isExpandedIcon"
         )
 
@@ -163,7 +181,7 @@ fun HistoryHeader(
             modifier = Modifier
                 .size(20.dp)
                 .clickable {
-                    onAddToCollection()
+                    showDropdown = true
                 }, tint = Blue
         )
         Icon(
@@ -175,17 +193,26 @@ fun HistoryHeader(
                 },
             tint = Blue
         )
+        if (showDropdown) {
+            PickItemDialog(
+                collectionNames,
+                { showDropdown = false }) { collectionId ->
+                onAddHistoriesToCollection(collectionId)
+            }
+        }
     }
 }
 
 @Composable
 private fun HistoryItem(
     items: List<History>,
+    collectionNames: Map<String, String>,
     index: Int,
     onHistoryItemClick: (Int) -> Unit,
-    onAddToCollection: (History) -> Unit,
+    onAddHistoryToCollection: (History, String) -> Unit,
     viewModel: HistoryViewModel
 ) {
+    var showDropdown by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier
             .padding(top = 8.dp, bottom = 8.dp, start = 12.dp)
@@ -216,7 +243,7 @@ private fun HistoryItem(
             modifier = Modifier
                 .size(20.dp)
                 .clickable {
-                    onAddToCollection(items[index])
+                    showDropdown = true
                 }
         )
         Icon(
@@ -228,9 +255,15 @@ private fun HistoryItem(
                     viewModel.deleteHistoryRequest(items[index].id)
                 }
         )
+        if (showDropdown) {
+            PickItemDialog(
+                collectionNames,
+                { showDropdown = false }) { collectionId ->
+                onAddHistoryToCollection(items[index], collectionId)
+            }
+        }
     }
 }
-
 
 
 

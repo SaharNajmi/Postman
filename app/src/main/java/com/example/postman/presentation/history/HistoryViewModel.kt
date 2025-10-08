@@ -27,6 +27,10 @@ class HistoryViewModel @Inject constructor(
     private val _expandedStates = MutableStateFlow<Map<String, Boolean>>(mapOf())
     val expandedStates: StateFlow<Map<String, Boolean>> = _expandedStates
 
+    private val _collectionNames =
+        MutableStateFlow<Map<String, String>>(mapOf())
+    val collectionNames: StateFlow<Map<String, String>> = _collectionNames
+
     fun getAllHistories() {
         viewModelScope.launch {
             val result =
@@ -52,6 +56,16 @@ class HistoryViewModel @Inject constructor(
             historyRepository.deleteHistoriesRequest(historyIds)
             getAllHistories()
         }
+    }
+
+    fun getCollections() {
+        val thread = Thread {
+            val collections = collectionDao.getAllCollections()
+            _collectionNames.value = collections.associate {
+                it.collectionId to it.collectionName
+            }
+        }
+        thread.start()
     }
 
     fun addRequestToCollection(request: History, collectionId: String) {

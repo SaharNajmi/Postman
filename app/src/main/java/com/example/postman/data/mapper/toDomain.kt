@@ -59,7 +59,6 @@ fun Request.toEntity(collectionId: String): RequestEntity {
 
 fun History.toRequestEntity(collectionId: String): RequestEntity {
     return RequestEntity(
-        id = id,
         collectionId = collectionId,
         requestUrl = requestUrl,
         requestName = requestUrl,
