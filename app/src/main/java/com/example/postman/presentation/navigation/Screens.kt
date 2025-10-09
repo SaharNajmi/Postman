@@ -1,9 +1,24 @@
 package com.example.postman.presentation.navigation
 
 sealed class Screens(val route: String) {
-    object HomeScreen : Screens("Home?historyId={historyId}"){ //historyId is optional
-        fun createRoute(historyId: Int) = "Home?historyId=$historyId"
+    object HomeScreen :
+        Screens("$ROUTE_HOME_SCREEN?$ARG_REQUEST_ID={$ARG_REQUEST_ID}&$ARG_SOURCE={$ARG_SOURCE}") { //requestId is optional
+        fun createRoute(requestId: Int, source: String) =
+            "$ROUTE_HOME_SCREEN?$ARG_REQUEST_ID=$requestId&$ARG_SOURCE=$source"
     }
-    object HistoryScreen : Screens("History")
-    object CollectionScreen: Screens("Collections")
+
+    object HistoryScreen : Screens(ROUTE_HISTORY_SCREEN)
+    object CollectionScreen : Screens(ROUTE_COLLECTION_SCREEN)
+
+
+    companion object {
+        //routs
+        const val ROUTE_HISTORY_SCREEN = "history_Screen"
+        const val ROUTE_COLLECTION_SCREEN = "collection_screen"
+        const val ROUTE_HOME_SCREEN = "home_screen"
+
+        //args
+        const val ARG_REQUEST_ID = "request_id"
+        const val ARG_SOURCE = "source"
+    }
 }

@@ -28,17 +28,22 @@ fun AppNavHost(
     ) {
         composable(
             Screens.HomeScreen.route,
-            arguments = listOf(navArgument("historyId") {
+            arguments = listOf(navArgument(Screens.ARG_REQUEST_ID) {
                 type = NavType.IntType
                 defaultValue = -1
+            },navArgument(Screens.ARG_SOURCE) {
+                type = NavType.StringType
+                defaultValue = ""
             })
         ) { backStackEntry ->
-            var historyId = backStackEntry.arguments?.getInt("historyId") ?: -1
+            var requestId = backStackEntry.arguments?.getInt(Screens.ARG_REQUEST_ID) ?: -1
+            var source = backStackEntry.arguments?.getString(Screens.ARG_SOURCE) ?: ""
             HomeScreen(
                 homeViewModel,
-                historyId,
+                requestId,
+                source,
                 onNavigateToHistory = {
-                    historyId = -1
+                    requestId = -1
                     navController.navigate(Screens.HistoryScreen.route)
                 },
                 onNavigateToCollection = {
@@ -51,13 +56,28 @@ fun AppNavHost(
             HistoryScreen(
                 navController,
                 historyViewModel,
-                onHistoryItemClick = { historyId ->
-                    navController.navigate(Screens.HomeScreen.createRoute(historyId))
+                onHistoryItemClick = { requestId ->
+                    navController.navigate(
+                        Screens.HomeScreen.createRoute(
+                            requestId,
+                            Screens.ROUTE_HISTORY_SCREEN
+                        )
+                    )
                 }
             )
         }
         composable(Screens.CollectionScreen.route) {
-            CollectionScreen(navController, collectionViewModel, onCollectionItemClick = {})
+            CollectionScreen(
+                navController,
+                collectionViewModel,
+                onCollectionItemClick = { requestId ->
+                    navController.navigate(
+                        Screens.HomeScreen.createRoute(
+                            requestId,
+                            Screens.ROUTE_COLLECTION_SCREEN
+                        )
+                    )
+                })
         }
     }
 }

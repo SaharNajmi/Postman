@@ -61,6 +61,7 @@ import com.example.postman.R
 import com.example.postman.common.extensions.getHeaderValue
 import com.example.postman.common.utils.MethodName
 import com.example.postman.presentation.base.Loadable
+import com.example.postman.presentation.navigation.Screens
 import com.example.postman.ui.theme.Gray
 import com.example.postman.ui.theme.Green
 import com.example.postman.ui.theme.LightBlue
@@ -71,17 +72,22 @@ import com.example.postman.ui.theme.RadioButtonSelectedColor
 @Composable()
 fun HomeScreen(
     homeViewModel: HomeViewModel,
-    historyId: Int,
+    requestId: Int,
+    source: String,
     onNavigateToHistory: () -> Unit,
     onNavigateToCollection: () -> Unit
 ) {
     val uiState by homeViewModel.uiState.collectAsState()
 
-    LaunchedEffect(historyId) {
-        if (historyId != -1) {
-            homeViewModel.loadRequestFromHistory(historyId)
+    LaunchedEffect(requestId, source) {
+        if (requestId != -1 && source != "") {
+            when (source) {
+                Screens.ROUTE_HISTORY_SCREEN -> homeViewModel.loadRequestFromHistory(requestId)
+                Screens.ROUTE_COLLECTION_SCREEN -> homeViewModel.loadRequestFromCollection(requestId)
+            }
         }
     }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
