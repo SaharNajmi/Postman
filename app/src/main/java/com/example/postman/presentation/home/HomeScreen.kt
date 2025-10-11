@@ -72,15 +72,15 @@ import com.example.postman.ui.theme.RadioButtonSelectedColor
 @Composable()
 fun HomeScreen(
     homeViewModel: HomeViewModel,
-    requestId: Int,
-    source: String,
+    requestId: Int?,
+    source: String?,
     onNavigateToHistory: () -> Unit,
-    onNavigateToCollection: () -> Unit
+    onNavigateToCollection: () -> Unit,
 ) {
     val uiState by homeViewModel.uiState.collectAsState()
 
     LaunchedEffect(requestId, source) {
-        if (requestId != -1 && source != "") {
+        if (requestId != null && source != null) {
             when (source) {
                 Screens.ROUTE_HISTORY_SCREEN -> homeViewModel.loadRequestFromHistory(requestId)
                 Screens.ROUTE_COLLECTION_SCREEN -> homeViewModel.loadRequestFromCollection(requestId)
@@ -149,7 +149,7 @@ fun CollectionButton(
 
 @Composable
 fun NewRequest(
-    homeViewModel: HomeViewModel
+    homeViewModel: HomeViewModel,
 ) {
     TextButton(
         modifier = Modifier
@@ -172,7 +172,7 @@ fun NewRequest(
 @Composable
 fun RequestBuilder(
     uiState: HomeUiState,
-    homeViewModel: HomeViewModel
+    homeViewModel: HomeViewModel,
 ) {
     val methodOptions = listOf(
         MethodName.GET, MethodName.POST, MethodName.PUT, MethodName.PATCH,
@@ -216,7 +216,7 @@ fun RequestBuilder(
 private fun RowScope.RequestLine(
     methodOptions: List<MethodName>,
     uiState: HomeUiState,
-    homeViewModel: HomeViewModel
+    homeViewModel: HomeViewModel,
 ) {
     var expandedMethodOption by remember { mutableStateOf(false) }
     Row(
@@ -294,7 +294,7 @@ fun RequestParametersSection(
 private fun HttpParameterSelection(
     radioHttpParameterOptions: List<RadioHttpParameterOptions>,
     selectedOption: RadioHttpParameterOptions,
-    onOptionSelected: (RadioHttpParameterOptions) -> Unit
+    onOptionSelected: (RadioHttpParameterOptions) -> Unit,
 ) {
     FlowRow(
         modifier = Modifier
@@ -333,7 +333,7 @@ private fun HttpParameterBody(
     modifier: Modifier,
     selectedOption: RadioHttpParameterOptions,
     uiState: HomeUiState,
-    homeViewModel: HomeViewModel
+    homeViewModel: HomeViewModel,
 ) {
     Box(
         modifier
@@ -426,7 +426,7 @@ fun AuthSection(modifier: Modifier, uiState: HomeUiState, viewModel: HomeViewMod
 fun HeaderSection(
     modifier: Modifier,
     uiState: HomeUiState,
-    homeViewModel: HomeViewModel
+    homeViewModel: HomeViewModel,
 ) {
     Column(modifier) {
         RemovableTagList(
@@ -446,7 +446,7 @@ fun HeaderSection(
 fun HttpParameterBodySection(
     modifier: Modifier,
     uiState: HomeUiState,
-    homeViewModel: HomeViewModel
+    homeViewModel: HomeViewModel,
 ) {
     TextField(
         value = uiState.data.body ?: "",

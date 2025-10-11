@@ -1,6 +1,7 @@
 package com.example.postman.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.traceEventEnd
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -20,7 +21,7 @@ fun AppNavHost(
     navController: NavHostController = rememberNavController(),
     homeViewModel: HomeViewModel = hiltViewModel(),
     historyViewModel: HistoryViewModel = hiltViewModel(),
-    collectionViewModel: CollectionViewModel = hiltViewModel()
+    collectionViewModel: CollectionViewModel = hiltViewModel(),
 ) {
     NavHost(
         navController = navController,
@@ -29,21 +30,22 @@ fun AppNavHost(
         composable(
             Screens.HomeScreen.route,
             arguments = listOf(navArgument(Screens.ARG_REQUEST_ID) {
-                type = NavType.IntType
-                defaultValue = -1
-            },navArgument(Screens.ARG_SOURCE) {
                 type = NavType.StringType
-                defaultValue = ""
+                nullable = true
+                defaultValue = null
+            }, navArgument(Screens.ARG_SOURCE) {
+                type = NavType.StringType
+                nullable = true
+                defaultValue = null
             })
         ) { backStackEntry ->
-            var requestId = backStackEntry.arguments?.getInt(Screens.ARG_REQUEST_ID) ?: -1
-            var source = backStackEntry.arguments?.getString(Screens.ARG_SOURCE) ?: ""
+            var requestId = backStackEntry.arguments?.getString(Screens.ARG_REQUEST_ID)?.toIntOrNull()
+            var source = backStackEntry.arguments?.getString(Screens.ARG_SOURCE)
             HomeScreen(
                 homeViewModel,
                 requestId,
                 source,
                 onNavigateToHistory = {
-                    requestId = -1
                     navController.navigate(Screens.HistoryScreen.route)
                 },
                 onNavigateToCollection = {
