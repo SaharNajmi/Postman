@@ -61,6 +61,27 @@ fun Request.toEntity(collectionId: String): RequestEntity {
     )
 }
 
+fun Request.toEntity(
+    collectionId: String,
+    requestName: String,
+): RequestEntity {
+    return RequestEntity(
+        id = id,
+        collectionId = collectionId,
+        requestName = requestName,
+        requestUrl = requestUrl,
+        methodOption = methodOption,
+        response = response,
+        createdAt = createdAt.atStartOfDay(ZoneId.systemDefault())
+            .toInstant()
+            .toEpochMilli(),
+        statusCode = statusCode,
+        imageResponse = imageResponse?.toByteArray(),
+        body = body,
+        headers = headers
+    )
+}
+
 fun History.toRequestEntity(collectionId: String): RequestEntity {
     return RequestEntity(
         collectionId = collectionId,

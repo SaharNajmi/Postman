@@ -74,6 +74,7 @@ fun HomeScreen(
     homeViewModel: HomeViewModel,
     requestId: Int?,
     source: String?,
+    collectionId: String?,
     onNavigateToHistory: () -> Unit,
     onNavigateToCollection: () -> Unit,
 ) {
@@ -102,7 +103,8 @@ fun HomeScreen(
         }
         RequestBuilder(
             uiState,
-            homeViewModel
+            homeViewModel,
+            collectionId
         )
     }
 }
@@ -173,6 +175,7 @@ fun NewRequest(
 fun RequestBuilder(
     uiState: HomeUiState,
     homeViewModel: HomeViewModel,
+    collectionId: String?
 ) {
     val methodOptions = listOf(
         MethodName.GET, MethodName.POST, MethodName.PUT, MethodName.PATCH,
@@ -191,7 +194,7 @@ fun RequestBuilder(
                 .padding(4.dp),
             colors = ButtonDefaults.buttonColors(containerColor = LightBlue),
             shape = RoundedCornerShape(4.dp),
-            onClick = { homeViewModel.sendRequest() }
+            onClick = { homeViewModel.sendRequest(collectionId) }
         ) {
             Text(text = "Send", fontWeight = FontWeight.Bold)
         }

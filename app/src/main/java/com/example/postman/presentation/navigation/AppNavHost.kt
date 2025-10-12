@@ -1,7 +1,6 @@
 package com.example.postman.presentation.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.traceEventEnd
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -37,14 +36,21 @@ fun AppNavHost(
                 type = NavType.StringType
                 nullable = true
                 defaultValue = null
+            }, navArgument(Screens.ARG_COLLECTION_ID) {
+                type = NavType.StringType
+                nullable = true
+                defaultValue = null
             })
         ) { backStackEntry ->
-            var requestId = backStackEntry.arguments?.getString(Screens.ARG_REQUEST_ID)?.toIntOrNull()
+            var requestId =
+                backStackEntry.arguments?.getString(Screens.ARG_REQUEST_ID)?.toIntOrNull()
             var source = backStackEntry.arguments?.getString(Screens.ARG_SOURCE)
+            val collectionId = backStackEntry.arguments?.getString((Screens.ARG_COLLECTION_ID))
             HomeScreen(
                 homeViewModel,
                 requestId,
                 source,
+                collectionId,
                 onNavigateToHistory = {
                     navController.navigate(Screens.HistoryScreen.route)
                 },
@@ -72,11 +78,12 @@ fun AppNavHost(
             CollectionScreen(
                 navController,
                 collectionViewModel,
-                onCollectionItemClick = { requestId ->
+                onCollectionItemClick = { requestId, collectionId ->
                     navController.navigate(
                         Screens.HomeScreen.createRoute(
                             requestId,
-                            Screens.ROUTE_COLLECTION_SCREEN
+                            Screens.ROUTE_COLLECTION_SCREEN,
+                            collectionId
                         )
                     )
                 })

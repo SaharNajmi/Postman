@@ -7,6 +7,7 @@ import com.example.postman.domain.model.Request
 object CollectionMapper {
     fun Request.toHttpRequest(): HttpRequest =
         HttpRequest(
+            id = id,
             requestUrl = requestUrl ?: "",
             methodOption = methodOption,
             body = body,
@@ -19,5 +20,21 @@ object CollectionMapper {
             response = response,
             statusCode = statusCode,
             imageResponse = imageResponse
+        )
+
+    fun httpRequestToRequest(
+        httpRequest: HttpRequest,
+        httpResult: HttpResult,
+    ): Request =
+        Request(
+            id = httpRequest.id,
+            requestUrl = httpRequest.requestUrl,
+            methodOption = httpRequest.methodOption,
+            createdAt = httpRequest.createdAt,
+            response = httpResult.response,
+            statusCode = httpResult.statusCode,
+            imageResponse = httpResult.imageResponse,
+            body = httpRequest.body,
+            headers = httpRequest.headers
         )
 }

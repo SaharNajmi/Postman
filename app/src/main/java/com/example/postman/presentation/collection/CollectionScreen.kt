@@ -72,7 +72,7 @@ import com.example.postman.ui.theme.Silver
 fun CollectionScreen(
     navController: NavController,
     viewModel: CollectionViewModel,
-    onCollectionItemClick: (Int) -> Unit
+    onCollectionItemClick: (Int, String) -> Unit,
 ) {
     LaunchedEffect(Unit) {
         viewModel.getCollections()
@@ -166,7 +166,7 @@ private fun ExpandedCollectionItems(
     collections: List<Collection>,
     expandedStates: State<Map<String, Boolean>>,
     viewModel: CollectionViewModel,
-    onCollectionItemClick: (Int) -> Unit
+    onCollectionItemClick: (Int, String) -> Unit,
 ) {
     LazyColumn(
         modifier = modifier
@@ -211,7 +211,12 @@ private fun ExpandedCollectionItems(
                         modifier = Modifier.fillMaxWidth(),
                         visible = expandedStates.value[it.collectionId] == true
                     ) {
-                        CollectionItem(allRequests[index], onCollectionItemClick, viewModel)
+                        CollectionItem(
+                            allRequests[index],
+                            it.collectionId,
+                            onCollectionItemClick,
+                            viewModel
+                        )
                     }
                 }
             }
@@ -227,7 +232,7 @@ fun CollectionHeader(
     onHeaderClicked: () -> Unit,
     onDeleteClicked: () -> Unit,
     onAddNewRequestClick: () -> Unit,
-    onRenameCollectionClick: (String) -> Unit
+    onRenameCollectionClick: (String) -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
@@ -340,14 +345,15 @@ fun AddARequest(onAddNewRequestClick: () -> Unit) {
 @Composable
 private fun CollectionItem(
     request: Request,
-    onCollectionItemClick: (Int) -> Unit,
-    viewModel: CollectionViewModel
+    collectionId: String,
+    onCollectionItemClick: (Int, String) -> Unit,
+    viewModel: CollectionViewModel,
 ) {
     Row(
         modifier = Modifier
             .padding(top = 8.dp, bottom = 8.dp, start = 12.dp)
             .clickable {
-                onCollectionItemClick(request.id)
+                onCollectionItemClick(request.id, collectionId)
             },
         verticalAlignment = Alignment.CenterVertically
     ) {

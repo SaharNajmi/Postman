@@ -11,14 +11,17 @@ import com.example.postman.common.extensions.getNetworkErrorMessage
 import com.example.postman.common.extensions.mapKeyValuePairsToQueryParameter
 import com.example.postman.common.utils.MethodName
 import com.example.postman.data.local.dao.CollectionDao
+import com.example.postman.data.mapper.CollectionMapper
 import com.example.postman.data.mapper.CollectionMapper.toHttpRequest
 import com.example.postman.data.mapper.CollectionMapper.toHttpResponse
 import com.example.postman.data.mapper.HistoryMapper
 import com.example.postman.data.mapper.HistoryMapper.toHttpRequest
 import com.example.postman.data.mapper.HistoryMapper.toHttpResponse
 import com.example.postman.data.mapper.toDomain
+import com.example.postman.data.mapper.toEntity
 import com.example.postman.domain.model.HttpRequest
 import com.example.postman.domain.model.HttpResult
+import com.example.postman.domain.model.Request
 import com.example.postman.domain.repository.ApiService
 import com.example.postman.domain.repository.HistoryRepository
 import com.example.postman.presentation.base.Loadable
@@ -38,7 +41,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val repository: ApiService,
     private val historyRepository: HistoryRepository,
-    private val collectionDao: CollectionDao
+    private val collectionDao: CollectionDao,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HomeUiState>(
@@ -47,7 +50,7 @@ class HomeViewModel @Inject constructor(
 
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
-    fun sendRequest() {
+    fun sendRequest(collectionId: String? = null) {
         val requestData = uiState.value.data
         if (requestData.requestUrl.isBlank()) return
 
@@ -70,6 +73,17 @@ class HomeViewModel @Inject constructor(
                     requestData,
                     response
                 )
+
+                if (collectionId != null) {
+                    updateCollectionRequest(
+                        collectionId = collectionId,
+                        CollectionMapper.httpRequestToRequest(
+                            httpRequest = requestData,
+                            httpResult = response
+                        )
+                    )
+                }
+
             } catch (error: Exception) {
                 _uiState.value = _uiState.value.copy(
                     response = Loadable.NetworkError(
@@ -80,6 +94,15 @@ class HomeViewModel @Inject constructor(
                     requestData,
                     HttpResult(error.getNetworkErrorMessage())
                 )
+                if (collectionId != null) {
+                    updateCollectionRequest(
+                        collectionId = collectionId,
+                        CollectionMapper.httpRequestToRequest(
+                            httpRequest = requestData,
+                            httpResult = HttpResult(error.getNetworkErrorMessage())
+                        )
+                    )
+                }
             }
         }
     }
@@ -182,7 +205,7 @@ class HomeViewModel @Inject constructor(
     }
 
     suspend fun buildResponseBody(
-        result: HttpResponse
+        result: HttpResponse,
     ): Pair<String, ImageBitmap?> {
         var imageResponse: ImageBitmap? = null
 
@@ -216,7 +239,7 @@ class HomeViewModel @Inject constructor(
 
     fun saveToHistory(
         httpRequest: HttpRequest,
-        response: HttpResult
+        response: HttpResult,
     ) {
         viewModelScope.launch {
             historyRepository.insertHistoryRequest(
@@ -259,6 +282,17 @@ class HomeViewModel @Inject constructor(
             _uiState.value = HomeUiState(
                 saved.toHttpRequest(),
                 response
+            )
+        }
+    }
+
+    fun updateCollectionRequest(collectionId: String, request: Request) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val requestName = collectionDao.getRequestName(request.id)
+            collectionDao.updateCollectionRequest(
+                request.toEntity(
+                    collectionId,
+                    requestName)
             )
         }
     }

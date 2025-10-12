@@ -13,7 +13,6 @@ data class Collection(
 
 data class Request(
     val id: Int = 0,
-    val requestName: String = "New Request",
     val requestUrl: String? = null,
     val methodOption: MethodName = MethodName.GET,
     val createdAt: LocalDate = LocalDate.now(),
