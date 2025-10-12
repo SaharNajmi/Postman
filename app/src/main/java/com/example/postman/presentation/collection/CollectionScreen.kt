@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.postman.R
+import com.example.postman.common.extensions.parseMethodNameFromString
 import com.example.postman.domain.model.Collection
 import com.example.postman.domain.model.Request
 import com.example.postman.presentation.base.CustomSearchBar
@@ -357,15 +358,16 @@ private fun CollectionItem(
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
+        val methodOption = request.requestName.parseMethodNameFromString()
         Text(
-            text = request.methodOption.name,
-            color = request.methodOption.color,
+            text = methodOption.name,
+            color = methodOption.color,
             fontSize = 12.sp,
             modifier = Modifier.padding(end = 8.dp)
         )
 
         Text(
-            text = request.requestName,
+            text = request.requestName.substringAfter(" "),
             fontSize = 12.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

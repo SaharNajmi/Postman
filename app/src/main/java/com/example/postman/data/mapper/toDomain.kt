@@ -1,9 +1,7 @@
 package com.example.postman.data.mapper
 
-import androidx.compose.ui.graphics.ImageBitmap
 import com.example.postman.common.extensions.toByteArray
 import com.example.postman.common.extensions.toImageBitmap
-import com.example.postman.common.utils.MethodName
 import com.example.postman.data.local.entity.CollectionEntity
 import com.example.postman.data.local.entity.HistoryEntity
 import com.example.postman.data.local.entity.RequestEntity
@@ -11,7 +9,6 @@ import com.example.postman.domain.model.Collection
 import com.example.postman.domain.model.History
 import com.example.postman.domain.model.Request
 import java.time.Instant
-import java.time.LocalDate
 import java.time.ZoneId
 
 fun CollectionEntity.toDomain(requests: List<RequestEntity>): Collection {
@@ -86,7 +83,7 @@ fun History.toRequestEntity(collectionId: String): RequestEntity {
     return RequestEntity(
         collectionId = collectionId,
         requestUrl = requestUrl,
-        requestName = requestUrl,
+        requestName = "$methodOption $requestUrl",
         methodOption = methodOption,
         response = response,
         createdAt = createdAt

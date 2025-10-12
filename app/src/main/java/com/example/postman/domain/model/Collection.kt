@@ -15,6 +15,7 @@ data class Request(
     val id: Int = 0,
     val requestUrl: String? = null,
     val methodOption: MethodName = MethodName.GET,
+    val requestName: String = "$methodOption New Request",
     val createdAt: LocalDate = LocalDate.now(),
     val response: String = "",
     val imageResponse: ImageBitmap? = null,
