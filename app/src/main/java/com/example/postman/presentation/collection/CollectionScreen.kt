@@ -53,7 +53,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -121,7 +120,10 @@ fun CollectionScreen(
                 filteredItems,
                 expandedStates,
                 viewModel,
-                onCollectionItemClick
+                onCollectionItemClick,
+                onRenameRequestClick = { id, newName ->
+                    viewModel.changeRequestName(id, newName)
+                }
             )
         }
     }
@@ -168,6 +170,7 @@ private fun ExpandedCollectionItems(
     expandedStates: State<Map<String, Boolean>>,
     viewModel: CollectionViewModel,
     onCollectionItemClick: (Int, String) -> Unit,
+    onRenameRequestClick: (Int, String) -> Unit,
 ) {
     LazyColumn(
         modifier = modifier
@@ -216,7 +219,8 @@ private fun ExpandedCollectionItems(
                             allRequests[index],
                             it.collectionId,
                             onCollectionItemClick,
-                            viewModel
+                            viewModel,
+                            onRenameRequestClick
                         )
                     }
                 }
@@ -349,7 +353,17 @@ private fun CollectionItem(
     collectionId: String,
     onCollectionItemClick: (Int, String) -> Unit,
     viewModel: CollectionViewModel,
+    onRenameRequestClick: (Int, String) -> Unit,
 ) {
+    val requestName = request.requestName.substringAfter(" ")
+    var text by remember {
+        mutableStateOf(TextFieldValue(requestName, TextRange(requestName.length)))
+    }
+
+    val focusManager = LocalFocusManager.current
+    val focusRequester = remember { FocusRequester() }
+    var isEditable by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .padding(top = 8.dp, bottom = 8.dp, start = 12.dp)
@@ -366,15 +380,56 @@ private fun CollectionItem(
             modifier = Modifier.padding(end = 8.dp)
         )
 
-        Text(
-            text = request.requestName.substringAfter(" "),
-            fontSize = 12.sp,
+        OutlinedTextField(
+            value = text,
+            onValueChange = { text = it },
+            readOnly = !isEditable,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .weight(1f)
-                .padding(end = 4.dp)
+                .height(48.dp)
+                .focusable(isEditable)
+                .focusRequester(focusRequester)
+                .onFocusChanged { focusState ->
+                    if (!focusState.isFocused && isEditable) {
+                        isEditable = false
+                        onRenameRequestClick(request.id, "${methodOption.name} ${text.text}")
+                    }
+                },
+            textStyle = TextStyle(),
+            shape = RoundedCornerShape(8.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = if (isEditable) Blue else Color.Transparent,
+                unfocusedBorderColor = Color.Transparent,
+            ),
+            keyboardOptions = KeyboardOptions.Default.copy(
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    isEditable = false
+                    focusManager.clearFocus()
+                }
+            )
         )
+
+        Icon(
+            Icons.Default.Edit,
+            contentDescription = "rename",
+            Modifier
+                .padding(horizontal = 4.dp)
+                .clickable {
+                    if (isEditable) {
+                        isEditable = false
+                        focusManager.clearFocus()
+                    } else {
+                        isEditable = true
+                        focusRequester.requestFocus()
+                    }
+                },
+            tint = Blue
+        )
+
         Icon(
             painter = painterResource(R.drawable.ic_delete), contentDescription = "delete",
             Modifier

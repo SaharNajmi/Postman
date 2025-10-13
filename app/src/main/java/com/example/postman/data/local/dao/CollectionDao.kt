@@ -5,7 +5,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.postman.common.utils.MethodName
 import com.example.postman.data.local.entity.CollectionEntity
 import com.example.postman.data.local.entity.RequestEntity
 
@@ -41,6 +40,6 @@ interface CollectionDao {
     @Query("DELETE FROM requests WHERE id = :requestId")
     suspend fun deleteRequestFromCollection(requestId: Int)
 
-    @Query("DELETE FROM requests WHERE id IN (:requestIds)")
-    fun deleteRequestsFromCollection(requestIds: List<Int>)
+    @Query("UPDATE requests SET requestName = :requestName WHERE id = :requestId")
+    fun changeRequestName(requestId: Int, requestName: String)
 }

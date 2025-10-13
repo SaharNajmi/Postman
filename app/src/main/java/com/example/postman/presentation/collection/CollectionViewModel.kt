@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CollectionViewModel @Inject constructor(
-    private val collectionDao: CollectionDao
+    private val collectionDao: CollectionDao,
 ) : ViewModel() {
 
     private val _collections =
@@ -52,13 +52,6 @@ class CollectionViewModel @Inject constructor(
         }
     }
 
-    fun deleteRequests(requestIds: List<Int>) {
-        viewModelScope.launch(Dispatchers.IO) {
-            collectionDao.deleteRequestsFromCollection(requestIds)
-            getCollections()
-        }
-    }
-
     fun deleteCollection(collectionId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             collectionDao.deleteCollection(collectionId)
@@ -84,6 +77,13 @@ class CollectionViewModel @Inject constructor(
     fun updateCollection(collection: Collection) {
         viewModelScope.launch(Dispatchers.IO) {
             collectionDao.updateCollection(collection.toEntity())
+            getCollections()
+        }
+    }
+
+    fun changeRequestName(requestId: Int, requestName: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            collectionDao.changeRequestName(requestId, requestName)
             getCollections()
         }
     }
