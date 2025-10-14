@@ -119,10 +119,25 @@ fun CollectionScreen(
                 modifier,
                 filteredItems,
                 expandedStates,
-                viewModel,
                 onCollectionItemClick,
                 onRenameRequestClick = { id, newName ->
                     viewModel.changeRequestName(id, newName)
+                },
+                onRenameCollectionClick = { collection ->
+                    viewModel.updateCollection(collection)
+                },
+                onCreateAnEmptyRequestCLick = { collectionId ->
+                    viewModel.createAnEmptyRequest(collectionId)
+                },
+                onToggleExpandedClick = { collectionId ->
+                    viewModel.toggleExpanded(collectionId)
+
+                },
+                onDeleteCollectionClick = { collectionId ->
+                    viewModel.deleteCollection(collectionId)
+                },
+                onDeleteRequestClick = { requestId ->
+                    viewModel.deleteRequestItem(requestId)
                 }
             )
         }
@@ -168,9 +183,13 @@ private fun ExpandedCollectionItems(
     modifier: Modifier,
     collections: List<Collection>,
     expandedStates: State<Map<String, Boolean>>,
-    viewModel: CollectionViewModel,
     onCollectionItemClick: (Int, String) -> Unit,
     onRenameRequestClick: (Int, String) -> Unit,
+    onRenameCollectionClick: (Collection) -> Unit,
+    onCreateAnEmptyRequestCLick: (String) -> Unit,
+    onToggleExpandedClick: (String) -> Unit,
+    onDeleteCollectionClick: (String) -> Unit,
+    onDeleteRequestClick: (Int) -> Unit,
 ) {
     LazyColumn(
         modifier = modifier
@@ -185,15 +204,15 @@ private fun ExpandedCollectionItems(
                     it.collectionName,
                     expandedStates.value[it.collectionId] ?: false,
                     {
-                        viewModel.toggleExpanded(it.collectionId)
+                        onToggleExpandedClick(it.collectionId)
                     }, {
-                        viewModel.deleteCollection(it.collectionId)
+                        onDeleteCollectionClick(it.collectionId)
                     },
                     {
-                        viewModel.createAnEmptyRequest(it.collectionId)
+                        onCreateAnEmptyRequestCLick(it.collectionId)
                     }, { newName ->
                         if (it.collectionName != newName) {
-                            viewModel.updateCollection(it.copy(collectionName = newName))
+                            onRenameCollectionClick(it.copy(collectionName = newName))
                         }
                     })
             }
@@ -205,7 +224,7 @@ private fun ExpandedCollectionItems(
                         visible = expandedStates.value[it.collectionId] == true
                     ) {
                         AddARequest {
-                            viewModel.createAnEmptyRequest(it.collectionId)
+                            onCreateAnEmptyRequestCLick(it.collectionId)
                         }
                     }
                 }
@@ -219,8 +238,8 @@ private fun ExpandedCollectionItems(
                             allRequests[index],
                             it.collectionId,
                             onCollectionItemClick,
-                            viewModel,
-                            onRenameRequestClick
+                            onRenameRequestClick,
+                            onDeleteRequestClick
                         )
                     }
                 }
@@ -352,8 +371,8 @@ private fun CollectionItem(
     request: Request,
     collectionId: String,
     onCollectionItemClick: (Int, String) -> Unit,
-    viewModel: CollectionViewModel,
     onRenameRequestClick: (Int, String) -> Unit,
+    onDeleteRequestClick: (Int) -> Unit,
 ) {
     val requestName = request.requestName.substringAfter(" ")
     var text by remember {
@@ -436,7 +455,7 @@ private fun CollectionItem(
                 .padding(horizontal = 4.dp)
                 .size(20.dp)
                 .clickable {
-                    viewModel.deleteRequestItem(request.id)
+                    onDeleteRequestClick(request.id)
                 }
         )
     }
