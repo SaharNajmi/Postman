@@ -85,6 +85,15 @@ fun CollectionScreen(
     )
     val focusManager = LocalFocusManager.current
     val modifier = Modifier
+    val callbacks = CollectionCallbacks(
+        onCollectionItemClick = onCollectionItemClick,
+        onRenameRequestClick = { id, newName -> viewModel.changeRequestName(id, newName) },
+        onRenameCollectionClick = { collection -> viewModel.updateCollection(collection) },
+        onCreateAnEmptyRequestClick = { collectionId -> viewModel.createAnEmptyRequest(collectionId) },
+        onToggleExpandedClick = { collectionId -> viewModel.toggleExpanded(collectionId) },
+        onDeleteCollectionClick = { collectionId -> viewModel.deleteCollection(collectionId) },
+        onDeleteRequestClick = { requestId -> viewModel.deleteRequestItem(requestId) }
+    )
     Column(
         modifier = modifier
             .padding(12.dp)
@@ -119,26 +128,7 @@ fun CollectionScreen(
                 modifier,
                 filteredItems,
                 expandedStates,
-                onCollectionItemClick,
-                onRenameRequestClick = { id, newName ->
-                    viewModel.changeRequestName(id, newName)
-                },
-                onRenameCollectionClick = { collection ->
-                    viewModel.updateCollection(collection)
-                },
-                onCreateAnEmptyRequestCLick = { collectionId ->
-                    viewModel.createAnEmptyRequest(collectionId)
-                },
-                onToggleExpandedClick = { collectionId ->
-                    viewModel.toggleExpanded(collectionId)
-
-                },
-                onDeleteCollectionClick = { collectionId ->
-                    viewModel.deleteCollection(collectionId)
-                },
-                onDeleteRequestClick = { requestId ->
-                    viewModel.deleteRequestItem(requestId)
-                }
+                callbacks
             )
         }
     }
@@ -183,13 +173,7 @@ private fun ExpandedCollectionItems(
     modifier: Modifier,
     collections: List<Collection>,
     expandedStates: State<Map<String, Boolean>>,
-    onCollectionItemClick: (Int, String) -> Unit,
-    onRenameRequestClick: (Int, String) -> Unit,
-    onRenameCollectionClick: (Collection) -> Unit,
-    onCreateAnEmptyRequestCLick: (String) -> Unit,
-    onToggleExpandedClick: (String) -> Unit,
-    onDeleteCollectionClick: (String) -> Unit,
-    onDeleteRequestClick: (Int) -> Unit,
+    callbacks: CollectionCallbacks,
 ) {
     LazyColumn(
         modifier = modifier
@@ -204,15 +188,15 @@ private fun ExpandedCollectionItems(
                     it.collectionName,
                     expandedStates.value[it.collectionId] ?: false,
                     {
-                        onToggleExpandedClick(it.collectionId)
+                        callbacks.onToggleExpandedClick(it.collectionId)
                     }, {
-                        onDeleteCollectionClick(it.collectionId)
+                        callbacks.onDeleteCollectionClick(it.collectionId)
                     },
                     {
-                        onCreateAnEmptyRequestCLick(it.collectionId)
+                        callbacks.onCreateAnEmptyRequestClick(it.collectionId)
                     }, { newName ->
                         if (it.collectionName != newName) {
-                            onRenameCollectionClick(it.copy(collectionName = newName))
+                            callbacks.onRenameCollectionClick(it.copy(collectionName = newName))
                         }
                     })
             }
@@ -224,7 +208,7 @@ private fun ExpandedCollectionItems(
                         visible = expandedStates.value[it.collectionId] == true
                     ) {
                         AddARequest {
-                            onCreateAnEmptyRequestCLick(it.collectionId)
+                            callbacks.onCreateAnEmptyRequestClick(it.collectionId)
                         }
                     }
                 }
@@ -237,9 +221,7 @@ private fun ExpandedCollectionItems(
                         CollectionItem(
                             allRequests[index],
                             it.collectionId,
-                            onCollectionItemClick,
-                            onRenameRequestClick,
-                            onDeleteRequestClick
+                            callbacks
                         )
                     }
                 }
@@ -370,9 +352,7 @@ fun AddARequest(onAddNewRequestClick: () -> Unit) {
 private fun CollectionItem(
     request: Request,
     collectionId: String,
-    onCollectionItemClick: (Int, String) -> Unit,
-    onRenameRequestClick: (Int, String) -> Unit,
-    onDeleteRequestClick: (Int) -> Unit,
+    callbacks: CollectionCallbacks,
 ) {
     val requestName = request.requestName.substringAfter(" ")
     var text by remember {
@@ -387,7 +367,7 @@ private fun CollectionItem(
         modifier = Modifier
             .padding(top = 8.dp, bottom = 8.dp, start = 12.dp)
             .clickable {
-                onCollectionItemClick(request.id, collectionId)
+                callbacks.onCollectionItemClick(request.id, collectionId)
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -412,7 +392,10 @@ private fun CollectionItem(
                 .onFocusChanged { focusState ->
                     if (!focusState.isFocused && isEditable) {
                         isEditable = false
-                        onRenameRequestClick(request.id, "${methodOption.name} ${text.text}")
+                        callbacks.onRenameRequestClick(
+                            request.id,
+                            "${methodOption.name} ${text.text}"
+                        )
                     }
                 },
             textStyle = TextStyle(),
@@ -455,7 +438,7 @@ private fun CollectionItem(
                 .padding(horizontal = 4.dp)
                 .size(20.dp)
                 .clickable {
-                    onDeleteRequestClick(request.id)
+                    callbacks.onDeleteRequestClick(request.id)
                 }
         )
     }
