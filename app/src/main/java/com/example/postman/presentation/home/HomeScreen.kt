@@ -79,7 +79,6 @@ fun HomeScreen(
     onNavigateToCollection: () -> Unit,
 ) {
     val uiState by homeViewModel.uiState.collectAsState()
-
     LaunchedEffect(requestId, source) {
         if (requestId != null && source != null) {
             when (source) {
@@ -88,60 +87,47 @@ fun HomeScreen(
             }
         }
     }
-
+    val callbacks = HomeCallbacks(
+        onSendRequestClick = { homeViewModel.sendRequest(collectionId) },
+        onBodyChanged = { homeViewModel.updateBody(it) },
+        onAddHeader = { key, value -> homeViewModel.addHeader(key, value) },
+        onRemoveHeader = { key, value -> homeViewModel.removeHeader(key, value) },
+        onAddParameter = { key, value -> homeViewModel.addParameter(key, value) },
+        onRemoveParameter = { key, value -> homeViewModel.removeParameter(key, value) },
+        onMethodNameChanged = { homeViewModel.updateMethodName(it) },
+        onRequestUrlChanged = { homeViewModel.updateRequestUrl(it) },
+        onClearDataClick = { homeViewModel.clearData() },
+        onNavigateToHistory = onNavigateToHistory,
+        onNavigateToCollection = onNavigateToCollection
+    )
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 8.dp)
     ) {
         Row {
-            HistoryButton(onNavigateToHistory)
+            HistoryButton(callbacks)
             Spacer(modifier = Modifier.width(4.dp))
-            CollectionButton(onNavigateToCollection)
+            CollectionButton(callbacks)
             Spacer(modifier = Modifier.width(4.dp))
-            NewRequest {
-                homeViewModel.clearData()
-            }
+            NewRequest(callbacks)
         }
         RequestBuilder(
             uiState,
-            onSendRequestClick = {
-                homeViewModel.sendRequest(collectionId)
-            },
-            onBodyChanged = {
-                homeViewModel.updateBody(it)
-            },
-            onAddHeader = { key, value ->
-                homeViewModel.addHeader(key, value)
-            },
-            onRemoveHeader = { key, value ->
-                homeViewModel.removeHeader(key, value)
-            },
-            onAddParameter = { key, value ->
-                homeViewModel.addParameter(key, value)
-            },
-            onRemoveParameter = { key, value ->
-                homeViewModel.removeParameter(key, value)
-            },
-            onMethodNameChanged = {
-                homeViewModel.updateMethodName(it)
-            },
-            onRequestUrlChanged = {
-                homeViewModel.updateRequestUrl(it)
-            }
+            callbacks = callbacks
         )
     }
 }
 
 @Composable
 fun HistoryButton(
-    onNavigateToHistory: () -> Unit,
+    callbacks: HomeCallbacks,
 ) {
     TextButton(
         modifier = Modifier
             .padding(top = 12.dp),
         onClick = {
-            onNavigateToHistory()
+            callbacks.onNavigateToHistory()
         }) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
@@ -155,13 +141,13 @@ fun HistoryButton(
 
 @Composable
 fun CollectionButton(
-    onNavigateToCollection: () -> Unit,
+    callbacks: HomeCallbacks,
 ) {
     TextButton(
         modifier = Modifier
             .padding(top = 12.dp),
         onClick = {
-            onNavigateToCollection()
+            callbacks.onNavigateToCollection()
         }) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
@@ -175,7 +161,7 @@ fun CollectionButton(
 
 @Composable
 fun NewRequest(
-    onClearDataClick: () -> Unit,
+    callbacks: HomeCallbacks,
 ) {
     TextButton(
         modifier = Modifier
@@ -183,7 +169,7 @@ fun NewRequest(
             .stylusHoverIcon(
                 icon = PointerIcon(R.drawable.arrow_upward)
             ), onClick = {
-            onClearDataClick()
+            callbacks.onClearDataClick()
         }) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
@@ -198,14 +184,7 @@ fun NewRequest(
 @Composable
 fun RequestBuilder(
     uiState: HomeUiState,
-    onSendRequestClick: () -> Unit,
-    onBodyChanged: (String) -> Unit,
-    onAddHeader: (String, String) -> Unit,
-    onRemoveHeader: (String, String) -> Unit,
-    onAddParameter: (String, String) -> Unit,
-    onRemoveParameter: (String, String) -> Unit,
-    onMethodNameChanged: (MethodName) -> Unit,
-    onRequestUrlChanged: (String) -> Unit,
+    callbacks: HomeCallbacks,
 ) {
     val methodOptions = listOf(
         MethodName.GET, MethodName.POST, MethodName.PUT, MethodName.PATCH,
@@ -218,13 +197,18 @@ fun RequestBuilder(
             .padding(bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        RequestLine(methodOptions, uiState, onMethodNameChanged, onRequestUrlChanged)
+        RequestLine(
+            methodOptions,
+            uiState,
+            callbacks.onMethodNameChanged,
+            callbacks.onRequestUrlChanged
+        )
         Button(
             modifier = Modifier
                 .padding(4.dp),
             colors = ButtonDefaults.buttonColors(containerColor = LightBlue),
             shape = RoundedCornerShape(4.dp),
-            onClick = { onSendRequestClick() }
+            onClick = { callbacks.onSendRequestClick() }
         ) {
             Text(text = "Send", fontWeight = FontWeight.Bold)
         }
@@ -233,11 +217,7 @@ fun RequestBuilder(
     RequestParametersSection(
         modifier = Modifier,
         uiState = uiState,
-        onBodyChanged = onBodyChanged,
-        onAddHeader = onAddHeader,
-        onRemoveHeader = onRemoveHeader,
-        onAddParameter = onAddParameter,
-        onRemoveParameter = onRemoveParameter
+        callbacks = callbacks
     )
 
     Spacer(modifier = Modifier.height(8.dp))
@@ -317,11 +297,7 @@ private fun RowScope.RequestLine(
 fun RequestParametersSection(
     modifier: Modifier,
     uiState: HomeUiState,
-    onBodyChanged: (String) -> Unit,
-    onAddHeader: (String, String) -> Unit,
-    onRemoveHeader: (String, String) -> Unit,
-    onAddParameter: (String, String) -> Unit,
-    onRemoveParameter: (String, String) -> Unit,
+    callbacks: HomeCallbacks,
 ) {
     val radioHttpParameterOptions = RadioHttpParameterOptions.entries.toList()
     var (selectedOption, onOptionSelected) = remember { mutableStateOf(radioHttpParameterOptions[0]) }
@@ -332,11 +308,7 @@ fun RequestParametersSection(
             modifier,
             selectedOption,
             uiState,
-            onBodyChanged,
-            onAddHeader,
-            onRemoveHeader,
-            onAddParameter,
-            onRemoveParameter
+            callbacks
         )
     }
 }
@@ -384,11 +356,7 @@ private fun HttpParameterBody(
     modifier: Modifier,
     selectedOption: RadioHttpParameterOptions,
     uiState: HomeUiState,
-    onBodyChanged: (String) -> Unit,
-    onAddHeader: (String, String) -> Unit,
-    onRemoveHeader: (String, String) -> Unit,
-    onAddParameter: (String, String) -> Unit,
-    onRemoveParameter: (String, String) -> Unit,
+    callbacks: HomeCallbacks,
 ) {
     Box(
         modifier
@@ -398,19 +366,19 @@ private fun HttpParameterBody(
     ) {
         when (selectedOption) {
             RadioHttpParameterOptions.Auth -> AuthSection(
-                Modifier, uiState, onAddHeader
+                Modifier, uiState, callbacks
             )
 
             RadioHttpParameterOptions.Params -> ParamsSection(
-                Modifier, uiState, onAddParameter, onRemoveParameter
+                Modifier, uiState, callbacks
             )
 
             RadioHttpParameterOptions.Header -> HeaderSection(
-                Modifier, uiState, onAddHeader, onRemoveHeader
+                Modifier, uiState, callbacks
             )
 
             RadioHttpParameterOptions.Body -> HttpParameterBodySection(
-                Modifier.fillMaxHeight(), uiState, onBodyChanged
+                Modifier.fillMaxHeight(), uiState, callbacks
             )
         }
     }
@@ -444,18 +412,17 @@ private fun StatusCode(uiState: HomeUiState) {
 fun ParamsSection(
     modifier: Modifier,
     uiState: HomeUiState,
-    onAddParameter: (String, String) -> Unit,
-    onRemoveParameter: (String, String) -> Unit,
+    callbacks: HomeCallbacks,
 ) {
     Column(modifier) {
         RemovableTagList(
             items = uiState.data.params,
             onRemoveItem = { key, value ->
-                onRemoveParameter(key, value)
+                callbacks.onRemoveParameter(key, value)
             }
         )
         KeyValueInput { key, value ->
-            onAddParameter(key, value)
+            callbacks.onAddParameter(key, value)
         }
     }
 }
@@ -464,7 +431,7 @@ fun ParamsSection(
 fun AuthSection(
     modifier: Modifier,
     uiState: HomeUiState,
-    onHeaderChanged: (String, String) -> Unit,
+    callbacks: HomeCallbacks,
 ) {
     Column(modifier) {
         Text(
@@ -480,7 +447,7 @@ fun AuthSection(
         TextVisibilityTextField(
             uiState.data.headers?.getHeaderValue("Authorization") ?: "",
             onTextChange = {
-                onHeaderChanged("Authorization", it)
+                callbacks.onAddHeader("Authorization", it)
             })
     }
 }
@@ -490,18 +457,17 @@ fun AuthSection(
 fun HeaderSection(
     modifier: Modifier,
     uiState: HomeUiState,
-    onAddHeader: (String, String) -> Unit,
-    onRemoveHeader: (String, String) -> Unit,
+    callbacks: HomeCallbacks,
 ) {
     Column(modifier) {
         RemovableTagList(
             items = uiState.data.headers,
             onRemoveItem = { key, value ->
-                onRemoveHeader(key, value)
+                callbacks.onRemoveHeader(key, value)
             }
         )
         KeyValueInput { key, value ->
-            onAddHeader(key, value)
+            callbacks.onAddHeader(key, value)
         }
     }
 }
@@ -511,12 +477,12 @@ fun HeaderSection(
 fun HttpParameterBodySection(
     modifier: Modifier,
     uiState: HomeUiState,
-    onBodyChanged: (String) -> Unit,
+    callbacks: HomeCallbacks,
 ) {
     TextField(
         value = uiState.data.body ?: "",
         onValueChange = {
-            onBodyChanged(it)
+            callbacks.onBodyChanged(it)
         },
         maxLines = Int.MAX_VALUE,
         modifier = modifier
