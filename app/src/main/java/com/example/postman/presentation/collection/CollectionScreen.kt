@@ -89,7 +89,8 @@ fun CollectionScreen(
         onCollectionItemClick = onCollectionItemClick,
         onRenameRequestClick = { id, newName -> viewModel.changeRequestName(id, newName) },
         onRenameCollectionClick = { collection -> viewModel.updateCollection(collection) },
-        onCreateAnEmptyRequestClick = { collectionId -> viewModel.createAnEmptyRequest(collectionId) },
+        onCreateEmptyRequestClick = { collectionId -> viewModel.createAnEmptyRequest(collectionId) },
+        onCreateNewCollectionClick = { viewModel.createNewCollection() },
         onToggleExpandedClick = { collectionId -> viewModel.toggleExpanded(collectionId) },
         onDeleteCollectionClick = { collectionId -> viewModel.deleteCollection(collectionId) },
         onDeleteRequestClick = { requestId -> viewModel.deleteRequestItem(requestId) }
@@ -119,9 +120,7 @@ fun CollectionScreen(
             CustomSearchBar("Search collections", searchQuery) { searchQuery = it }
         }
         when {
-            collections.isEmpty() -> CreateNewCollection {
-                viewModel.createNewCollection()
-            }
+            collections.isEmpty() -> CreateNewCollection(callbacks)
 
             filteredItems.isEmpty() -> NotFoundMessage(searchQuery)
             else -> ExpandedCollectionItems(
@@ -136,7 +135,7 @@ fun CollectionScreen(
 
 
 @Composable
-private fun CreateNewCollection(onCreateCollectionClick: () -> Unit) {
+private fun CreateNewCollection(callbacks: CollectionCallbacks) {
     Column(
         Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -157,7 +156,7 @@ private fun CreateNewCollection(onCreateCollectionClick: () -> Unit) {
         Spacer(modifier = Modifier.height(12.dp))
         TextButton(
             modifier = Modifier.border(width = 1.dp, color = Silver, RoundedCornerShape(8.dp)),
-            onClick = { onCreateCollectionClick() }) {
+            onClick = { callbacks.onCreateNewCollectionClick() }) {
             Text(
                 "Create Collection",
                 color = Color.Black,
@@ -187,18 +186,9 @@ private fun ExpandedCollectionItems(
                     modifier,
                     it.collectionName,
                     expandedStates.value[it.collectionId] ?: false,
-                    {
-                        callbacks.onToggleExpandedClick(it.collectionId)
-                    }, {
-                        callbacks.onDeleteCollectionClick(it.collectionId)
-                    },
-                    {
-                        callbacks.onCreateAnEmptyRequestClick(it.collectionId)
-                    }, { newName ->
-                        if (it.collectionName != newName) {
-                            callbacks.onRenameCollectionClick(it.copy(collectionName = newName))
-                        }
-                    })
+                    it,
+                    callbacks
+                )
             }
 
             if (allRequests.isNullOrEmpty()) {
@@ -207,9 +197,7 @@ private fun ExpandedCollectionItems(
                         modifier = Modifier.fillMaxWidth(),
                         visible = expandedStates.value[it.collectionId] == true
                     ) {
-                        AddARequest {
-                            callbacks.onCreateAnEmptyRequestClick(it.collectionId)
-                        }
+                        AddARequest(it.collectionId, callbacks)
                     }
                 }
             } else {
@@ -235,10 +223,8 @@ fun CollectionHeader(
     modifier: Modifier,
     header: String,
     isExpanded: Boolean,
-    onHeaderClicked: () -> Unit,
-    onDeleteClicked: () -> Unit,
-    onAddNewRequestClick: () -> Unit,
-    onRenameCollectionClick: (String) -> Unit,
+    collection: Collection,
+    callbacks: CollectionCallbacks,
 ) {
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
@@ -257,7 +243,7 @@ fun CollectionHeader(
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        IconButton(onClick = { onHeaderClicked() }) {
+        IconButton(onClick = { callbacks.onToggleExpandedClick(collection.collectionId) }) {
             Icon(
                 imageVector = icon,
                 contentDescription = "isExpandedIcon",
@@ -277,7 +263,10 @@ fun CollectionHeader(
                 .onFocusChanged { focusState ->
                     if (!focusState.isFocused && isEditable) {
                         isEditable = false
-                        onRenameCollectionClick(text.text)
+                        val newName = text.text
+                        if (collection.collectionName != newName) {
+                            callbacks.onRenameCollectionClick(collection.copy(collectionName = newName))
+                        }
                     }
                 },
             textStyle = TextStyle(),
@@ -302,7 +291,7 @@ fun CollectionHeader(
             Modifier
                 .padding(horizontal = 4.dp)
                 .clickable {
-                    onAddNewRequestClick()
+                    callbacks.onCreateEmptyRequestClick(collection.collectionId)
                 },
             tint = Blue
         )
@@ -329,7 +318,7 @@ fun CollectionHeader(
             Modifier
                 .padding(horizontal = 4.dp)
                 .clickable {
-                    onDeleteClicked()
+                    callbacks.onDeleteCollectionClick(collection.collectionId)
                 },
             tint = Blue
         )
@@ -337,11 +326,11 @@ fun CollectionHeader(
 }
 
 @Composable
-fun AddARequest(onAddNewRequestClick: () -> Unit) {
+fun AddARequest(collectionId: String, callbacks: CollectionCallbacks) {
     Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
         Text("This collection is empty")
         TextButton(onClick = {
-            onAddNewRequestClick()
+            callbacks.onCreateEmptyRequestClick(collectionId)
         }) {
             Text("Add a request")
         }
