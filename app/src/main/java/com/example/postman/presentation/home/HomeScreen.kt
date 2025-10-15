@@ -99,12 +99,36 @@ fun HomeScreen(
             Spacer(modifier = Modifier.width(4.dp))
             CollectionButton(onNavigateToCollection)
             Spacer(modifier = Modifier.width(4.dp))
-            NewRequest(homeViewModel)
+            NewRequest {
+                homeViewModel.clearData()
+            }
         }
         RequestBuilder(
             uiState,
-            homeViewModel,
-            collectionId
+            onSendRequestClick = {
+                homeViewModel.sendRequest(collectionId)
+            },
+            onBodyChanged = {
+                homeViewModel.updateBody(it)
+            },
+            onAddHeader = { key, value ->
+                homeViewModel.addHeader(key, value)
+            },
+            onRemoveHeader = { key, value ->
+                homeViewModel.removeHeader(key, value)
+            },
+            onAddParameter = { key, value ->
+                homeViewModel.addParameter(key, value)
+            },
+            onRemoveParameter = { key, value ->
+                homeViewModel.removeParameter(key, value)
+            },
+            onMethodNameChanged = {
+                homeViewModel.updateMethodName(it)
+            },
+            onRequestUrlChanged = {
+                homeViewModel.updateRequestUrl(it)
+            }
         )
     }
 }
@@ -151,7 +175,7 @@ fun CollectionButton(
 
 @Composable
 fun NewRequest(
-    homeViewModel: HomeViewModel,
+    onClearDataClick: () -> Unit,
 ) {
     TextButton(
         modifier = Modifier
@@ -159,7 +183,7 @@ fun NewRequest(
             .stylusHoverIcon(
                 icon = PointerIcon(R.drawable.arrow_upward)
             ), onClick = {
-            homeViewModel.clearData()
+            onClearDataClick()
         }) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
@@ -174,8 +198,14 @@ fun NewRequest(
 @Composable
 fun RequestBuilder(
     uiState: HomeUiState,
-    homeViewModel: HomeViewModel,
-    collectionId: String?
+    onSendRequestClick: () -> Unit,
+    onBodyChanged: (String) -> Unit,
+    onAddHeader: (String, String) -> Unit,
+    onRemoveHeader: (String, String) -> Unit,
+    onAddParameter: (String, String) -> Unit,
+    onRemoveParameter: (String, String) -> Unit,
+    onMethodNameChanged: (MethodName) -> Unit,
+    onRequestUrlChanged: (String) -> Unit,
 ) {
     val methodOptions = listOf(
         MethodName.GET, MethodName.POST, MethodName.PUT, MethodName.PATCH,
@@ -188,13 +218,13 @@ fun RequestBuilder(
             .padding(bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        RequestLine(methodOptions, uiState, homeViewModel)
+        RequestLine(methodOptions, uiState, onMethodNameChanged, onRequestUrlChanged)
         Button(
             modifier = Modifier
                 .padding(4.dp),
             colors = ButtonDefaults.buttonColors(containerColor = LightBlue),
             shape = RoundedCornerShape(4.dp),
-            onClick = { homeViewModel.sendRequest(collectionId) }
+            onClick = { onSendRequestClick() }
         ) {
             Text(text = "Send", fontWeight = FontWeight.Bold)
         }
@@ -202,8 +232,12 @@ fun RequestBuilder(
 
     RequestParametersSection(
         modifier = Modifier,
-        homeViewModel = homeViewModel,
         uiState = uiState,
+        onBodyChanged = onBodyChanged,
+        onAddHeader = onAddHeader,
+        onRemoveHeader = onRemoveHeader,
+        onAddParameter = onAddParameter,
+        onRemoveParameter = onRemoveParameter
     )
 
     Spacer(modifier = Modifier.height(8.dp))
@@ -219,7 +253,8 @@ fun RequestBuilder(
 private fun RowScope.RequestLine(
     methodOptions: List<MethodName>,
     uiState: HomeUiState,
-    homeViewModel: HomeViewModel,
+    onMethodNameChanged: (MethodName) -> Unit,
+    onRequestUrlChanged: (String) -> Unit,
 ) {
     var expandedMethodOption by remember { mutableStateOf(false) }
     Row(
@@ -256,7 +291,7 @@ private fun RowScope.RequestLine(
                     text = { Text(option.name, color = option.color) },
                     onClick = {
                         expandedMethodOption = false
-                        homeViewModel.updateMethodName(option)
+                        onMethodNameChanged(option)
                     })
             }
         }
@@ -264,7 +299,7 @@ private fun RowScope.RequestLine(
         TextField(
             value = uiState.data.requestUrl,
             onValueChange = {
-                homeViewModel.updateRequestUrl(it)
+                onRequestUrlChanged(it)
             },
             maxLines = 3,
             modifier = Modifier.padding(0.dp),
@@ -282,14 +317,27 @@ private fun RowScope.RequestLine(
 fun RequestParametersSection(
     modifier: Modifier,
     uiState: HomeUiState,
-    homeViewModel: HomeViewModel,
+    onBodyChanged: (String) -> Unit,
+    onAddHeader: (String, String) -> Unit,
+    onRemoveHeader: (String, String) -> Unit,
+    onAddParameter: (String, String) -> Unit,
+    onRemoveParameter: (String, String) -> Unit,
 ) {
     val radioHttpParameterOptions = RadioHttpParameterOptions.entries.toList()
     var (selectedOption, onOptionSelected) = remember { mutableStateOf(radioHttpParameterOptions[0]) }
 
     Column(modifier = modifier.fillMaxWidth()) {
         HttpParameterSelection(radioHttpParameterOptions, selectedOption, onOptionSelected)
-        HttpParameterBody(modifier, selectedOption, uiState, homeViewModel)
+        HttpParameterBody(
+            modifier,
+            selectedOption,
+            uiState,
+            onBodyChanged,
+            onAddHeader,
+            onRemoveHeader,
+            onAddParameter,
+            onRemoveParameter
+        )
     }
 }
 
@@ -336,7 +384,11 @@ private fun HttpParameterBody(
     modifier: Modifier,
     selectedOption: RadioHttpParameterOptions,
     uiState: HomeUiState,
-    homeViewModel: HomeViewModel,
+    onBodyChanged: (String) -> Unit,
+    onAddHeader: (String, String) -> Unit,
+    onRemoveHeader: (String, String) -> Unit,
+    onAddParameter: (String, String) -> Unit,
+    onRemoveParameter: (String, String) -> Unit,
 ) {
     Box(
         modifier
@@ -346,19 +398,19 @@ private fun HttpParameterBody(
     ) {
         when (selectedOption) {
             RadioHttpParameterOptions.Auth -> AuthSection(
-                Modifier, uiState, homeViewModel
+                Modifier, uiState, onAddHeader
             )
 
             RadioHttpParameterOptions.Params -> ParamsSection(
-                Modifier, uiState, homeViewModel
+                Modifier, uiState, onAddParameter, onRemoveParameter
             )
 
             RadioHttpParameterOptions.Header -> HeaderSection(
-                Modifier, uiState, homeViewModel
+                Modifier, uiState, onAddHeader, onRemoveHeader
             )
 
             RadioHttpParameterOptions.Body -> HttpParameterBodySection(
-                Modifier.fillMaxHeight(), uiState, homeViewModel
+                Modifier.fillMaxHeight(), uiState, onBodyChanged
             )
         }
     }
@@ -389,22 +441,31 @@ private fun StatusCode(uiState: HomeUiState) {
 }
 
 @Composable
-fun ParamsSection(modifier: Modifier, uiState: HomeUiState, homeViewModel: HomeViewModel) {
+fun ParamsSection(
+    modifier: Modifier,
+    uiState: HomeUiState,
+    onAddParameter: (String, String) -> Unit,
+    onRemoveParameter: (String, String) -> Unit,
+) {
     Column(modifier) {
         RemovableTagList(
             items = uiState.data.params,
             onRemoveItem = { key, value ->
-                homeViewModel.removeParameter(key, value)
+                onRemoveParameter(key, value)
             }
         )
         KeyValueInput { key, value ->
-            homeViewModel.addParameter(key, value)
+            onAddParameter(key, value)
         }
     }
 }
 
 @Composable
-fun AuthSection(modifier: Modifier, uiState: HomeUiState, viewModel: HomeViewModel) {
+fun AuthSection(
+    modifier: Modifier,
+    uiState: HomeUiState,
+    onHeaderChanged: (String, String) -> Unit,
+) {
     Column(modifier) {
         Text(
             text = "Bearer Token", modifier = Modifier
@@ -419,7 +480,7 @@ fun AuthSection(modifier: Modifier, uiState: HomeUiState, viewModel: HomeViewMod
         TextVisibilityTextField(
             uiState.data.headers?.getHeaderValue("Authorization") ?: "",
             onTextChange = {
-                viewModel.addHeader("Authorization", it)
+                onHeaderChanged("Authorization", it)
             })
     }
 }
@@ -429,17 +490,18 @@ fun AuthSection(modifier: Modifier, uiState: HomeUiState, viewModel: HomeViewMod
 fun HeaderSection(
     modifier: Modifier,
     uiState: HomeUiState,
-    homeViewModel: HomeViewModel,
+    onAddHeader: (String, String) -> Unit,
+    onRemoveHeader: (String, String) -> Unit,
 ) {
     Column(modifier) {
         RemovableTagList(
             items = uiState.data.headers,
             onRemoveItem = { key, value ->
-                homeViewModel.removeHeader(key, value)
+                onRemoveHeader(key, value)
             }
         )
         KeyValueInput { key, value ->
-            homeViewModel.addHeader(key, value)
+            onAddHeader(key, value)
         }
     }
 }
@@ -449,12 +511,12 @@ fun HeaderSection(
 fun HttpParameterBodySection(
     modifier: Modifier,
     uiState: HomeUiState,
-    homeViewModel: HomeViewModel,
+    onBodyChanged: (String) -> Unit,
 ) {
     TextField(
         value = uiState.data.body ?: "",
         onValueChange = {
-            homeViewModel.updateBody(it)
+            onBodyChanged(it)
         },
         maxLines = Int.MAX_VALUE,
         modifier = modifier
