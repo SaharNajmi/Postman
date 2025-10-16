@@ -344,8 +344,10 @@ private fun CollectionItem(
     callbacks: CollectionCallbacks,
 ) {
     val requestName = request.requestName.substringAfter(" ")
+
     var text by remember {
-        mutableStateOf(TextFieldValue(requestName, TextRange(requestName.length)))
+        val displayText = if (requestName.length > 35) requestName.take(35) + "..." else requestName
+        mutableStateOf(TextFieldValue(displayText))
     }
 
     val focusManager = LocalFocusManager.current
