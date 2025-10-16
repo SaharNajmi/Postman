@@ -8,7 +8,7 @@ data class CollectionCallbacks(
     val onRenameCollectionClick: (Collection) -> Unit,
     val onCreateEmptyRequestClick: (String) -> Unit,
     val onCreateNewCollectionClick: () -> Unit,
-    val onToggleExpandedClick: (String) -> Unit,
+    val onHeaderClick: (String) -> Unit,
     val onDeleteCollectionClick: (String) -> Unit,
     val onDeleteRequestClick: (Int) -> Unit,
 )

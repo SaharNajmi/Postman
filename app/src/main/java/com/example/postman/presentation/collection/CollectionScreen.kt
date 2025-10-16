@@ -91,7 +91,7 @@ fun CollectionScreen(
         onRenameCollectionClick = { collection -> viewModel.updateCollection(collection) },
         onCreateEmptyRequestClick = { collectionId -> viewModel.createAnEmptyRequest(collectionId) },
         onCreateNewCollectionClick = { viewModel.createNewCollection() },
-        onToggleExpandedClick = { collectionId -> viewModel.toggleExpanded(collectionId) },
+        onHeaderClick = { collectionId -> viewModel.toggleExpanded(collectionId) },
         onDeleteCollectionClick = { collectionId -> viewModel.deleteCollection(collectionId) },
         onDeleteRequestClick = { requestId -> viewModel.deleteRequestItem(requestId) }
     )
@@ -243,7 +243,7 @@ fun CollectionHeader(
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        IconButton(onClick = { callbacks.onToggleExpandedClick(collection.collectionId) }) {
+        IconButton(onClick = { callbacks.onHeaderClick(collection.collectionId) }) {
             Icon(
                 imageVector = icon,
                 contentDescription = "isExpandedIcon",
