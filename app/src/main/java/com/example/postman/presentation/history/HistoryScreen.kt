@@ -20,6 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,13 +49,14 @@ import com.example.postman.ui.theme.LightGray
 fun HistoryScreen(
     navController: NavController,
     viewModel: HistoryViewModel,
-    onHistoryItemClick: (Int) -> Unit
+    onHistoryItemClick: (Int) -> Unit,
 ) {
     val context = LocalContext.current
     LaunchedEffect(Unit) {
         viewModel.getHistories()
         viewModel.getCollections()
     }
+    val expandedState: State<Map<String, Boolean>> = viewModel.expandedStates.collectAsState()
     val historyRequest by viewModel.httpRequestRequestsModel.collectAsState()
     val collectionNames by viewModel.collectionNames.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
@@ -73,8 +75,9 @@ fun HistoryScreen(
         } else {
             ExpandedHistoryItem(
                 filteredHistoryRequest,
-                onHistoryItemClick,
-                { history, collectionId ->
+                onHistoryItemClick, collectionNames,
+                expandedState,
+                onAddHistoryToCollection = { history, collectionId ->
                     viewModel.addRequestToCollection(history, collectionId)
                     Toast.makeText(
                         context,
@@ -82,16 +85,21 @@ fun HistoryScreen(
                         Toast.LENGTH_SHORT
                     ).show()
                 },
-                { histories, collectionId ->
+                onAddHistoriesToCollection = { histories, collectionId ->
                     viewModel.addRequestsToCollection(histories, collectionId)
                     Toast.makeText(
                         context,
                         "successfully added to collections",
                         Toast.LENGTH_SHORT
                     ).show()
+                }, onToggleExpandedClick = { date ->
+                    viewModel.toggleExpanded(date)
+                }, onDeleteHistoriesClick = { historyIds ->
+                    viewModel.deleteHistoriesRequest(historyIds)
                 },
-                viewModel,
-                collectionNames
+                onDeleteHistoryClick = { historyId ->
+                    viewModel.deleteHistoryRequest(historyId)
+                }
             )
         }
     }
@@ -101,25 +109,26 @@ fun HistoryScreen(
 private fun ExpandedHistoryItem(
     historyRequest: Map<String, List<History>>,
     onHistoryItemClick: (Int) -> Unit,
+    collectionNames: Map<String, String>,
+    expandedState: State<Map<String, Boolean>>,
     onAddHistoryToCollection: (History, String) -> Unit,
     onAddHistoriesToCollection: (List<History>, String) -> Unit,
-    viewModel: HistoryViewModel,
-    collectionNames: Map<String, String>
+    onToggleExpandedClick: (String) -> Unit,
+    onDeleteHistoriesClick: (historyIds: List<Int>) -> Unit,
+    onDeleteHistoryClick: (Int) -> Unit,
 ) {
-    val expandedStates = viewModel.expandedStates.collectAsState()
-
     LazyColumn {
         historyRequest.forEach { header, items ->
             item {
                 HistoryHeader(
                     header,
                     collectionNames,
-                    expandedStates.value[header] ?: false,
+                    expandedState.value[header] ?: false,
                     {
-                        viewModel.toggleExpanded(header)
+                        onToggleExpandedClick(header)
                     },
                     {
-                        viewModel.deleteHistoriesRequest(items.map { it.id })
+                        onDeleteHistoriesClick(items.map { it.id })
                     },
                     { collectionId ->
                         onAddHistoriesToCollection(items, collectionId)
@@ -130,7 +139,7 @@ private fun ExpandedHistoryItem(
                 AnimatedVisibility(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    visible = expandedStates.value[header] == true
+                    visible = expandedState.value[header] == true
                 ) {
                     HistoryItem(
                         items,
@@ -138,7 +147,7 @@ private fun ExpandedHistoryItem(
                         index,
                         onHistoryItemClick,
                         onAddHistoryToCollection,
-                        viewModel
+                        onDeleteHistoryClick
                     )
                 }
             }
@@ -153,7 +162,7 @@ fun HistoryHeader(
     isExpanded: Boolean,
     onHeaderClicked: () -> Unit,
     onDeleteHistoriesClicked: () -> Unit,
-    onAddHistoriesToCollection: (String) -> Unit
+    onAddHistoriesToCollection: (String) -> Unit,
 ) {
     val expandedIcon =
         if (isExpanded) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowRight
@@ -210,7 +219,7 @@ private fun HistoryItem(
     index: Int,
     onHistoryItemClick: (Int) -> Unit,
     onAddHistoryToCollection: (History, String) -> Unit,
-    viewModel: HistoryViewModel
+    onDeleteHistoryClick: (Int) -> Unit,
 ) {
     var showDropdown by remember { mutableStateOf(false) }
     Row(
@@ -252,7 +261,7 @@ private fun HistoryItem(
                 .padding(horizontal = 4.dp)
                 .size(20.dp)
                 .clickable {
-                    viewModel.deleteHistoryRequest(items[index].id)
+                    onDeleteHistoryClick(items[index].id)
                 }
         )
         if (showDropdown) {
