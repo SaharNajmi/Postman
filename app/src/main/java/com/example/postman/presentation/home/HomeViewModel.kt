@@ -45,7 +45,7 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HomeUiState>(
-        HomeUiState(HttpRequest())
+        HomeUiState(HttpRequest(), Loadable.Empty)
     )
 
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
@@ -108,7 +108,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun clearData() {
-        _uiState.value = HomeUiState(HttpRequest(), null)
+        _uiState.value = HomeUiState(HttpRequest(), Loadable.Empty)
     }
 
     fun updateRequestUrl(newUrl: String) {
@@ -270,14 +270,12 @@ class HomeViewModel @Inject constructor(
     fun loadRequestFromCollection(requestId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             val saved = collectionDao.getCollectionRequest(requestId).toDomain()
-            val response = if (saved.statusCode != null)
-                Loadable.Success(
-                    saved.toHttpResponse()
-                )
-            else
-                Loadable.Error(
-                    saved.toHttpResponse().response
-                )
+
+            val response = when {
+                saved.statusCode != null -> Loadable.Success(saved.toHttpResponse())
+                saved.requestUrl == null -> Loadable.Empty
+                else -> Loadable.Error(saved.toHttpResponse().response)
+            }
 
             _uiState.value = HomeUiState(
                 saved.toHttpRequest(),
@@ -292,7 +290,8 @@ class HomeViewModel @Inject constructor(
             collectionDao.updateCollectionRequest(
                 request.toEntity(
                     collectionId,
-                    requestName)
+                    requestName
+                )
             )
         }
     }

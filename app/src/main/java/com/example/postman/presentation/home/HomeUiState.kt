@@ -6,5 +6,5 @@ import com.example.postman.presentation.base.Loadable
 
 data class HomeUiState(
     val data: HttpRequest,
-    val response: Loadable<HttpResult>? = null,
+    val response: Loadable<HttpResult>,
 )

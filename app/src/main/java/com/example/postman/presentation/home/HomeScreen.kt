@@ -68,6 +68,7 @@ import com.example.postman.ui.theme.LightBlue
 import com.example.postman.ui.theme.LightGray
 import com.example.postman.ui.theme.LightGreen
 import com.example.postman.ui.theme.RadioButtonSelectedColor
+import com.example.postman.ui.theme.Silver
 
 @Composable()
 fun HomeScreen(
@@ -219,6 +220,7 @@ fun RequestBuilder(
         uiState = uiState,
         callbacks = callbacks
     )
+    println("3333333" + uiState.toString())
 
     Spacer(modifier = Modifier.height(8.dp))
 
@@ -557,6 +559,24 @@ fun ResponseBody(
             modifier = Modifier.padding(16.dp), color = Color.Red
         )
 
-        null -> {}
+        is Loadable.Empty -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.action_block),
+                    contentDescription = "no responses yet",
+                    tint = Silver
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Enter the URL and click send to get a response",
+                    color = Color.Gray,
+                )
+            }
+        }
     }
 }
