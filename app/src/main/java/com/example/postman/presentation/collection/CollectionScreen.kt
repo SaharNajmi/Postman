@@ -11,7 +11,7 @@ import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -84,7 +84,6 @@ fun CollectionScreen(
         collections, searchQuery
     )
     val focusManager = LocalFocusManager.current
-    val modifier = Modifier
     val callbacks = CollectionCallbacks(
         onCollectionItemClick = onCollectionItemClick,
         onRenameRequestClick = { id, newName -> viewModel.changeRequestName(id, newName) },
@@ -96,8 +95,9 @@ fun CollectionScreen(
         onDeleteRequestClick = { requestId -> viewModel.deleteRequestItem(requestId) }
     )
     Column(
-        modifier = modifier
+        modifier = Modifier
             .padding(12.dp)
+            .fillMaxSize()
             .pointerInput(Unit) {
                 awaitEachGesture {
                     awaitFirstDown().consume()
@@ -124,7 +124,6 @@ fun CollectionScreen(
 
             filteredItems.isEmpty() -> NotFoundMessage(searchQuery)
             else -> ExpandedCollectionItems(
-                modifier,
                 filteredItems,
                 expandedStates,
                 callbacks
@@ -169,21 +168,18 @@ private fun CreateNewCollection(callbacks: CollectionCallbacks) {
 
 @Composable
 private fun ExpandedCollectionItems(
-    modifier: Modifier,
     collections: List<Collection>,
     expandedStates: State<Map<String, Boolean>>,
     callbacks: CollectionCallbacks,
 ) {
-    LazyColumn(
-        modifier = modifier
-            .fillMaxHeight()
-
-    ) {
+    LazyColumn {
         collections.forEachIndexed { index, it ->
             val allRequests = it.requests
             item {
                 CollectionHeader(
-                    modifier,
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 2.dp),
                     it.collectionName,
                     expandedStates.value[it.collectionId] ?: false,
                     it,
@@ -197,7 +193,7 @@ private fun ExpandedCollectionItems(
                         modifier = Modifier.fillMaxWidth(),
                         visible = expandedStates.value[it.collectionId] == true
                     ) {
-                        AddARequest(it.collectionId, callbacks)
+                        AddARequestButton(Modifier.padding(12.dp), it.collectionId, callbacks)
                     }
                 }
             } else {
@@ -207,6 +203,8 @@ private fun ExpandedCollectionItems(
                         visible = expandedStates.value[it.collectionId] == true
                     ) {
                         CollectionItem(
+                            Modifier
+                                .padding(top = 2.dp, bottom = 2.dp, start = 12.dp),
                             allRequests[index],
                             it.collectionId,
                             callbacks
@@ -237,12 +235,9 @@ fun CollectionHeader(
 
     Row(
         modifier = modifier
-            .fillMaxWidth()
-            .background(if (isExpanded) LightGray else Color.Transparent)
-            .padding(vertical = 8.dp),
+            .background(if (isExpanded) LightGray else Color.Transparent),
         verticalAlignment = Alignment.CenterVertically
     ) {
-
         IconButton(onClick = { callbacks.onHeaderClick(collection.collectionId) }) {
             Icon(
                 imageVector = icon,
@@ -326,8 +321,8 @@ fun CollectionHeader(
 }
 
 @Composable
-fun AddARequest(collectionId: String, callbacks: CollectionCallbacks) {
-    Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+fun AddARequestButton(modifier: Modifier, collectionId: String, callbacks: CollectionCallbacks) {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         Text("This collection is empty")
         TextButton(onClick = {
             callbacks.onCreateEmptyRequestClick(collectionId)
@@ -339,6 +334,7 @@ fun AddARequest(collectionId: String, callbacks: CollectionCallbacks) {
 
 @Composable
 private fun CollectionItem(
+    modifier: Modifier,
     request: Request,
     collectionId: String,
     callbacks: CollectionCallbacks,
@@ -355,8 +351,7 @@ private fun CollectionItem(
     var isEditable by remember { mutableStateOf(false) }
 
     Row(
-        modifier = Modifier
-            .padding(top = 8.dp, bottom = 8.dp, start = 12.dp)
+        modifier = modifier
             .clickable {
                 callbacks.onCollectionItemClick(request.id, collectionId)
             },
@@ -367,7 +362,7 @@ private fun CollectionItem(
             text = methodOption.name,
             color = methodOption.color,
             fontSize = 12.sp,
-            modifier = Modifier.padding(end = 8.dp)
+            fontWeight = FontWeight.Medium
         )
 
         OutlinedTextField(

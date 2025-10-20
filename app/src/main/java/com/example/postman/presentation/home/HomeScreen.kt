@@ -202,7 +202,10 @@ fun RequestBuilder(
             methodOptions,
             uiState,
             callbacks.onMethodNameChanged,
-            callbacks.onRequestUrlChanged
+            callbacks.onRequestUrlChanged,
+            Modifier
+                .weight(1f)
+                .padding(start = 12.dp)
         )
         Button(
             modifier = Modifier
@@ -232,18 +235,17 @@ fun RequestBuilder(
 }
 
 @Composable
-private fun RowScope.RequestLine(
+private fun RequestLine(
     methodOptions: List<MethodName>,
     uiState: HomeUiState,
     onMethodNameChanged: (MethodName) -> Unit,
     onRequestUrlChanged: (String) -> Unit,
+    modifier: Modifier,
 ) {
     var expandedMethodOption by remember { mutableStateOf(false) }
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .weight(1f)
-            .padding(start = 12.dp)
+        modifier = modifier
             .border(
                 shape = RoundedCornerShape(4.dp),
                 border = BorderStroke(0.5.dp, color = Color.Black)
@@ -368,19 +370,19 @@ private fun HttpParameterBody(
     ) {
         when (selectedOption) {
             RadioHttpParameterOptions.Auth -> AuthSection(
-                Modifier, uiState, callbacks
+                Modifier.padding(12.dp), uiState, callbacks
             )
 
             RadioHttpParameterOptions.Params -> ParamsSection(
-                Modifier, uiState, callbacks
+                uiState, callbacks
             )
 
             RadioHttpParameterOptions.Header -> HeaderSection(
-                Modifier, uiState, callbacks
+                uiState, callbacks
             )
 
             RadioHttpParameterOptions.Body -> HttpParameterBodySection(
-                Modifier.fillMaxHeight(), uiState, callbacks
+                Modifier.fillMaxSize(), uiState, callbacks
             )
         }
     }
@@ -388,7 +390,7 @@ private fun HttpParameterBody(
 
 @Composable
 private fun StatusCode(uiState: HomeUiState) {
-    uiState.response?.let {
+    uiState.response.let {
         if (uiState.response is Loadable.Success) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
@@ -412,11 +414,10 @@ private fun StatusCode(uiState: HomeUiState) {
 
 @Composable
 fun ParamsSection(
-    modifier: Modifier,
     uiState: HomeUiState,
     callbacks: HomeCallbacks,
 ) {
-    Column(modifier) {
+    Column {
         RemovableTagList(
             items = uiState.data.params,
             onRemoveItem = { key, value ->
@@ -443,7 +444,6 @@ fun AuthSection(
                     color = LightGreen,
                     shape = RoundedCornerShape(8.dp)
                 )
-                .padding(12.dp)
         )
         Spacer(Modifier.height(8.dp))
         TextVisibilityTextField(
@@ -457,11 +457,10 @@ fun AuthSection(
 
 @Composable
 fun HeaderSection(
-    modifier: Modifier,
     uiState: HomeUiState,
     callbacks: HomeCallbacks,
 ) {
-    Column(modifier) {
+    Column {
         RemovableTagList(
             items = uiState.data.headers,
             onRemoveItem = { key, value ->
@@ -488,8 +487,6 @@ fun HttpParameterBodySection(
         },
         maxLines = Int.MAX_VALUE,
         modifier = modifier
-            .fillMaxWidth()
-            .padding(0.dp)
             .border(1.dp, Color.Gray, shape = RoundedCornerShape(8.dp)),
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Color.Transparent,

@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -121,6 +122,7 @@ private fun ExpandedHistoryItem(
         historyRequest.forEach { header, items ->
             item {
                 HistoryHeader(
+                    Modifier.padding(vertical = 8.dp),
                     header,
                     collectionNames,
                     expandedState.value[header] ?: false,
@@ -135,6 +137,8 @@ private fun ExpandedHistoryItem(
                     visible = expandedState.value[header] == true
                 ) {
                     HistoryItem(
+                        Modifier
+                            .padding(top = 8.dp, bottom = 8.dp, start = 12.dp),
                         items,
                         collectionNames,
                         index,
@@ -148,6 +152,7 @@ private fun ExpandedHistoryItem(
 
 @Composable
 fun HistoryHeader(
+    modifier: Modifier,
     header: String,
     collectionNames: Map<String, String>,
     isExpanded: Boolean,
@@ -159,10 +164,9 @@ fun HistoryHeader(
     var showDropdown by remember { mutableStateOf(false) }
 
     Row(
-        modifier = Modifier
+        modifier = modifier
             .clickable { callbacks.onHeaderClick(header) }
-            .background(if (isExpanded) LightGray else Color.Transparent)
-            .padding(vertical = 8.dp),
+            .background(if (isExpanded) LightGray else Color.Transparent),
         verticalAlignment = Alignment.CenterVertically) {
 
         Icon(
@@ -204,6 +208,7 @@ fun HistoryHeader(
 
 @Composable
 private fun HistoryItem(
+    modifier: Modifier,
     items: List<History>,
     collectionNames: Map<String, String>,
     index: Int,
@@ -211,8 +216,7 @@ private fun HistoryItem(
 ) {
     var showDropdown by remember { mutableStateOf(false) }
     Row(
-        modifier = Modifier
-            .padding(top = 8.dp, bottom = 8.dp, start = 12.dp)
+        modifier = modifier
             .clickable {
                 callbacks.onHistoryItemClick(items[index].id)
             },
@@ -223,6 +227,7 @@ private fun HistoryItem(
             text = items[index].methodOption.name,
             color = items[index].methodOption.color,
             fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
             modifier = Modifier.padding(end = 8.dp)
         )
 
