@@ -38,11 +38,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.postman.R
 import com.example.postman.domain.model.History
+import com.example.postman.domain.model.HistoryEntry
 import com.example.postman.presentation.base.CustomSearchBar
 import com.example.postman.presentation.base.CustomToolbar
 import com.example.postman.presentation.base.NotFoundMessage
 import com.example.postman.presentation.base.PickItemDialog
-import com.example.postman.presentation.base.searchEntries
+import com.example.postman.presentation.base.searchHistories
 import com.example.postman.ui.theme.Blue
 import com.example.postman.ui.theme.LightGray
 
@@ -58,14 +59,13 @@ fun HistoryScreen(
         viewModel.getCollections()
     }
     val expandedState: State<Map<String, Boolean>> = viewModel.expandedStates.collectAsState()
-    val historyRequest by viewModel.httpRequestRequestsModel.collectAsState()
+    val histories by viewModel.historyEntry.collectAsState()
     val collectionNames by viewModel.collectionNames.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
-    val filteredHistoryRequest = searchEntries(
-        historyRequest, searchQuery,
-        { item, query ->
-            item.requestUrl.contains(query, ignoreCase = true)
-        })
+    val filteredHistories: List<HistoryEntry> = searchHistories(
+        histories, searchQuery
+    )
+
     val callbacks = HistoryCallbacks(
         onHistoryItemClick,
         onAddHistoryToCollection = { history, collectionId ->
@@ -98,11 +98,11 @@ fun HistoryScreen(
         Spacer(modifier = Modifier.height(24.dp))
         CustomToolbar("History", navController)
         CustomSearchBar("Search by URl", searchQuery) { searchQuery = it }
-        if (filteredHistoryRequest.isEmpty()) {
+        if (filteredHistories.isEmpty()) {
             NotFoundMessage(searchQuery)
         } else {
             ExpandedHistoryItem(
-                filteredHistoryRequest,
+                filteredHistories,
                 collectionNames,
                 expandedState,
                 callbacks
@@ -113,33 +113,33 @@ fun HistoryScreen(
 
 @Composable
 private fun ExpandedHistoryItem(
-    historyRequest: Map<String, List<History>>,
+    historyEntries: List<HistoryEntry>,
     collectionNames: Map<String, String>,
     expandedState: State<Map<String, Boolean>>,
     callbacks: HistoryCallbacks,
 ) {
-    LazyColumn {
-        historyRequest.forEach { header, items ->
+    historyEntries.forEach { historyEntry ->
+        LazyColumn {
             item {
                 HistoryHeader(
                     Modifier.padding(vertical = 8.dp),
-                    header,
+                    historyEntry.dateCreated,
                     collectionNames,
-                    expandedState.value[header] ?: false,
-                    items,
+                    expandedState.value[historyEntry.dateCreated] ?: false,
+                    historyEntry.histories,
                     callbacks
                 )
             }
-            items(items.size) { index ->
+            items(historyEntry.histories.size) { index ->
                 AnimatedVisibility(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    visible = expandedState.value[header] == true
+                    visible = expandedState.value[historyEntry.dateCreated] == true
                 ) {
                     HistoryItem(
                         Modifier
                             .padding(top = 8.dp, bottom = 8.dp, start = 12.dp),
-                        items,
+                        historyEntry.histories,
                         collectionNames,
                         index,
                         callbacks

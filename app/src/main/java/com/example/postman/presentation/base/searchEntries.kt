@@ -1,22 +1,23 @@
 package com.example.postman.presentation.base
 
 import com.example.postman.domain.model.Collection
+import com.example.postman.domain.model.HistoryEntry
 
-fun <T> searchEntries(
-    entries: Map<String, List<T>>,
+fun searchHistories(
+    entries: List<HistoryEntry>,
     searchQuery: String,
-    match: (T, String) -> Boolean
-): Map<String, List<T>> {
+): List<HistoryEntry> {
+    if (searchQuery.isBlank()) return entries
 
-    return if (searchQuery.isBlank()) {
-        entries
-    } else {
-        entries.mapValues { (key, values) ->
-            values.filter {
-//             it.contains(searchQuery, ignoreCase = true)
-                match(it, searchQuery)
-            }
-        }.filterValues { it.isNotEmpty() }
+    return entries.mapNotNull { entry ->
+        val filteredHistories = entry.histories.filter {
+            it.requestUrl.contains(searchQuery, ignoreCase = true)
+        }
+        if (filteredHistories.isNotEmpty()) {
+            entry.copy(histories = filteredHistories)
+        } else {
+            null
+        }
     }
 }
 

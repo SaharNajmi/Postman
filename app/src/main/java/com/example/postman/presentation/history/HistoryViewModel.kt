@@ -6,6 +6,7 @@ import com.example.postman.common.utils.formatDate
 import com.example.postman.data.local.dao.CollectionDao
 import com.example.postman.data.mapper.toRequestEntity
 import com.example.postman.domain.model.History
+import com.example.postman.domain.model.HistoryEntry
 import com.example.postman.domain.repository.HistoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -17,12 +18,12 @@ import javax.inject.Inject
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
     private val historyRepository: HistoryRepository,
-    val collectionDao: CollectionDao
+    val collectionDao: CollectionDao,
 ) : ViewModel() {
 
-    private val _httpRequestRequestsModel =
-        MutableStateFlow<Map<String, List<History>>>(mapOf())
-    val httpRequestRequestsModel: StateFlow<Map<String, List<History>>> = _httpRequestRequestsModel
+    private val _historyEntry =
+        MutableStateFlow<List<HistoryEntry>>(listOf())
+    val historyEntry: StateFlow<List<HistoryEntry>> = _historyEntry
 
     private val _expandedStates = MutableStateFlow<Map<String, Boolean>>(mapOf())
     val expandedStates: StateFlow<Map<String, Boolean>> = _expandedStates
@@ -35,7 +36,10 @@ class HistoryViewModel @Inject constructor(
         viewModelScope.launch {
             val result =
                 historyRepository.getAllHistories()
-            _httpRequestRequestsModel.value = result.groupBy { formatDate(it.createdAt) }
+            val grouped: Map<String, List<History>> = result.groupBy { formatDate(it.createdAt) }
+            _historyEntry.value = grouped.map { (date, histories) ->
+                HistoryEntry(dateCreated = date, histories = histories)
+            }
         }
     }
 
@@ -78,7 +82,7 @@ class HistoryViewModel @Inject constructor(
 
     fun addRequestsToCollection(
         requests: List<History>,
-        collectionId: String
+        collectionId: String,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             requests.forEach { request ->
