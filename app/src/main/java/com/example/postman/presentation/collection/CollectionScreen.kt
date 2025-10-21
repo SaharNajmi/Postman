@@ -57,7 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.postman.R
-import com.example.postman.common.extensions.parseMethodNameFromString
+import com.example.postman.common.extensions.parseHttpMethodFromString
 import com.example.postman.domain.model.Collection
 import com.example.postman.domain.model.Request
 import com.example.postman.presentation.base.CustomSearchBar
@@ -357,10 +357,10 @@ private fun CollectionItem(
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val methodOption = request.requestName.parseMethodNameFromString()
+        val httpMethod = request.requestName.parseHttpMethodFromString()
         Text(
-            text = methodOption.name,
-            color = methodOption.color,
+            text = httpMethod.name,
+            color = httpMethod.color,
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium
         )
@@ -380,7 +380,7 @@ private fun CollectionItem(
                         isEditable = false
                         callbacks.onRenameRequestClick(
                             request.id,
-                            "${methodOption.name} ${text.text}"
+                            "${httpMethod.name} ${text.text}"
                         )
                     }
                 },

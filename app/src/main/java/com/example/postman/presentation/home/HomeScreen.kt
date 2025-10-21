@@ -10,9 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -59,7 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.postman.R
 import com.example.postman.common.extensions.getHeaderValue
-import com.example.postman.common.utils.MethodName
+import com.example.postman.common.utils.HttpMethod
 import com.example.postman.presentation.base.Loadable
 import com.example.postman.presentation.navigation.Screens
 import com.example.postman.ui.theme.Gray
@@ -95,7 +93,7 @@ fun HomeScreen(
         onRemoveHeader = { key, value -> homeViewModel.removeHeader(key, value) },
         onAddParameter = { key, value -> homeViewModel.addParameter(key, value) },
         onRemoveParameter = { key, value -> homeViewModel.removeParameter(key, value) },
-        onMethodNameChanged = { homeViewModel.updateMethodName(it) },
+        onHttpMethodChanged = { homeViewModel.updateHttpMethod(it) },
         onRequestUrlChanged = { homeViewModel.updateRequestUrl(it) },
         onClearDataClick = { homeViewModel.clearData() },
         onNavigateToHistory = onNavigateToHistory,
@@ -187,9 +185,9 @@ fun RequestBuilder(
     uiState: HomeUiState,
     callbacks: HomeCallbacks,
 ) {
-    val methodOptions = listOf(
-        MethodName.GET, MethodName.POST, MethodName.PUT, MethodName.PATCH,
-        MethodName.DELETE, MethodName.HEAD, MethodName.OPTIONS
+    val httpMethods = listOf(
+        HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH,
+        HttpMethod.DELETE, HttpMethod.HEAD, HttpMethod.OPTIONS
     )
 
     Row(
@@ -199,9 +197,9 @@ fun RequestBuilder(
         verticalAlignment = Alignment.CenterVertically
     ) {
         RequestLine(
-            methodOptions,
+            httpMethods,
             uiState,
-            callbacks.onMethodNameChanged,
+            callbacks.onHttpMethodChanged,
             callbacks.onRequestUrlChanged,
             Modifier
                 .weight(1f)
@@ -223,7 +221,6 @@ fun RequestBuilder(
         uiState = uiState,
         callbacks = callbacks
     )
-    println("3333333" + uiState.toString())
 
     Spacer(modifier = Modifier.height(8.dp))
 
@@ -236,13 +233,13 @@ fun RequestBuilder(
 
 @Composable
 private fun RequestLine(
-    methodOptions: List<MethodName>,
+    httpMethods: List<HttpMethod>,
     uiState: HomeUiState,
-    onMethodNameChanged: (MethodName) -> Unit,
+    onHttpMethodChanged: (HttpMethod) -> Unit,
     onRequestUrlChanged: (String) -> Unit,
     modifier: Modifier,
 ) {
-    var expandedMethodOption by remember { mutableStateOf(false) }
+    var isHttpMethodExpanded: Boolean by remember { mutableStateOf(false) }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
@@ -252,30 +249,30 @@ private fun RequestLine(
             ),
     ) {
         Text(
-            uiState.data.methodOption.name,
-            color = uiState.data.methodOption.color,
+            uiState.data.httpMethod.name,
+            color = uiState.data.httpMethod.color,
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier
                 .padding(12.dp)
-                .clickable { expandedMethodOption = true })
+                .clickable { isHttpMethodExpanded = true })
         Icon(
             imageVector = Icons.Default.ArrowDropDown,
             modifier = Modifier
                 .padding(end = 8.dp)
-                .clickable { expandedMethodOption = true },
+                .clickable { isHttpMethodExpanded = true },
             contentDescription = "drop down icon"
         )
 
         DropdownMenu(
-            expanded = expandedMethodOption,
-            onDismissRequest = { expandedMethodOption = false }
+            expanded = isHttpMethodExpanded,
+            onDismissRequest = { isHttpMethodExpanded = false }
         ) {
-            methodOptions.forEach { option ->
+            httpMethods.forEach { option ->
                 DropdownMenuItem(
                     text = { Text(option.name, color = option.color) },
                     onClick = {
-                        expandedMethodOption = false
-                        onMethodNameChanged(option)
+                        isHttpMethodExpanded = false
+                        onHttpMethodChanged(option)
                     })
             }
         }

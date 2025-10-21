@@ -9,7 +9,7 @@ object CollectionMapper {
         HttpRequest(
             id = id,
             requestUrl = requestUrl ?: "",
-            methodOption = methodOption,
+            httpMethod = httpMethod,
             body = body,
             headers = headers
         )
@@ -29,7 +29,7 @@ object CollectionMapper {
         Request(
             id = httpRequest.id,
             requestUrl = httpRequest.requestUrl,
-            methodOption = httpRequest.methodOption,
+            httpMethod = httpRequest.httpMethod,
             createdAt = httpRequest.createdAt,
             response = httpResult.response,
             statusCode = httpResult.statusCode,

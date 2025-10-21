@@ -224,8 +224,8 @@ private fun HistoryItem(
     ) {
 
         Text(
-            text = items[index].methodOption.name,
-            color = items[index].methodOption.color,
+            text = items[index].httpMethod.name,
+            color = items[index].httpMethod.color,
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.padding(end = 8.dp)

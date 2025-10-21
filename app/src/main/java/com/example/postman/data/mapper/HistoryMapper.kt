@@ -9,7 +9,7 @@ object HistoryMapper {
         HttpRequest(
             id = id,
             requestUrl = requestUrl,
-            methodOption = methodOption,
+            httpMethod = httpMethod,
             body = body,
             headers = headers
         )
@@ -26,7 +26,7 @@ object HistoryMapper {
     fun httpRequestToHistory(httpRequest: HttpRequest, httpResult: HttpResult): History =
         History(
             requestUrl = httpRequest.requestUrl,
-            methodOption = httpRequest.methodOption,
+            httpMethod = httpRequest.httpMethod,
             createdAt = httpRequest.createdAt,
             response = httpResult.response,
             statusCode = httpResult.statusCode,

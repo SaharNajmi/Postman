@@ -1,6 +1,6 @@
 package com.example.postman.presentation.home
 
-import com.example.postman.common.utils.MethodName
+import com.example.postman.common.utils.HttpMethod
 
 data class HomeCallbacks(
     val onSendRequestClick: () -> Unit,
@@ -9,7 +9,7 @@ data class HomeCallbacks(
     val onRemoveHeader: (String, String) -> Unit,
     val onAddParameter: (String, String) -> Unit,
     val onRemoveParameter: (String, String) -> Unit,
-    val onMethodNameChanged: (MethodName) -> Unit,
+    val onHttpMethodChanged: (HttpMethod) -> Unit,
     val onRequestUrlChanged: (String) -> Unit,
     val onClearDataClick: () -> Unit,
     val onNavigateToHistory: () -> Unit,

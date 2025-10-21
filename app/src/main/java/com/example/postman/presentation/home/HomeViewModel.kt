@@ -9,7 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.postman.common.extensions.buildUrlWithParams
 import com.example.postman.common.extensions.getNetworkErrorMessage
 import com.example.postman.common.extensions.mapKeyValuePairsToQueryParameter
-import com.example.postman.common.utils.MethodName
+import com.example.postman.common.utils.HttpMethod
 import com.example.postman.data.local.dao.CollectionDao
 import com.example.postman.data.mapper.CollectionMapper
 import com.example.postman.data.mapper.CollectionMapper.toHttpRequest
@@ -58,7 +58,7 @@ class HomeViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(response = Loadable.Loading)
             try {
                 val result = repository.sendRequest(
-                    method = requestData.methodOption.name,
+                    method = requestData.httpMethod.name,
                     url = requestData.baseUrl,
                     headers = requestData.headers,
                     parameters = requestData.params,
@@ -120,8 +120,8 @@ class HomeViewModel @Inject constructor(
             )
     }
 
-    fun updateMethodName(newMethodName: MethodName) {
-        _uiState.value = _uiState.value.copy(_uiState.value.data.copy(methodOption = newMethodName))
+    fun updateHttpMethod(newHttpMethod: HttpMethod) {
+        _uiState.value = _uiState.value.copy(_uiState.value.data.copy(httpMethod = newHttpMethod))
     }
 
     fun updateBody(body: String) {

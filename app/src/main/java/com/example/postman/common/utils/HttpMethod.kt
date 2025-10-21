@@ -8,7 +8,7 @@ import com.example.postman.ui.theme.Magenta
 import com.example.postman.ui.theme.Purple
 import com.example.postman.ui.theme.Red
 
-enum class MethodName(val color: Color) {
+enum class HttpMethod(val color: Color) {
     GET(Green),
     POST(Brown),
     PUT(Blue),

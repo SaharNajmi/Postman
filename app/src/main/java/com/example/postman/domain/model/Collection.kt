@@ -1,7 +1,7 @@
 package com.example.postman.domain.model
 
 import androidx.compose.ui.graphics.ImageBitmap
-import com.example.postman.common.utils.MethodName
+import com.example.postman.common.utils.HttpMethod
 import java.time.LocalDate
 import java.util.UUID
 
@@ -14,8 +14,8 @@ data class Collection(
 data class Request(
     val id: Int = 0,
     val requestUrl: String? = null,
-    val methodOption: MethodName = MethodName.GET,
-    val requestName: String = "$methodOption New Request",
+    val httpMethod: HttpMethod = HttpMethod.GET,
+    val requestName: String = "$httpMethod New Request",
     val createdAt: LocalDate = LocalDate.now(),
     val response: String = "",
     val imageResponse: ImageBitmap? = null,

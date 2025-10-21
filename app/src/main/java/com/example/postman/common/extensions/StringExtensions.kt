@@ -1,6 +1,6 @@
 package com.example.postman.common.extensions
 
-import com.example.postman.common.utils.MethodName
+import com.example.postman.common.utils.HttpMethod
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
 
@@ -47,7 +47,7 @@ fun buildUrlWithParams(requestUrl: String, queryParams: String): String {
         "$baseUrl?$queryParams"
 }
 
-fun String.parseMethodNameFromString(): MethodName{
+fun String.parseHttpMethodFromString(): HttpMethod{
     val methodPart: String = this.substringBefore(" ")
-    return MethodName.valueOf(methodPart)
+    return HttpMethod.valueOf(methodPart)
 }

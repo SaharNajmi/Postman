@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.example.postman.common.utils.MethodName
+import com.example.postman.common.utils.HttpMethod
 
 @Entity(tableName = "collections")
 data class CollectionEntity(
@@ -33,7 +33,7 @@ data class RequestEntity(
     val collectionId: String,
     val requestName: String,
     val requestUrl: String?,
-    val methodOption: MethodName,
+    val httpMethod: HttpMethod,
     val response: String,
     val imageResponse: ByteArray? = null,
     val createdAt: Long,
