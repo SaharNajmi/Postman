@@ -1,7 +1,6 @@
 package com.example.postman.presentation.base
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,16 +28,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.postman.domain.model.CollectionEntry
 import com.example.postman.ui.theme.LightGray
 import com.example.postman.ui.theme.LightGreen
 
 @Composable
-fun PickItemDialog(
-    items: Map<String, String>,
+fun SaveToCollectionDialog(
+    items: Set<CollectionEntry>,
     onDismiss: () -> Unit,
-    onSave: (String) -> Unit
+    onSave: (String) -> Unit,
 ) {
-    var selectedItemKey by remember { mutableStateOf(items.keys.first()) }
+    var selectedItem by remember { mutableStateOf(items.firstOrNull()) }
     Dialog(onDismissRequest = { onDismiss() }) {
         Surface(
             shape = RoundedCornerShape(12.dp),
@@ -46,7 +46,7 @@ fun PickItemDialog(
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = "Save to ${items[selectedItemKey]}",
+                    text = selectedItem?.let { "Save to ${it.name}" } ?: "No collections exist",
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
@@ -62,24 +62,24 @@ fun PickItemDialog(
                         .padding(vertical = 2.dp),
                 ) {
 
-                    items(items.entries.toList()){(key,value)->
+                    items(items.toList()) { entry ->
                         val backgroundColor: Color =
-                            if (selectedItemKey == key) LightGreen
+                            if (selectedItem?.id == entry.id) LightGreen
                             else Color.Transparent
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .background(backgroundColor, RoundedCornerShape(4.dp))
-                                .clickable { selectedItemKey = key }
+                               // .clickable { selectedItem = entry }
                                 .padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             RadioButton(
-                                selected = selectedItemKey == key,
-                                onClick = { selectedItemKey = key }
+                                selected = selectedItem?.id == entry.id,
+                                onClick = { selectedItem = entry }
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(text = value)
+                            Text(text = entry.name)
                         }
                         Spacer(modifier = Modifier.height(4.dp))
                     }
@@ -95,7 +95,7 @@ fun PickItemDialog(
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     TextButton(onClick = {
-                        onSave(selectedItemKey)
+                        selectedItem?.let { onSave(it.id) }
                         onDismiss()
                     }) {
                         Text("Save")

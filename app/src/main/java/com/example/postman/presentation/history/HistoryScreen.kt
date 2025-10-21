@@ -37,12 +37,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.postman.R
+import com.example.postman.domain.model.CollectionEntry
 import com.example.postman.domain.model.History
 import com.example.postman.domain.model.HistoryEntry
 import com.example.postman.presentation.base.CustomSearchBar
 import com.example.postman.presentation.base.CustomToolbar
 import com.example.postman.presentation.base.NotFoundMessage
-import com.example.postman.presentation.base.PickItemDialog
+import com.example.postman.presentation.base.SaveToCollectionDialog
 import com.example.postman.presentation.base.searchHistories
 import com.example.postman.ui.theme.Blue
 import com.example.postman.ui.theme.LightGray
@@ -114,7 +115,7 @@ fun HistoryScreen(
 @Composable
 private fun ExpandedHistoryItem(
     historyEntries: List<HistoryEntry>,
-    collectionNames: Map<String, String>,
+    collectionEntries: Set<CollectionEntry>,
     expandedState: State<Map<String, Boolean>>,
     callbacks: HistoryCallbacks,
 ) {
@@ -124,7 +125,7 @@ private fun ExpandedHistoryItem(
                 HistoryHeader(
                     Modifier.padding(vertical = 8.dp),
                     historyEntry.dateCreated,
-                    collectionNames,
+                    collectionEntries,
                     expandedState.value[historyEntry.dateCreated] ?: false,
                     historyEntry.histories,
                     callbacks
@@ -140,7 +141,7 @@ private fun ExpandedHistoryItem(
                         Modifier
                             .padding(top = 8.dp, bottom = 8.dp, start = 12.dp),
                         historyEntry.histories,
-                        collectionNames,
+                        collectionEntries,
                         index,
                         callbacks
                     )
@@ -154,7 +155,7 @@ private fun ExpandedHistoryItem(
 fun HistoryHeader(
     modifier: Modifier,
     header: String,
-    collectionNames: Map<String, String>,
+    collectionEntries: Set<CollectionEntry>,
     isExpanded: Boolean,
     histories: List<History>,
     callbacks: HistoryCallbacks,
@@ -197,8 +198,8 @@ fun HistoryHeader(
             tint = Blue
         )
         if (showDropdown) {
-            PickItemDialog(
-                collectionNames,
+            SaveToCollectionDialog(
+                collectionEntries,
                 { showDropdown = false }) { collectionId ->
                 callbacks.onAddHistoriesToCollection(histories, collectionId)
             }
@@ -210,7 +211,7 @@ fun HistoryHeader(
 private fun HistoryItem(
     modifier: Modifier,
     items: List<History>,
-    collectionNames: Map<String, String>,
+    collectionNames: Set<CollectionEntry>,
     index: Int,
     callbacks: HistoryCallbacks,
 ) {
@@ -258,7 +259,7 @@ private fun HistoryItem(
                 }
         )
         if (showDropdown) {
-            PickItemDialog(
+            SaveToCollectionDialog(
                 collectionNames,
                 { showDropdown = false }) { collectionId ->
                 callbacks.onAddHistoryToCollection(items[index], collectionId)

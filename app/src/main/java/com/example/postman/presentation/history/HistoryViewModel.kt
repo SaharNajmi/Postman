@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.postman.common.utils.formatDate
 import com.example.postman.data.local.dao.CollectionDao
 import com.example.postman.data.mapper.toRequestEntity
+import com.example.postman.domain.model.CollectionEntry
 import com.example.postman.domain.model.History
 import com.example.postman.domain.model.HistoryEntry
 import com.example.postman.domain.repository.HistoryRepository
@@ -14,6 +15,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.collections.component1
+import kotlin.collections.component2
 
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
@@ -29,8 +32,8 @@ class HistoryViewModel @Inject constructor(
     val expandedStates: StateFlow<Map<String, Boolean>> = _expandedStates
 
     private val _collectionNames =
-        MutableStateFlow<Map<String, String>>(mapOf())
-    val collectionNames: StateFlow<Map<String, String>> = _collectionNames
+        MutableStateFlow<Set<CollectionEntry>>(setOf())
+    val collectionNames: StateFlow<Set<CollectionEntry>> = _collectionNames
 
     fun getHistories() {
         viewModelScope.launch {
@@ -65,9 +68,9 @@ class HistoryViewModel @Inject constructor(
     fun getCollections() {
         val thread = Thread {
             val collections = collectionDao.getAllCollections()
-            _collectionNames.value = collections.associate {
-                it.collectionId to it.collectionName
-            }
+            _collectionNames.value = collections.map {
+                CollectionEntry(it.collectionId, it.collectionName)
+            }.toSet()
         }
         thread.start()
     }
