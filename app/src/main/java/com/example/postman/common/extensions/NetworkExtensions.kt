@@ -1,10 +1,14 @@
 package com.example.postman.common.extensions
 
+import java.net.*
+import java.nio.channels.UnresolvedAddressException
+
 fun Exception.getNetworkErrorMessage(): String {
     return when (this) {
-        is java.net.UnknownHostException -> "Unknown Host"
-        is java.net.SocketTimeoutException -> "Connection timed out"
-        is java.net.ConnectException -> "Couldn't connect to the server"
+        is UnknownHostException -> "Unknown Host"
+        is SocketTimeoutException -> "Connection timed out"
+        is ConnectException -> "Couldn't connect to the server"
+        is UnresolvedAddressException -> "Unable to resolve host. Check the URL or your network"
         is retrofit2.HttpException -> {
             val code = this.code()
             when (code) {
@@ -17,8 +21,6 @@ fun Exception.getNetworkErrorMessage(): String {
                 else -> "HTTP error: $code"
             }
         }
-
-        else -> this.localizedMessage
+        else -> this.localizedMessage ?: "An unknown error occurred"
     }
-
 }

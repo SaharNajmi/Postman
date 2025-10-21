@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.sp
 import com.example.postman.R
 import com.example.postman.common.extensions.getHeaderValue
 import com.example.postman.common.utils.HttpMethod
+import com.example.postman.domain.model.HttpResult
 import com.example.postman.presentation.base.Loadable
 import com.example.postman.presentation.navigation.Screens
 import com.example.postman.ui.theme.Gray
@@ -66,7 +67,10 @@ import com.example.postman.ui.theme.LightBlue
 import com.example.postman.ui.theme.LightGray
 import com.example.postman.ui.theme.LightGreen
 import com.example.postman.ui.theme.RadioButtonSelectedColor
+import com.example.postman.ui.theme.Red
 import com.example.postman.ui.theme.Silver
+import io.ktor.http.HttpStatusCode
+import retrofit2.http.Body
 
 @Composable()
 fun HomeScreen(
@@ -189,6 +193,7 @@ fun RequestBuilder(
         HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH,
         HttpMethod.DELETE, HttpMethod.HEAD, HttpMethod.OPTIONS
     )
+    val statusCode: Int? = (uiState.response as? Loadable.Success)?.data?.statusCode
 
     Row(
         Modifier
@@ -198,7 +203,8 @@ fun RequestBuilder(
     ) {
         RequestLine(
             httpMethods,
-            uiState,
+            uiState.data.httpMethod,
+            uiState.data.requestUrl,
             callbacks.onHttpMethodChanged,
             callbacks.onRequestUrlChanged,
             Modifier
@@ -218,23 +224,26 @@ fun RequestBuilder(
 
     RequestParametersSection(
         modifier = Modifier,
-        uiState = uiState,
+        headers = uiState.data.headers,
+        params = uiState.data.params,
+        body = uiState.data.body,
         callbacks = callbacks
     )
 
     Spacer(modifier = Modifier.height(8.dp))
 
-    ResponseBodyTopBar(uiState)
+    ResponseBodyTopBar(statusCode)
 
     HorizontalDivider(thickness = 1.dp, modifier = Modifier.padding(4.dp))
 
-    ResponseBody(uiState)
+    ResponseBody(uiState.response)
 }
 
 @Composable
 private fun RequestLine(
     httpMethods: List<HttpMethod>,
-    uiState: HomeUiState,
+    selectedHttpMethod: HttpMethod,
+    requestUrl: String,
     onHttpMethodChanged: (HttpMethod) -> Unit,
     onRequestUrlChanged: (String) -> Unit,
     modifier: Modifier,
@@ -249,8 +258,8 @@ private fun RequestLine(
             ),
     ) {
         Text(
-            uiState.data.httpMethod.name,
-            color = uiState.data.httpMethod.color,
+            selectedHttpMethod.name,
+            color = selectedHttpMethod.color,
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier
                 .padding(12.dp)
@@ -278,7 +287,7 @@ private fun RequestLine(
         }
 
         TextField(
-            value = uiState.data.requestUrl,
+            value = requestUrl,
             onValueChange = {
                 onRequestUrlChanged(it)
             },
@@ -297,7 +306,9 @@ private fun RequestLine(
 @Composable
 fun RequestParametersSection(
     modifier: Modifier,
-    uiState: HomeUiState,
+    headers: List<Pair<String, String>>?,
+    params: List<Pair<String, String>>?,
+    body: String?,
     callbacks: HomeCallbacks,
 ) {
     val radioHttpParameterOptions = RadioHttpParameterOptions.entries.toList()
@@ -308,7 +319,9 @@ fun RequestParametersSection(
         HttpParameterBody(
             modifier,
             selectedOption,
-            uiState,
+            headers,
+            params,
+            body,
             callbacks
         )
     }
@@ -356,7 +369,9 @@ private fun HttpParameterSelection(
 private fun HttpParameterBody(
     modifier: Modifier,
     selectedOption: RadioHttpParameterOptions,
-    uiState: HomeUiState,
+    headers: List<Pair<String, String>>?,
+    params: List<Pair<String, String>>?,
+    body: String?,
     callbacks: HomeCallbacks,
 ) {
     Box(
@@ -367,56 +382,55 @@ private fun HttpParameterBody(
     ) {
         when (selectedOption) {
             RadioHttpParameterOptions.Auth -> AuthSection(
-                Modifier.padding(12.dp), uiState, callbacks
+                Modifier.padding(12.dp), headers, callbacks
             )
 
             RadioHttpParameterOptions.Params -> ParamsSection(
-                uiState, callbacks
+                params, callbacks
             )
 
             RadioHttpParameterOptions.Header -> HeaderSection(
-                uiState, callbacks
+                headers, callbacks
             )
 
             RadioHttpParameterOptions.Body -> HttpParameterBodySection(
-                Modifier.fillMaxSize(), uiState, callbacks
+                Modifier.fillMaxSize(), body, callbacks
             )
         }
     }
 }
 
 @Composable
-private fun StatusCode(uiState: HomeUiState) {
-    uiState.response.let {
-        if (uiState.response is Loadable.Success) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "Status ", modifier = Modifier
-                        .padding(start = 24.dp), color = Gray, fontSize = 12.sp
+private fun StatusCode(statusCode: Int?) {
+    if (statusCode == null) return
+
+    val color = if (statusCode in 200..208) Green else Red
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = "Status ", modifier = Modifier
+                .padding(start = 24.dp), color = Gray, fontSize = 12.sp
+        )
+        Text(
+            modifier = Modifier
+                .clip(RoundedCornerShape(4.dp))
+                .background(
+                    LightGreen
                 )
-                Text(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(
-                            LightGreen
-                        )
-                        .padding(horizontal = 4.dp),
-                    color = Green,
-                    text = uiState.response.data.statusCode.toString(),
-                )
-            }
-        }
+                .padding(horizontal = 4.dp),
+            color = color,
+            text = statusCode.toString(),
+        )
     }
 }
 
 @Composable
 fun ParamsSection(
-    uiState: HomeUiState,
+    params: List<Pair<String, String>>?,
     callbacks: HomeCallbacks,
 ) {
     Column {
         RemovableTagList(
-            items = uiState.data.params,
+            items = params,
             onRemoveItem = { key, value ->
                 callbacks.onRemoveParameter(key, value)
             }
@@ -430,7 +444,7 @@ fun ParamsSection(
 @Composable
 fun AuthSection(
     modifier: Modifier,
-    uiState: HomeUiState,
+    headers: List<Pair<String, String>>?,
     callbacks: HomeCallbacks,
 ) {
     Column(modifier) {
@@ -444,7 +458,7 @@ fun AuthSection(
         )
         Spacer(Modifier.height(8.dp))
         TextVisibilityTextField(
-            uiState.data.headers?.getHeaderValue("Authorization") ?: "",
+            headers?.getHeaderValue("Authorization") ?: "",
             onTextChange = {
                 callbacks.onAddHeader("Authorization", it)
             })
@@ -454,12 +468,12 @@ fun AuthSection(
 
 @Composable
 fun HeaderSection(
-    uiState: HomeUiState,
+    headers: List<Pair<String, String>>?,
     callbacks: HomeCallbacks,
 ) {
     Column {
         RemovableTagList(
-            items = uiState.data.headers,
+            items = headers,
             onRemoveItem = { key, value ->
                 callbacks.onRemoveHeader(key, value)
             }
@@ -474,11 +488,11 @@ fun HeaderSection(
 @Composable
 fun HttpParameterBodySection(
     modifier: Modifier,
-    uiState: HomeUiState,
+    body: String?,
     callbacks: HomeCallbacks,
 ) {
     TextField(
-        value = uiState.data.body ?: "",
+        value = body ?: "",
         onValueChange = {
             callbacks.onBodyChanged(it)
         },
@@ -495,7 +509,7 @@ fun HttpParameterBodySection(
 }
 
 @Composable
-private fun ResponseBodyTopBar(uiState: HomeUiState) {
+private fun ResponseBodyTopBar(statusCode: Int?) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -510,7 +524,7 @@ private fun ResponseBodyTopBar(uiState: HomeUiState) {
                 .padding(6.dp, 2.dp)
         )
 
-        StatusCode(uiState)
+        StatusCode(statusCode)
 
         Spacer(Modifier.weight(1f))
         Icon(
@@ -527,15 +541,15 @@ private fun ResponseBodyTopBar(uiState: HomeUiState) {
 
 @Composable
 fun ResponseBody(
-    uiState: HomeUiState,
+    response: Loadable<HttpResult>,
 ) {
-    when (uiState.response) {
+    when (response) {
         is Loadable.Success -> {
-            SearchFromContentText(uiState.response.data.response)
+            SearchFromContentText(response.data.response)
 
-            if (uiState.response.data.imageResponse != null) {
+            if (response.data.imageResponse != null) {
                 Image(
-                    bitmap = uiState.response.data.imageResponse,
+                    bitmap = response.data.imageResponse,
                     contentDescription = "Decoded Image",
                     modifier = Modifier.fillMaxWidth(), alignment = Alignment.Center,
                 )
@@ -543,13 +557,13 @@ fun ResponseBody(
         }
 
         is Loadable.Error -> Text(
-            text = "Error: ${uiState.response.message}",
+            text = "Error: ${response.message}",
             modifier = Modifier.padding(16.dp), color = Color.Red
         )
 
         Loadable.Loading -> CircularProgressIndicator()
         is Loadable.NetworkError -> Text(
-            text = "Error: ${uiState.response.message}",
+            text = "Error: ${response.message}",
             modifier = Modifier.padding(16.dp), color = Color.Red
         )
 
