@@ -229,6 +229,11 @@ fun CollectionHeader(
     var text by remember {
         mutableStateOf(TextFieldValue(header, TextRange(header.length)))
     }
+
+    LaunchedEffect(header) {
+        text = TextFieldValue(header, TextRange(header.length))
+    }
+
     var isEditable by remember { mutableStateOf(false) }
     val icon =
         if (isExpanded) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowRight
