@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.postman.R
 import com.example.postman.domain.model.CollectionEntry
+import com.example.postman.domain.model.ExpandableHistoryItem
 import com.example.postman.domain.model.History
 import com.example.postman.domain.model.HistoryEntry
 import com.example.postman.presentation.base.CustomSearchBar
@@ -59,7 +60,8 @@ fun HistoryScreen(
         viewModel.getHistories()
         viewModel.getCollections()
     }
-    val expandedState: State<Map<String, Boolean>> = viewModel.expandedStates.collectAsState()
+    val expandedState: State<List<ExpandableHistoryItem>> =
+        viewModel.expandedStates.collectAsState()
     val histories by viewModel.historyEntry.collectAsState()
     val collectionNames by viewModel.collectionNames.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
@@ -116,7 +118,7 @@ fun HistoryScreen(
 private fun ExpandedHistoryItem(
     historyEntries: List<HistoryEntry>,
     collectionEntries: Set<CollectionEntry>,
-    expandedState: State<Map<String, Boolean>>,
+    expandedState: State<List<ExpandableHistoryItem>>,
     callbacks: HistoryCallbacks,
 ) {
     historyEntries.forEach { historyEntry ->
@@ -126,7 +128,8 @@ private fun ExpandedHistoryItem(
                     Modifier.padding(vertical = 8.dp),
                     historyEntry.dateCreated,
                     collectionEntries,
-                    expandedState.value[historyEntry.dateCreated] ?: false,
+                    expandedState.value.firstOrNull { it.dateCreated == historyEntry.dateCreated }?.isExpanded
+                        ?: false,
                     historyEntry.histories,
                     callbacks
                 )
@@ -135,7 +138,8 @@ private fun ExpandedHistoryItem(
                 AnimatedVisibility(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    visible = expandedState.value[historyEntry.dateCreated] == true
+                    visible = expandedState.value.firstOrNull { it.dateCreated == historyEntry.dateCreated }?.isExpanded
+                        ?: false
                 ) {
                     HistoryItem(
                         Modifier

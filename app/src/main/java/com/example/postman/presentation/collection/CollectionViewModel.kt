@@ -6,7 +6,6 @@ import com.example.postman.data.local.dao.CollectionDao
 import com.example.postman.data.mapper.toDomain
 import com.example.postman.data.mapper.toEntity
 import com.example.postman.domain.model.Collection
-import com.example.postman.domain.model.ExpandableItem
 import com.example.postman.domain.model.Request
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers

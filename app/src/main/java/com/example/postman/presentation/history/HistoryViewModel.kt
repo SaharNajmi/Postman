@@ -6,6 +6,7 @@ import com.example.postman.common.utils.formatDate
 import com.example.postman.data.local.dao.CollectionDao
 import com.example.postman.data.mapper.toRequestEntity
 import com.example.postman.domain.model.CollectionEntry
+import com.example.postman.domain.model.ExpandableHistoryItem
 import com.example.postman.domain.model.History
 import com.example.postman.domain.model.HistoryEntry
 import com.example.postman.domain.repository.HistoryRepository
@@ -28,8 +29,8 @@ class HistoryViewModel @Inject constructor(
         MutableStateFlow<List<HistoryEntry>>(listOf())
     val historyEntry: StateFlow<List<HistoryEntry>> = _historyEntry
 
-    private val _expandedStates = MutableStateFlow<Map<String, Boolean>>(mapOf())
-    val expandedStates: StateFlow<Map<String, Boolean>> = _expandedStates
+    private val _expandedStates = MutableStateFlow<List<ExpandableHistoryItem>>(listOf())
+    val expandedStates: StateFlow<List<ExpandableHistoryItem>> = _expandedStates
 
     private val _collectionNames =
         MutableStateFlow<Set<CollectionEntry>>(setOf())
@@ -41,14 +42,18 @@ class HistoryViewModel @Inject constructor(
                 historyRepository.getAllHistories()
             val grouped: Map<String, List<History>> = result.groupBy { formatDate(it.createdAt) }
             _historyEntry.value = grouped.map { (date, histories) ->
+                _expandedStates.value = _expandedStates.value + ExpandableHistoryItem(date, false)
                 HistoryEntry(dateCreated = date, histories = histories)
             }
         }
     }
 
-    fun toggleExpanded(date: String) {
+    fun toggleExpanded(dateCreated: String) {
         _expandedStates.value =
-            _expandedStates.value.toMutableMap().apply { this[date] = this[date]?.not() ?: false }
+            _expandedStates.value.map {
+                if (it.dateCreated == dateCreated) it.copy(isExpanded = !it.isExpanded)
+                else it
+            }
     }
 
     fun deleteHistoryRequest(historyId: Int) {
