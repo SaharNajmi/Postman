@@ -23,7 +23,12 @@ class CollectionViewModel @Inject constructor(
 
     fun getCollections() {
         viewModelScope.launch(Dispatchers.IO) {
-            _collections.value = collectionRepository.getAllCollections()
+            _collections.value = collectionRepository.getAllCollections().map { item ->
+                val expanded =
+                    _collections.value.firstOrNull() { it.collectionId == item.collectionId }?.isExpanded
+                        ?: false
+                item.copy(isExpanded = expanded)
+            }
         }
     }
 
