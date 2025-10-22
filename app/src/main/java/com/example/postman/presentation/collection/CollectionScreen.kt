@@ -33,7 +33,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -79,7 +78,6 @@ fun CollectionScreen(
     }
     var searchQuery by remember { mutableStateOf("") }
     val collections by viewModel.collections.collectAsState()
-    val expandedStates = viewModel.expandedStates.collectAsState()
     val filteredItems = searchCollections(
         collections, searchQuery
     )
@@ -125,7 +123,6 @@ fun CollectionScreen(
             filteredItems.isEmpty() -> NotFoundMessage(searchQuery)
             else -> ExpandedCollectionItems(
                 filteredItems,
-                expandedStates,
                 callbacks
             )
         }
@@ -169,20 +166,19 @@ private fun CreateNewCollection(callbacks: CollectionCallbacks) {
 @Composable
 private fun ExpandedCollectionItems(
     collections: List<Collection>,
-    expandedStates: State<Map<String, Boolean>>,
     callbacks: CollectionCallbacks,
 ) {
     LazyColumn {
-        collections.forEachIndexed { index, it ->
-            val allRequests = it.requests
+        collections.forEachIndexed { index, collection ->
+            val allRequests = collection.requests
             item {
                 CollectionHeader(
                     Modifier
                         .fillMaxWidth()
                         .padding(vertical = 2.dp),
-                    it.collectionName,
-                    expandedStates.value[it.collectionId] ?: false,
-                    it,
+                    collection.collectionName,
+                    collection.isExpanded,
+                    collection,
                     callbacks
                 )
             }
@@ -191,22 +187,26 @@ private fun ExpandedCollectionItems(
                 item {
                     AnimatedVisibility(
                         modifier = Modifier.fillMaxWidth(),
-                        visible = expandedStates.value[it.collectionId] == true
+                        visible = collection.isExpanded == true
                     ) {
-                        AddARequestButton(Modifier.padding(12.dp), it.collectionId, callbacks)
+                        AddARequestButton(
+                            Modifier.padding(12.dp),
+                            collection.collectionId,
+                            callbacks
+                        )
                     }
                 }
             } else {
                 items(allRequests.size) { index ->
                     AnimatedVisibility(
                         modifier = Modifier.fillMaxWidth(),
-                        visible = expandedStates.value[it.collectionId] == true
+                        visible = collection.isExpanded == true
                     ) {
                         CollectionItem(
                             Modifier
                                 .padding(top = 2.dp, bottom = 2.dp, start = 12.dp),
                             allRequests[index],
-                            it.collectionId,
+                            collection.collectionId,
                             callbacks
                         )
                     }

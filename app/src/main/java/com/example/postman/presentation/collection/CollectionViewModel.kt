@@ -6,6 +6,7 @@ import com.example.postman.data.local.dao.CollectionDao
 import com.example.postman.data.mapper.toDomain
 import com.example.postman.data.mapper.toEntity
 import com.example.postman.domain.model.Collection
+import com.example.postman.domain.model.ExpandableItem
 import com.example.postman.domain.model.Request
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -23,10 +24,6 @@ class CollectionViewModel @Inject constructor(
         MutableStateFlow<List<Collection>>(emptyList())
     val collections: StateFlow<List<Collection>> = _collections
 
-
-    private val _expandedStates = MutableStateFlow<Map<String, Boolean>>(mapOf())
-    val expandedStates: StateFlow<Map<String, Boolean>> = _expandedStates
-
     fun getCollections() {
         val thread = Thread {
             val collections = collectionDao.getAllCollections()
@@ -40,9 +37,13 @@ class CollectionViewModel @Inject constructor(
 
 
     fun toggleExpanded(collectionId: String) {
-        _expandedStates.value =
-            _expandedStates.value.toMutableMap()
-                .apply { this[collectionId] = this[collectionId]?.not() ?: true }
+        _collections.value = _collections.value.map {
+            if (it.collectionId == collectionId) {
+                it.copy(isExpanded = !it.isExpanded)
+            } else {
+                it
+            }
+        }
     }
 
     fun deleteRequestItem(requestId: Int) {

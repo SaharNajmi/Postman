@@ -8,7 +8,8 @@ import java.util.UUID
 data class Collection(
     val collectionId: String = UUID.randomUUID().toString(),
     val collectionName: String = "New Collection",
-    val requests: List<Request>? = null
+    val requests: List<Request>? = null,
+    val isExpanded: Boolean = false,
 )
 
 data class Request(
@@ -21,5 +22,5 @@ data class Request(
     val imageResponse: ImageBitmap? = null,
     val statusCode: Int? = null,
     val body: String? = null,
-    val headers: List<Pair<String, String>>? = null
+    val headers: List<Pair<String, String>>? = null,
 )
