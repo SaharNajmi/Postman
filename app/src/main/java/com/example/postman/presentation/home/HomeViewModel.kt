@@ -10,19 +10,17 @@ import com.example.postman.common.extensions.buildUrlWithParams
 import com.example.postman.common.extensions.getNetworkErrorMessage
 import com.example.postman.common.extensions.mapKeyValuePairsToQueryParameter
 import com.example.postman.common.utils.HttpMethod
-import com.example.postman.data.local.dao.CollectionDao
 import com.example.postman.data.mapper.CollectionMapper
 import com.example.postman.data.mapper.CollectionMapper.toHttpRequest
 import com.example.postman.data.mapper.CollectionMapper.toHttpResponse
 import com.example.postman.data.mapper.HistoryMapper
 import com.example.postman.data.mapper.HistoryMapper.toHttpRequest
 import com.example.postman.data.mapper.HistoryMapper.toHttpResponse
-import com.example.postman.data.mapper.toDomain
-import com.example.postman.data.mapper.toEntity
 import com.example.postman.domain.model.HttpRequest
 import com.example.postman.domain.model.HttpResult
 import com.example.postman.domain.model.Request
 import com.example.postman.domain.repository.ApiService
+import com.example.postman.domain.repository.CollectionRepository
 import com.example.postman.domain.repository.HistoryRepository
 import com.example.postman.presentation.base.Loadable
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,9 +37,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val repository: ApiService,
+    private val apiService: ApiService,
     private val historyRepository: HistoryRepository,
-    private val collectionDao: CollectionDao,
+    private val collectionRepository: CollectionRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HomeUiState>(
@@ -57,7 +55,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(response = Loadable.Loading)
             try {
-                val result = repository.sendRequest(
+                val result = apiService.sendRequest(
                     method = requestData.httpMethod.name,
                     url = requestData.baseUrl,
                     headers = requestData.headers,
@@ -269,7 +267,7 @@ class HomeViewModel @Inject constructor(
 
     fun loadRequestFromCollection(requestId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            val saved = collectionDao.getCollectionRequest(requestId).toDomain()
+            val saved = collectionRepository.getCollectionRequest(requestId)
 
             val response = when {
                 saved.statusCode != null -> Loadable.Success(saved.toHttpResponse())
@@ -284,15 +282,10 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun updateCollectionRequest(collectionId: String, request: Request) {
+    private fun updateCollectionRequest(collectionId: String, request: Request) {
         viewModelScope.launch(Dispatchers.IO) {
-            val requestName = collectionDao.getRequestName(request.id)
-            collectionDao.updateCollectionRequest(
-                request.toEntity(
-                    collectionId,
-                    requestName
-                )
-            )
+            val requestName = collectionRepository.getRequestName(request.id)
+            collectionRepository.updateCollectionRequest(collectionId, requestName, request)
         }
     }
 }

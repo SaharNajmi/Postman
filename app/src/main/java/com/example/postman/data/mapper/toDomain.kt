@@ -11,23 +11,11 @@ import com.example.postman.domain.model.Collection
 import com.example.postman.domain.model.History
 import com.example.postman.domain.model.Request
 
-fun CollectionEntity.toDomain(requests: List<RequestEntity>): Collection {
+fun CollectionEntity.toDomain(requests: List<Request>): Collection {
     return Collection(
         collectionId = collectionId,
         collectionName = collectionName,
-        requests = requests.map { request ->
-            Request(
-                id = request.id,
-                requestName = request.requestName,
-                requestUrl = request.requestUrl,
-                httpMethod = request.httpMethod,
-                response = request.response,
-                createdAt = request.createdAt.toLocalDate(),
-                statusCode = request.statusCode,
-                body = request.body,
-                headers = request.headers
-            )
-        }
+        requests = requests
     )
 }
 

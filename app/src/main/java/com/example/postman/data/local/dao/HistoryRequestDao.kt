@@ -26,6 +26,6 @@ interface HistoryRequestDao {
     suspend fun deleteHistoriesRequest(ids: List<Int>)
 
     @Query("SELECT * FROM histories WHERE id= :historyId ")
-    fun getHistoryRequest(historyId: Int): HistoryEntity
+    suspend fun getHistoryRequest(historyId: Int): HistoryEntity
 
 }

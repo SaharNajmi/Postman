@@ -3,12 +3,13 @@ package com.example.postman.presentation.history
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.postman.common.utils.formatDate
-import com.example.postman.data.local.dao.CollectionDao
+import com.example.postman.data.mapper.toDomain
 import com.example.postman.data.mapper.toRequestEntity
 import com.example.postman.domain.model.CollectionEntry
 import com.example.postman.domain.model.ExpandableHistoryItem
 import com.example.postman.domain.model.History
 import com.example.postman.domain.model.HistoryEntry
+import com.example.postman.domain.repository.CollectionRepository
 import com.example.postman.domain.repository.HistoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -16,13 +17,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.collections.component1
-import kotlin.collections.component2
 
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
     private val historyRepository: HistoryRepository,
-    val collectionDao: CollectionDao,
+    val collectionRepository: CollectionRepository,
 ) : ViewModel() {
 
     private val _historyEntry =
@@ -71,21 +70,21 @@ class HistoryViewModel @Inject constructor(
     }
 
     fun getCollections() {
-        val thread = Thread {
-            val collections = collectionDao.getAllCollections()
+        viewModelScope.launch(Dispatchers.IO) {
+            val collections = collectionRepository.getAllCollections()
             _collectionNames.value = collections.map {
                 CollectionEntry(it.collectionId, it.collectionName)
             }.toSet()
         }
-        thread.start()
     }
 
     fun addRequestToCollection(request: History, collectionId: String) {
-        val thread = Thread {
-            val entity = request.toRequestEntity(collectionId)
-            collectionDao.insertRequestToCollection(entity)
+        viewModelScope.launch(Dispatchers.IO) {
+            collectionRepository.insertRequestToCollection(
+                collectionId,
+                request.toRequestEntity(collectionId).toDomain()
+            )
         }
-        thread.start()
     }
 
     fun addRequestsToCollection(
@@ -93,10 +92,8 @@ class HistoryViewModel @Inject constructor(
         collectionId: String,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            requests.forEach { request ->
-                val entity = request.toRequestEntity(collectionId)
-                collectionDao.insertRequestToCollection(entity)
-            }
+            requests.map { it.toRequestEntity(collectionId).toDomain() }
+                .forEach { collectionRepository.insertRequestToCollection(collectionId, it) }
         }
     }
 }

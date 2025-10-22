@@ -14,32 +14,32 @@ interface CollectionDao {
     suspend fun insertCollection(collection: CollectionEntity)
 
     @Query("SELECT * FROM collections")
-    fun getAllCollections(): List<CollectionEntity>
+    suspend fun getAllCollections(): List<CollectionEntity>
 
     @Query("SELECT requestName FROM requests WHERE id = :requestId")
-    fun getRequestName(requestId: Int): String
+    suspend fun getRequestName(requestId: Int): String
 
     @Update
     suspend fun updateCollection(collection: CollectionEntity)
 
     @Update
-    fun updateCollectionRequest(request: RequestEntity)
+    suspend fun updateCollectionRequest(request: RequestEntity)
 
     @Query("DELETE FROM collections WHERE collectionId = :collectionId")
     suspend fun deleteCollection(collectionId: String)
 
     @Insert
-    fun insertRequestToCollection(request: RequestEntity)
+    suspend fun insertRequestToCollection(request: RequestEntity)
 
     @Query("SELECT * FROM requests WHERE collectionId = :collectionId")
-    fun getCollectionRequests(collectionId: String): List<RequestEntity>
+    suspend fun getCollectionRequests(collectionId: String): List<RequestEntity>
 
     @Query("SELECT * FROM requests WHERE id= :requestId ")
-    fun getCollectionRequest(requestId: Int): RequestEntity
+    suspend fun getCollectionRequest(requestId: Int): RequestEntity
 
     @Query("DELETE FROM requests WHERE id = :requestId")
     suspend fun deleteRequestFromCollection(requestId: Int)
 
     @Query("UPDATE requests SET requestName = :requestName WHERE id = :requestId")
-    fun changeRequestName(requestId: Int, requestName: String)
+    suspend fun changeRequestName(requestId: Int, requestName: String)
 }

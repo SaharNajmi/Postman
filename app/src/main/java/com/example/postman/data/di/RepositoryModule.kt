@@ -1,10 +1,13 @@
 package com.example.postman.data.di
 
 import com.example.postman.common.constants.NetworkConstants
+import com.example.postman.data.local.dao.CollectionDao
 import com.example.postman.data.local.dao.HistoryRequestDao
 import com.example.postman.data.repository.ApiServiceImp
+import com.example.postman.data.repository.CollectionRepositoryImp
 import com.example.postman.data.repository.HistoryRepositoryImp
 import com.example.postman.domain.repository.ApiService
+import com.example.postman.domain.repository.CollectionRepository
 import com.example.postman.domain.repository.HistoryRepository
 import dagger.Module
 import dagger.Provides
@@ -30,9 +33,17 @@ object RepositoryModule {
     @Provides
     fun provideHistoryRequestRepository(
         historyRequestDao: HistoryRequestDao,
-        @IoDispatcher dispatcher: CoroutineDispatcher
+        @IoDispatcher dispatcher: CoroutineDispatcher,
     ): HistoryRepository =
         HistoryRepositoryImp(historyRequestDao, dispatcher)
+
+    @Provides
+    fun provideCollectionRepository(
+        collectionDao: CollectionDao,
+        @IoDispatcher dispatcher: CoroutineDispatcher,
+    ): CollectionRepository =
+        CollectionRepositoryImp(collectionDao, dispatcher)
+
 
     @Singleton
     @Provides
