@@ -58,7 +58,7 @@ import androidx.compose.ui.unit.sp
 import com.example.postman.R
 import com.example.postman.common.extensions.getHeaderValue
 import com.example.postman.common.utils.HttpMethod
-import com.example.postman.domain.model.HttpResult
+import com.example.postman.domain.model.ApiResponse
 import com.example.postman.presentation.base.Loadable
 import com.example.postman.presentation.navigation.Screens
 import com.example.postman.ui.theme.Gray
@@ -66,11 +66,10 @@ import com.example.postman.ui.theme.Green
 import com.example.postman.ui.theme.LightBlue
 import com.example.postman.ui.theme.LightGray
 import com.example.postman.ui.theme.LightGreen
+import com.example.postman.ui.theme.Pink80
 import com.example.postman.ui.theme.RadioButtonSelectedColor
 import com.example.postman.ui.theme.Red
 import com.example.postman.ui.theme.Silver
-import io.ktor.http.HttpStatusCode
-import retrofit2.http.Body
 
 @Composable()
 fun HomeScreen(
@@ -403,8 +402,9 @@ private fun HttpParameterBody(
 @Composable
 private fun StatusCode(statusCode: Int?) {
     if (statusCode == null) return
+    val textColor = if (statusCode in 200..208) Green else Red
+    val backgroundColor = if (statusCode in 200..208) Green else Pink80
 
-    val color = if (statusCode in 200..208) Green else Red
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = "Status ", modifier = Modifier
@@ -414,10 +414,10 @@ private fun StatusCode(statusCode: Int?) {
             modifier = Modifier
                 .clip(RoundedCornerShape(4.dp))
                 .background(
-                    LightGreen
+                    backgroundColor
                 )
                 .padding(horizontal = 4.dp),
-            color = color,
+            color = textColor,
             text = statusCode.toString(),
         )
     }
@@ -541,7 +541,7 @@ private fun ResponseBodyTopBar(statusCode: Int?) {
 
 @Composable
 fun ResponseBody(
-    response: Loadable<HttpResult>,
+    response: Loadable<ApiResponse>,
 ) {
     when (response) {
         is Loadable.Success -> {

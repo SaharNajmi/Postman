@@ -1,8 +1,5 @@
 package com.example.postman.presentation.home
 
-import android.graphics.BitmapFactory
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,18 +13,14 @@ import com.example.postman.data.mapper.CollectionMapper.toHttpResponse
 import com.example.postman.data.mapper.HistoryMapper
 import com.example.postman.data.mapper.HistoryMapper.toHttpRequest
 import com.example.postman.data.mapper.HistoryMapper.toHttpResponse
-import com.example.postman.domain.model.HttpRequest
-import com.example.postman.domain.model.HttpResult
+import com.example.postman.domain.model.ApiRequest
+import com.example.postman.domain.model.ApiResponse
 import com.example.postman.domain.model.Request
 import com.example.postman.domain.repository.ApiService
 import com.example.postman.domain.repository.CollectionRepository
 import com.example.postman.domain.repository.HistoryRepository
 import com.example.postman.presentation.base.Loadable
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.bodyAsText
-import io.ktor.client.statement.readBytes
-import io.ktor.http.contentType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -43,7 +36,7 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HomeUiState>(
-        HomeUiState(HttpRequest(), Loadable.Empty)
+        HomeUiState(ApiRequest(), Loadable.Empty)
     )
 
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
@@ -60,24 +53,22 @@ class HomeViewModel @Inject constructor(
                     url = requestData.baseUrl,
                     headers = requestData.headers,
                     parameters = requestData.params,
-                    body = requestData.body
-                )
-                val response = buildHttpResponse(result)
+                    body = requestData.body)
 
                 _uiState.value = _uiState.value.copy(
-                    response = Loadable.Success(response)
+                    response = Loadable.Success(result)
                 )
                 saveToHistory(
                     requestData,
-                    response
+                    result
                 )
 
                 if (collectionId != null) {
                     updateCollectionRequest(
                         collectionId = collectionId,
                         CollectionMapper.httpRequestToRequest(
-                            httpRequest = requestData,
-                            httpResult = response
+                            apiRequest = requestData,
+                            apiResponse = result
                         )
                     )
                 }
@@ -90,14 +81,14 @@ class HomeViewModel @Inject constructor(
                 )
                 saveToHistory(
                     requestData,
-                    HttpResult(error.getNetworkErrorMessage())
+                    ApiResponse(error.getNetworkErrorMessage())
                 )
                 if (collectionId != null) {
                     updateCollectionRequest(
                         collectionId = collectionId,
                         CollectionMapper.httpRequestToRequest(
-                            httpRequest = requestData,
-                            httpResult = HttpResult(error.getNetworkErrorMessage())
+                            apiRequest = requestData,
+                            apiResponse = ApiResponse(error.getNetworkErrorMessage())
                         )
                     )
                 }
@@ -106,7 +97,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun clearData() {
-        _uiState.value = HomeUiState(HttpRequest(), Loadable.Empty)
+        _uiState.value = HomeUiState(ApiRequest(), Loadable.Empty)
     }
 
     fun updateRequestUrl(newUrl: String) {
@@ -193,55 +184,13 @@ class HomeViewModel @Inject constructor(
             )
     }
 
-    suspend fun buildHttpResponse(result: HttpResponse): HttpResult {
-        val (responseBody, imageResponse) = buildResponseBody(result)
-        return HttpResult(
-            response = responseBody,
-            statusCode = result.status.value,
-            imageResponse = imageResponse
-        )
-    }
-
-    suspend fun buildResponseBody(
-        result: HttpResponse,
-    ): Pair<String, ImageBitmap?> {
-        var imageResponse: ImageBitmap? = null
-
-        val statusCode = result.status.value
-        val contentType = result.contentType()?.toString() ?: ""
-
-        val responseBody = if (statusCode in 200..299) {
-            when {
-                contentType == "image/svg+xml" -> {
-                    result.bodyAsText()
-                }
-
-                contentType.startsWith("image/") -> {
-                    val imageBytes = result.readBytes()
-                    val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-                    imageResponse = bitmap.asImageBitmap()
-
-                    "This is an image of type $contentType with ${imageBytes.size / 1024} KB."
-                }
-
-                else -> {
-                    result.bodyAsText()
-                }
-            }
-        } else {
-            result.bodyAsText()
-        }
-
-        return Pair(responseBody, imageResponse)
-    }
-
     fun saveToHistory(
-        httpRequest: HttpRequest,
-        response: HttpResult,
+        apiRequest: ApiRequest,
+        response: ApiResponse,
     ) {
         viewModelScope.launch {
             historyRepository.insertHistoryRequest(
-                HistoryMapper.httpRequestToHistory(httpRequest, response)
+                HistoryMapper.httpRequestToHistory(apiRequest, response)
             )
         }
     }

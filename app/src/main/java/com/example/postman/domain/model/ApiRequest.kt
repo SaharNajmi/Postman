@@ -5,7 +5,7 @@ import com.example.postman.common.extensions.mapStringToKeyValuePairs
 import com.example.postman.common.utils.HttpMethod
 import java.time.LocalDate
 
-data class HttpRequest(
+data class ApiRequest(
     val id: Int = 0,
     val requestUrl: String = "",
     val httpMethod: HttpMethod = HttpMethod.GET,
@@ -19,7 +19,7 @@ data class HttpRequest(
         get()=requestUrl.substringBefore("?")
 }
 
-data class HttpResult(
+data class ApiResponse(
     val response: String,
     val statusCode: Int? = null,
     val imageResponse: ImageBitmap? = null

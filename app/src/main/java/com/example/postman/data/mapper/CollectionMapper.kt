@@ -1,12 +1,12 @@
 package com.example.postman.data.mapper
 
-import com.example.postman.domain.model.HttpRequest
-import com.example.postman.domain.model.HttpResult
+import com.example.postman.domain.model.ApiRequest
+import com.example.postman.domain.model.ApiResponse
 import com.example.postman.domain.model.Request
 
 object CollectionMapper {
-    fun Request.toHttpRequest(): HttpRequest =
-        HttpRequest(
+    fun Request.toHttpRequest(): ApiRequest =
+        ApiRequest(
             id = id,
             requestUrl = requestUrl ?: "",
             httpMethod = httpMethod,
@@ -15,26 +15,26 @@ object CollectionMapper {
         )
 
 
-    fun Request.toHttpResponse(): HttpResult =
-        HttpResult(
+    fun Request.toHttpResponse(): ApiResponse =
+        ApiResponse(
             response = response,
             statusCode = statusCode,
             imageResponse = imageResponse
         )
 
     fun httpRequestToRequest(
-        httpRequest: HttpRequest,
-        httpResult: HttpResult,
+        apiRequest: ApiRequest,
+        apiResponse: ApiResponse,
     ): Request =
         Request(
-            id = httpRequest.id,
-            requestUrl = httpRequest.requestUrl,
-            httpMethod = httpRequest.httpMethod,
-            createdAt = httpRequest.createdAt,
-            response = httpResult.response,
-            statusCode = httpResult.statusCode,
-            imageResponse = httpResult.imageResponse,
-            body = httpRequest.body,
-            headers = httpRequest.headers
+            id = apiRequest.id,
+            requestUrl = apiRequest.requestUrl,
+            httpMethod = apiRequest.httpMethod,
+            createdAt = apiRequest.createdAt,
+            response = apiResponse.response,
+            statusCode = apiResponse.statusCode,
+            imageResponse = apiResponse.imageResponse,
+            body = apiRequest.body,
+            headers = apiRequest.headers
         )
 }

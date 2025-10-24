@@ -1,12 +1,12 @@
 package com.example.postman.data.mapper
 
 import com.example.postman.domain.model.History
-import com.example.postman.domain.model.HttpRequest
-import com.example.postman.domain.model.HttpResult
+import com.example.postman.domain.model.ApiRequest
+import com.example.postman.domain.model.ApiResponse
 
 object HistoryMapper {
-    fun History.toHttpRequest(): HttpRequest =
-        HttpRequest(
+    fun History.toHttpRequest(): ApiRequest =
+        ApiRequest(
             id = id,
             requestUrl = requestUrl,
             httpMethod = httpMethod,
@@ -15,23 +15,23 @@ object HistoryMapper {
         )
 
 
-    fun History.toHttpResponse(): HttpResult =
-        HttpResult(
+    fun History.toHttpResponse(): ApiResponse =
+        ApiResponse(
             response = response,
             statusCode = statusCode,
             imageResponse = imageResponse
         )
 
 
-    fun httpRequestToHistory(httpRequest: HttpRequest, httpResult: HttpResult): History =
+    fun httpRequestToHistory(apiRequest: ApiRequest, apiResponse: ApiResponse): History =
         History(
-            requestUrl = httpRequest.requestUrl,
-            httpMethod = httpRequest.httpMethod,
-            createdAt = httpRequest.createdAt,
-            response = httpResult.response,
-            statusCode = httpResult.statusCode,
-            imageResponse = httpResult.imageResponse,
-            body = httpRequest.body,
-            headers = httpRequest.headers
+            requestUrl = apiRequest.requestUrl,
+            httpMethod = apiRequest.httpMethod,
+            createdAt = apiRequest.createdAt,
+            response = apiResponse.response,
+            statusCode = apiResponse.statusCode,
+            imageResponse = apiResponse.imageResponse,
+            body = apiRequest.body,
+            headers = apiRequest.headers
         )
 }
