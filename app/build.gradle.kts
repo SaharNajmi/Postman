@@ -1,5 +1,3 @@
-import org.gradle.internal.classpath.Instrumented.systemProperty
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -77,6 +75,7 @@ dependencies {
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.kotest.property)
     testImplementation(libs.kotlin.reflect)
+    testImplementation (libs.mockk)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.gson)
