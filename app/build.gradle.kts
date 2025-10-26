@@ -76,6 +76,7 @@ dependencies {
     testImplementation(libs.kotest.property)
     testImplementation(libs.kotlin.reflect)
     testImplementation (libs.mockk)
+    androidTestImplementation (libs.hilt.android.testing)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.gson)
