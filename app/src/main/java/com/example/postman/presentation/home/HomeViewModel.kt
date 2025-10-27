@@ -231,8 +231,8 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun updateCollectionRequest(collectionId: String, request: Request) {
-        viewModelScope.launch(Dispatchers.IO) {
+     fun updateCollectionRequest(collectionId: String, request: Request) {
+        viewModelScope.launch {
             val requestName = collectionRepository.getRequestName(request.id)
             collectionRepository.updateCollectionRequest(collectionId, requestName, request)
         }

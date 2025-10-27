@@ -16,7 +16,7 @@ import com.example.postman.data.mapper.Converters
     exportSchema = false
 )
 @TypeConverters(Converters::class)
-abstract class RoomDatabase : RoomDatabase() {
+abstract class AppDatabase : RoomDatabase() {
     abstract fun historyRequestDao(): HistoryRequestDao
     abstract fun collectionDao(): CollectionDao
 }
