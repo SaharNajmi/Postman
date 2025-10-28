@@ -34,9 +34,9 @@ class CollectionRepositoryImp(
 
     override suspend fun updateCollectionRequest(
         collectionId: String,
-        requestName: String,
         request: Request,
     ) = withContext(dispatcher) {
+        val requestName = collectionDao.getRequestName(request.id)
         collectionDao.updateCollectionRequest(request.toEntity(collectionId, requestName))
     }
 

@@ -2,7 +2,7 @@ package com.example.postman.data.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.postman.data.local.appDatabase.RoomDatabase
+import com.example.postman.data.local.appDatabase.AppDatabase
 import com.example.postman.data.local.dao.CollectionDao
 import com.example.postman.data.local.dao.HistoryRequestDao
 import dagger.Module
@@ -18,16 +18,16 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideDatabase(@ApplicationContext context: Context): RoomDatabase =
-        Room.databaseBuilder(context, RoomDatabase::class.java, "history_db")
+    fun provideDatabase(@ApplicationContext context: Context): AppDatabase =
+        Room.databaseBuilder(context, AppDatabase::class.java, "history_db")
             .fallbackToDestructiveMigration(true)
             .build()
 
 
     @Provides
-    fun provideHistoryDao(db: RoomDatabase): HistoryRequestDao =
+    fun provideHistoryDao(db: AppDatabase): HistoryRequestDao =
         db.historyRequestDao()
 
     @Provides
-    fun provideCollocationDao(db: RoomDatabase): CollectionDao = db.collectionDao()
+    fun provideCollocationDao(db: AppDatabase): CollectionDao = db.collectionDao()
 }

@@ -63,7 +63,6 @@ class HomeViewModelTest {
         coVerify(exactly = 1) {
             collectionRepo.updateCollectionRequest(
                 "1232",
-                any<String>(),
                 any<Request>()
             )
         }
@@ -77,7 +76,6 @@ class HomeViewModelTest {
 
         coVerify(exactly = 0) {
             collectionRepo.updateCollectionRequest(
-                any<String>(),
                 any<String>(),
                 any<Request>()
             )
@@ -93,7 +91,6 @@ class HomeViewModelTest {
             apiService.sendRequest(any<String>(), any<String>())
             historyRepo.insertHistoryRequest(any<History>())
             collectionRepo.updateCollectionRequest(
-                any<String>(),
                 any<String>(),
                 any<Request>()
             )

@@ -12,7 +12,7 @@ interface CollectionRepository {
 
     suspend fun updateCollection(collection: Collection)
 
-    suspend fun updateCollectionRequest(collectionId: String, requestName: String, request: Request)
+    suspend fun updateCollectionRequest(collectionId: String, request: Request)
 
     suspend fun deleteCollection(collectionId: String)
 

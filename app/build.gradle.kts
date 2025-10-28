@@ -1,3 +1,5 @@
+import com.android.build.api.dsl.Packaging
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -34,23 +36,21 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
         isCoreLibraryDesugaringEnabled = true
     }
+
     kotlinOptions {
         jvmTarget = "11"
     }
     buildFeatures {
         compose = true
     }
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            merges += "META-INF/LICENSE.md"
+            merges += "META-INF/LICENSE-notice.md"
+        }
+    }
 }
-
-//tasks.withType<Test>().configureEach {
-//    useJUnitPlatform()
-//}
-
-//android.testOptions {
-//    unitTests.all {
-//        it.useJUnitPlatform()
-//    }
-//}
 
 dependencies {
     implementation(libs.androidx.core.ktx)
@@ -76,6 +76,7 @@ dependencies {
     testImplementation(libs.kotest.property)
     testImplementation(libs.kotlin.reflect)
     testImplementation (libs.mockk)
+    androidTestImplementation (libs.mockk.android)
     androidTestImplementation (libs.hilt.android.testing)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
