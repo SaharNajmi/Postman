@@ -10,22 +10,11 @@ import com.example.postman.domain.repository.HistoryRepository
 import com.example.postman.presentation.base.Loadable
 import com.example.postman.presentation.home.HomeUiState
 import com.example.postman.presentation.home.HomeViewModel
-import io.kotest.common.runBlocking
 import io.kotest.matchers.shouldBe
-import io.mockk.Runs
-import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
-import io.mockk.just
 import io.mockk.mockk
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import org.junit.Before
 import org.junit.Test
 
@@ -50,6 +39,7 @@ class HomeViewModelTest {
         viewModel.updateHttpMethod(HttpMethod.GET)
         viewModel.updateRequestUrl("http://example.com")
         viewModel.sendRequest()
+       // viewModel.uiState.value.response.shouldBeTypeOf<Loadable.Loading>
         // advanceUntilIdle()
         coVerify(exactly = 1) { historyRepo.insertHistoryRequest(any()) }
     }

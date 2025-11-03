@@ -70,7 +70,7 @@ class HistoryViewModel @Inject constructor(
     }
 
     fun getCollections() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val collections = collectionRepository.getAllCollections()
             _collectionNames.value = collections.map {
                 CollectionEntry(it.collectionId, it.collectionName)
@@ -79,7 +79,7 @@ class HistoryViewModel @Inject constructor(
     }
 
     fun addRequestToCollection(request: History, collectionId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             collectionRepository.insertRequestToCollection(
                 collectionId,
                 request.toRequestEntity(collectionId).toDomain()
@@ -91,7 +91,7 @@ class HistoryViewModel @Inject constructor(
         requests: List<History>,
         collectionId: String,
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             requests.map { it.toRequestEntity(collectionId).toDomain() }
                 .forEach { collectionRepository.insertRequestToCollection(collectionId, it) }
         }
