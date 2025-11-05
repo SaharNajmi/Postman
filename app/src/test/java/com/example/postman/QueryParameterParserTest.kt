@@ -3,6 +3,7 @@ package com.example.postman
 import com.example.postman.common.extensions.buildUrlWithParams
 import com.example.postman.common.extensions.mapKeyValuePairsToQueryParameter
 import com.example.postman.common.extensions.mapStringToKeyValuePairs
+import com.example.postman.common.extensions.removeParameterFromUrl
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
@@ -58,7 +59,20 @@ class QueryParameterParserTest {
     fun returnUrlIfThereIsNoQueryParameters() {
         val url = "url?"
         val params = ""
-        val output = buildUrlWithParams(url, params)
+        val output = url.buildUrlWithParams(params)
         output shouldBe url
+    }
+
+    @Test
+    fun `removeParameter from url`() {
+        val url = "https://example.com?foo=1&bar=2&foo=3"
+        val result = url.removeParameterFromUrl("foo", "1")
+        result shouldBe "https://example.com?bar=2&foo=3"
+
+        val result2 = url.removeParameterFromUrl("bar", "2")
+        result2 shouldBe "https://example.com?foo=1&foo=3"
+
+        val result3 = result2.removeParameterFromUrl("foo", "1").removeParameterFromUrl("foo", "3")
+        result3 shouldBe "https://example.com"
     }
 }

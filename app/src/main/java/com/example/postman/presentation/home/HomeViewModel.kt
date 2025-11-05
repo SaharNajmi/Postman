@@ -1,11 +1,11 @@
 package com.example.postman.presentation.home
 
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.postman.common.extensions.buildUrlWithParams
 import com.example.postman.common.extensions.getNetworkErrorMessage
 import com.example.postman.common.extensions.mapKeyValuePairsToQueryParameter
+import com.example.postman.common.extensions.removeParameterFromUrl
 import com.example.postman.common.utils.HttpMethod
 import com.example.postman.data.mapper.CollectionMapper
 import com.example.postman.data.mapper.CollectionMapper.toHttpRequest
@@ -21,7 +21,7 @@ import com.example.postman.domain.repository.CollectionRepository
 import com.example.postman.domain.repository.HistoryRepository
 import com.example.postman.presentation.base.Loadable
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,6 +33,7 @@ class HomeViewModel @Inject constructor(
     private val apiService: ApiService,
     private val historyRepository: HistoryRepository,
     private val collectionRepository: CollectionRepository,
+    private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HomeUiState>(
@@ -45,7 +46,7 @@ class HomeViewModel @Inject constructor(
         val requestData = uiState.value.data
         if (requestData.requestUrl.isBlank()) return
 
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             _uiState.value = _uiState.value.copy(response = Loadable.Loading)
             try {
                 val result = apiService.sendRequest(
@@ -53,7 +54,8 @@ class HomeViewModel @Inject constructor(
                     url = requestData.baseUrl,
                     headers = requestData.headers,
                     parameters = requestData.params,
-                    body = requestData.body)
+                    body = requestData.body
+                )
 
                 _uiState.value = _uiState.value.copy(
                     response = Loadable.Success(result)
@@ -157,23 +159,12 @@ class HomeViewModel @Inject constructor(
 
     fun removeParameter(key: String, value: String) {
         val originalUrl = _uiState.value.data.requestUrl
-        val uri = originalUrl.toUri()
-
-        val newParams = uri.queryParameterNames.flatMap { paramKey ->
-            uri.getQueryParameters(paramKey).mapNotNull { paramValue ->
-                if (paramKey == key && paramValue == value) null else "$paramKey=$paramValue"
-            }
-        }
-
-        val baseUrl = originalUrl.substringBefore("?")
-        val newUrl = if (newParams.isEmpty()) baseUrl else "$baseUrl?${newParams.joinToString("&")}"
-
+        val newUrl = originalUrl.removeParameterFromUrl(key, value)
         updateRequestUrl(newUrl)
     }
 
-    fun updateParamsUiState(params: List<Pair<String, String>>) {
-        val url = buildUrlWithParams(
-            _uiState.value.data.requestUrl,
+    private fun updateParamsUiState(params: List<Pair<String, String>>) {
+        val url = _uiState.value.data.requestUrl.buildUrlWithParams(
             params.mapKeyValuePairsToQueryParameter()
         )
         _uiState.value =
@@ -188,7 +179,7 @@ class HomeViewModel @Inject constructor(
         apiRequest: ApiRequest,
         response: ApiResponse,
     ) {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             historyRepository.insertHistoryRequest(
                 HistoryMapper.httpRequestToHistory(apiRequest, response)
             )
@@ -196,7 +187,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun loadRequestFromHistory(historyId: Int) {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             val saved = historyRepository.getHistoryRequest(historyId)
             val response = if (saved.statusCode != null)
                 Loadable.Success(
@@ -215,7 +206,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun loadRequestFromCollection(requestId: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatcher) {
             val saved = collectionRepository.getCollectionRequest(requestId)
 
             val response = when {
@@ -231,8 +222,8 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-     fun updateCollectionRequest(collectionId: String, request: Request) {
-        viewModelScope.launch {
+    fun updateCollectionRequest(collectionId: String, request: Request) {
+        viewModelScope.launch(dispatcher) {
             collectionRepository.updateCollectionRequest(collectionId, request)
         }
     }
