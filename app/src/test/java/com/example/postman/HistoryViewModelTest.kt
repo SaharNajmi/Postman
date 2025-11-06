@@ -34,7 +34,7 @@ class HistoryViewModelTest {
         Dispatchers.setMain(testDispatcher)
         historyRepository = mockk<HistoryRepository>(relaxed = true)
         collectionRepository = mockk<CollectionRepository>(relaxed = true)
-        viewModel = HistoryViewModel(historyRepository, collectionRepository)
+        viewModel = HistoryViewModel(historyRepository, collectionRepository, testDispatcher)
     }
 
     @After

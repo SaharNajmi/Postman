@@ -12,6 +12,7 @@ import com.example.postman.domain.model.HistoryEntry
 import com.example.postman.domain.repository.CollectionRepository
 import com.example.postman.domain.repository.HistoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,6 +23,7 @@ import javax.inject.Inject
 class HistoryViewModel @Inject constructor(
     private val historyRepository: HistoryRepository,
     val collectionRepository: CollectionRepository,
+    private val dispatcher: CoroutineDispatcher,
 ) : ViewModel() {
 
     private val _historyEntry =
@@ -36,7 +38,7 @@ class HistoryViewModel @Inject constructor(
     val collectionNames: StateFlow<Set<CollectionEntry>> = _collectionNames
 
     fun getHistories() {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             val result =
                 historyRepository.getAllHistories()
             val grouped: Map<String, List<History>> = result.groupBy { formatDate(it.createdAt) }
@@ -56,21 +58,21 @@ class HistoryViewModel @Inject constructor(
     }
 
     fun deleteHistoryRequest(historyId: Int) {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             historyRepository.deleteHistoryRequest(historyId)
             getHistories()
         }
     }
 
     fun deleteHistoriesRequest(historyIds: List<Int>) {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             historyRepository.deleteHistoriesRequest(historyIds)
             getHistories()
         }
     }
 
     fun getCollections() {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             val collections = collectionRepository.getAllCollections()
             _collectionNames.value = collections.map {
                 CollectionEntry(it.collectionId, it.collectionName)
@@ -79,7 +81,7 @@ class HistoryViewModel @Inject constructor(
     }
 
     fun addRequestToCollection(request: History, collectionId: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             collectionRepository.insertRequestToCollection(
                 collectionId,
                 request.toRequestEntity(collectionId).toDomain()
@@ -91,7 +93,7 @@ class HistoryViewModel @Inject constructor(
         requests: List<History>,
         collectionId: String,
     ) {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             requests.map { it.toRequestEntity(collectionId).toDomain() }
                 .forEach { collectionRepository.insertRequestToCollection(collectionId, it) }
         }
