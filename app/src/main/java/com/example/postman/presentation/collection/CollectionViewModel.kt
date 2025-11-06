@@ -6,6 +6,7 @@ import com.example.postman.domain.model.Collection
 import com.example.postman.domain.model.Request
 import com.example.postman.domain.repository.CollectionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,6 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CollectionViewModel @Inject constructor(
     private val collectionRepository: CollectionRepository,
+    private val dispatcher: CoroutineDispatcher,
 ) : ViewModel() {
 
     private val _collections =
@@ -22,7 +24,7 @@ class CollectionViewModel @Inject constructor(
     val collections: StateFlow<List<Collection>> = _collections
 
     fun getCollections() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatcher) {
             _collections.value = collectionRepository.getAllCollections().map { item ->
                 val expanded =
                     _collections.value.firstOrNull() { it.collectionId == item.collectionId }?.isExpanded
@@ -43,42 +45,42 @@ class CollectionViewModel @Inject constructor(
     }
 
     fun deleteRequestItem(requestId: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatcher) {
             collectionRepository.deleteRequestFromCollection(requestId)
             getCollections()
         }
     }
 
     fun deleteCollection(collectionId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatcher) {
             collectionRepository.deleteCollection(collectionId)
             getCollections()
         }
     }
 
     fun createNewCollection() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatcher) {
             collectionRepository.insertCollection(Collection())
             getCollections()
         }
     }
 
     fun createAnEmptyRequest(collectionId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatcher) {
             collectionRepository.insertRequestToCollection(collectionId, Request())
             getCollections()
         }
     }
 
     fun updateCollection(collection: Collection) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatcher) {
             collectionRepository.updateCollection(collection)
             getCollections()
         }
     }
 
     fun changeRequestName(requestId: Int, requestName: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatcher) {
             collectionRepository.changeRequestName(requestId, requestName)
             getCollections()
         }
