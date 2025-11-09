@@ -17,7 +17,7 @@ class ListExtensionTest : StringSpec({
         headers.getHeaderValue("Content-Type") shouldBe "application/json"
     }
 
-    "return empty string when the key not founded" {
+    "return empty string when the key is not found" {
         val headers = listOf(
             Pair("A", "aaa"),
             Pair("B", "bbb"),

@@ -1,24 +1,22 @@
 package com.example.postman
 
-import com.example.postman.common.utils.formatDate
 import com.example.postman.domain.model.Collection
-import com.example.postman.domain.model.ExpandableHistoryItem
 import com.example.postman.domain.repository.CollectionRepository
 import com.example.postman.presentation.collection.CollectionViewModel
+import io.kotest.inspectors.shouldForAll
+import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import java.time.LocalDate
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CollectionViewModelTest {
@@ -57,7 +55,8 @@ class CollectionViewModelTest {
         viewModel.collections.value[0].isExpanded shouldBe true
 
         viewModel.toggleExpanded("14")
-        viewModel.collections.value.forEach { it.isExpanded shouldBe true }
+        viewModel.collections.value.shouldForAll { it.isExpanded.shouldBeTrue() }
+//        viewModel.collections.value.forEach { it.isExpanded shouldBe true }
 
         viewModel.toggleExpanded("12")
         viewModel.collections.value[0].isExpanded shouldBe false
