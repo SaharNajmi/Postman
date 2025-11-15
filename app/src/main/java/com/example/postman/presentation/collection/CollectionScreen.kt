@@ -162,7 +162,6 @@ private fun CreateNewCollection(callbacks: CollectionCallbacks) {
         }
     }
 }
-
 @Composable
 private fun ExpandedCollectionItems(
     collections: List<Collection>,
@@ -197,19 +196,20 @@ private fun ExpandedCollectionItems(
                     }
                 }
             } else {
-                items(allRequests.size) { index ->
+                items(allRequests.size, key = { i -> allRequests[i].id }) { index ->
                     AnimatedVisibility(
                         modifier = Modifier.fillMaxWidth(),
                         visible = collection.isExpanded == true
                     ) {
+                      //  key(allRequests[index].id) {
                         CollectionItem(
                             Modifier
                                 .padding(top = 2.dp, bottom = 2.dp, start = 12.dp),
                             allRequests[index],
                             collection.collectionId,
                             callbacks
-                        )
-                    }
+                        )}
+                   // }
                 }
             }
         }
