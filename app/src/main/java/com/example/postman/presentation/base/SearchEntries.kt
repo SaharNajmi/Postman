@@ -28,7 +28,8 @@ fun searchCollections(
     if (searchQuery.isBlank()) return items
     val result = mutableListOf<Collection>()
     items.forEach { collection ->
-        val isQueryInCollectionName = collection.collectionName.contains(searchQuery, ignoreCase = true)
+        val isQueryInCollectionName =
+            collection.collectionName.contains(searchQuery, ignoreCase = true)
         if (isQueryInCollectionName) {
             result.add(collection)
         } else {
@@ -38,7 +39,7 @@ fun searchCollections(
                     ignoreCase = true
                 )
             }
-            if (requests?.isNotEmpty()==true) {
+            if (requests?.isNotEmpty() == true) {
                 result.add(collection.copy(requests = requests))
             }
         }
