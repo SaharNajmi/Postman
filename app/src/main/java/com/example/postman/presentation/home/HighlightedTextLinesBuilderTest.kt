@@ -28,14 +28,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.postman.R
 import com.example.postman.common.extensions.formatJson
+import com.example.postman.presentation.base.buildHighlightedTextLines
 import com.example.postman.ui.theme.LightGray
 import com.example.postman.ui.theme.LightYellow
 
@@ -105,7 +102,7 @@ fun SearchBar(
     targetMatchIndex: Int,
     onQueryChange: (String) -> Unit,
     onPrev: () -> Unit,
-    onNext: () -> Unit
+    onNext: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -149,7 +146,7 @@ fun SearchBar(
 fun HighlightedTextList(
     lines: List<HighlightedTextLine>,
     foundIndex: Int,
-    listState: LazyListState
+    listState: LazyListState,
 ) {
     LazyColumn(state = listState) {
         itemsIndexed(lines) { index, item ->
@@ -161,47 +158,5 @@ fun HighlightedTextList(
                     .background(if (index == foundIndex) LightYellow else Color.Transparent)
             )
         }
-    }
-}
-
-fun buildHighlightedTextLines(
-    lines: List<String>,
-    searchQuery: String
-): List<HighlightedTextLine> {
-    return lines.map { line ->
-        val lowerLine = line.lowercase()
-        val lowerTerm = searchQuery.lowercase()
-        var currentIndex = 0
-        val matchPositions = mutableListOf<Int>()
-
-        val annotated = buildAnnotatedString {
-            if (lowerTerm.isEmpty()) {
-                append(line)
-            } else {
-                while (currentIndex < line.length) {
-                    val matchIndex = lowerLine.indexOf(lowerTerm, currentIndex)
-                    if (matchIndex == -1) {
-                        append(line.substring(currentIndex))
-                        break
-                    }
-
-                    append(line.substring(currentIndex, matchIndex))
-
-                    withStyle(
-                        style = SpanStyle(
-                            background = Color.Yellow,
-                            fontWeight = FontWeight.Bold
-                        )
-                    ) {
-                        append(line.substring(matchIndex, matchIndex + searchQuery.length))
-                    }
-
-                    matchPositions.add(matchIndex)
-                    currentIndex = matchIndex + searchQuery.length
-                }
-            }
-        }
-
-        HighlightedTextLine(annotated, matchPositions)
     }
 }

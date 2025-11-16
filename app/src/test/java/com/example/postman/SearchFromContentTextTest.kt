@@ -1,10 +1,9 @@
 package com.example.postman
 
-import com.example.postman.presentation.home.buildHighlightedTextLines
+import com.example.postman.presentation.base.buildHighlightedTextLines
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import org.junit.Test
-
 
 class SearchFromContentTextTest() {
     @Test
