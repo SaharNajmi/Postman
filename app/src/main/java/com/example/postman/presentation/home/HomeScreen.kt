@@ -50,11 +50,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.postman.R
-import com.example.postman.common.extensions.getHeaderValue
-import com.example.postman.common.utils.HttpMethod
+import com.example.postman.core.models.HttpMethod
 import com.example.postman.core.KeyValueList
-import com.example.postman.domain.model.ApiResponse
-import com.example.postman.presentation.base.Loadable
+import com.example.postman.domain.models.ApiResponse
+import com.example.postman.presentation.home.Loadable
 import com.example.postman.presentation.navigation.Screens
 import com.example.postman.ui.theme.DarkGreen
 import com.example.postman.ui.theme.Gray

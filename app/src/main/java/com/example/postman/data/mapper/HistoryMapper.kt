@@ -1,8 +1,8 @@
 package com.example.postman.data.mapper
 
-import com.example.postman.domain.model.History
-import com.example.postman.domain.model.ApiRequest
-import com.example.postman.domain.model.ApiResponse
+import com.example.postman.domain.models.History
+import com.example.postman.domain.models.ApiRequest
+import com.example.postman.domain.models.ApiResponse
 
 object HistoryMapper {
     fun History.toHttpRequest(): ApiRequest =

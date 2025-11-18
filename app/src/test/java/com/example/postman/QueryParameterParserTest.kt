@@ -1,9 +1,9 @@
 package com.example.postman
 
-import com.example.postman.common.extensions.buildUrlWithParams
-import com.example.postman.common.extensions.mapKeyValuePairsToQueryParameter
-import com.example.postman.common.extensions.mapStringToKeyValuePairs
-import com.example.postman.common.extensions.removeParameterFromUrl
+import com.example.postman.core.extensions.buildUrlWithParams
+import com.example.postman.core.extensions.mapKeyValuePairsToQueryParameter
+import com.example.postman.core.extensions.mapStringToKeyValuePairs
+import com.example.postman.core.extensions.removeParameterFromUrl
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe

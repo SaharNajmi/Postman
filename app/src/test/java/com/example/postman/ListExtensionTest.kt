@@ -1,6 +1,6 @@
 package com.example.postman
 
-import com.example.postman.common.extensions.getHeaderValue
+import com.example.postman.presentation.home.getHeaderValue
 import com.example.postman.core.KeyValueList
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe

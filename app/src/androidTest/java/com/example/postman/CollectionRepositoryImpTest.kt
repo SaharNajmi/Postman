@@ -3,10 +3,10 @@ package com.example.postman
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import com.example.postman.data.local.appDatabase.AppDatabase
+import com.example.postman.data.db.AppDatabase
 import com.example.postman.data.repository.CollectionRepositoryImp
-import com.example.postman.domain.model.Collection
-import com.example.postman.domain.model.Request
+import com.example.postman.domain.models.Collection
+import com.example.postman.domain.models.Request
 import com.example.postman.domain.repository.CollectionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest

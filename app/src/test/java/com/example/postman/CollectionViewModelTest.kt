@@ -1,6 +1,6 @@
 package com.example.postman
 
-import com.example.postman.domain.model.Collection
+import com.example.postman.domain.models.Collection
 import com.example.postman.domain.repository.CollectionRepository
 import com.example.postman.presentation.collection.CollectionViewModel
 import io.kotest.inspectors.shouldForAll

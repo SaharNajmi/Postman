@@ -1,11 +1,11 @@
 package com.example.postman
 
-import com.example.postman.domain.model.Collection
-import com.example.postman.domain.model.History
-import com.example.postman.domain.model.HistoryEntry
-import com.example.postman.domain.model.Request
-import com.example.postman.presentation.base.searchCollections
-import com.example.postman.presentation.base.searchHistories
+import com.example.postman.domain.models.Collection
+import com.example.postman.domain.models.History
+import com.example.postman.domain.models.HistoryEntry
+import com.example.postman.domain.models.Request
+import com.example.postman.presentation.history.searchCollections
+import com.example.postman.presentation.history.searchHistories
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import org.junit.Test

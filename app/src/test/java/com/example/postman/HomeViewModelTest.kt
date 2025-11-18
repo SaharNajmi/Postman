@@ -1,14 +1,14 @@
 package com.example.postman
 
-import com.example.postman.common.utils.HttpMethod
+import com.example.postman.core.models.HttpMethod
 import com.example.postman.core.KeyValueList
-import com.example.postman.domain.model.ApiRequest
-import com.example.postman.domain.model.History
-import com.example.postman.domain.model.Request
+import com.example.postman.domain.models.ApiRequest
+import com.example.postman.domain.models.History
+import com.example.postman.domain.models.Request
 import com.example.postman.domain.repository.ApiService
 import com.example.postman.domain.repository.CollectionRepository
 import com.example.postman.domain.repository.HistoryRepository
-import com.example.postman.presentation.base.Loadable
+import com.example.postman.presentation.home.Loadable
 import com.example.postman.presentation.home.HomeUiState
 import com.example.postman.presentation.home.HomeViewModel
 import io.kotest.matchers.shouldBe

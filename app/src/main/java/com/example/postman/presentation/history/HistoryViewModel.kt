@@ -2,18 +2,16 @@ package com.example.postman.presentation.history
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.postman.common.utils.formatDate
 import com.example.postman.data.mapper.toDomain
 import com.example.postman.data.mapper.toRequestEntity
-import com.example.postman.domain.model.CollectionEntry
-import com.example.postman.domain.model.ExpandableHistoryItem
-import com.example.postman.domain.model.History
-import com.example.postman.domain.model.HistoryEntry
+import com.example.postman.domain.models.CollectionEntry
+import com.example.postman.domain.models.ExpandableHistoryItem
+import com.example.postman.domain.models.History
+import com.example.postman.domain.models.HistoryEntry
 import com.example.postman.domain.repository.CollectionRepository
 import com.example.postman.domain.repository.HistoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

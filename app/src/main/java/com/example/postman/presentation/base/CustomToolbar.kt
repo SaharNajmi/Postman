@@ -36,6 +36,4 @@ fun CustomToolbar(title: String, navController: NavController) {
             fontWeight = FontWeight.Medium
         )
     }
-    // Spacer(modifier = Modifier.height(12.dp))
-    // HorizontalDivider(thickness = 0.5.dp)
 }

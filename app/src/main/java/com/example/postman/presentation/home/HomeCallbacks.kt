@@ -1,6 +1,6 @@
 package com.example.postman.presentation.home
 
-import com.example.postman.common.utils.HttpMethod
+import com.example.postman.core.models.HttpMethod
 
 data class HomeCallbacks(
     val onSendRequestClick: () -> Unit,

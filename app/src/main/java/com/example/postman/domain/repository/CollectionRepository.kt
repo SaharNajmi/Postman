@@ -1,7 +1,7 @@
 package com.example.postman.domain.repository
 
-import com.example.postman.domain.model.Collection
-import com.example.postman.domain.model.Request
+import com.example.postman.domain.models.Collection
+import com.example.postman.domain.models.Request
 
 interface CollectionRepository {
     suspend fun insertCollection(collection: Collection)
