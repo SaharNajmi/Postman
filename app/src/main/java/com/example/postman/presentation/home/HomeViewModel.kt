@@ -7,6 +7,7 @@ import com.example.postman.common.extensions.getNetworkErrorMessage
 import com.example.postman.common.extensions.mapKeyValuePairsToQueryParameter
 import com.example.postman.common.extensions.removeParameterFromUrl
 import com.example.postman.common.utils.HttpMethod
+import com.example.postman.core.KeyValueList
 import com.example.postman.data.mapper.CollectionMapper
 import com.example.postman.data.mapper.CollectionMapper.toHttpRequest
 import com.example.postman.data.mapper.CollectionMapper.toHttpResponse
@@ -163,7 +164,7 @@ class HomeViewModel @Inject constructor(
         updateRequestUrl(newUrl)
     }
 
-    private fun updateParamsUiState(params: List<Pair<String, String>>) {
+    private fun updateParamsUiState(params: KeyValueList) {
         val url = _uiState.value.data.requestUrl.buildUrlWithParams(
             params.mapKeyValuePairsToQueryParameter()
         )

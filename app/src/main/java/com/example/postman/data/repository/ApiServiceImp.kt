@@ -3,6 +3,7 @@ package com.example.postman.data.repository
 import android.graphics.BitmapFactory
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import com.example.postman.core.KeyValueList
 import com.example.postman.domain.model.ApiResponse
 import com.example.postman.domain.repository.ApiService
 import io.ktor.client.HttpClient
@@ -20,8 +21,8 @@ class ApiServiceImp(
     override suspend fun sendRequest(
         method: String,
         url: String,
-        headers: List<Pair<String, String>>?,
-        parameters: List<Pair<String, String>>?,
+        headers: KeyValueList?,
+        parameters: KeyValueList?,
         body: Any?,
     ): ApiResponse {
         val httpMethod = HttpMethod.parse(method)

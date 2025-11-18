@@ -16,10 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import com.example.postman.core.KeyValueList
 import com.example.postman.ui.theme.LightGreen
 
 @Composable
-fun RemovableTagList(items: List<Pair<String, String>>?, onRemoveItem: (String, String) -> Unit) {
+fun RemovableTagList(items: KeyValueList?, onRemoveItem: (String, String) -> Unit) {
     val scrollState = rememberScrollState()
 
     Row(

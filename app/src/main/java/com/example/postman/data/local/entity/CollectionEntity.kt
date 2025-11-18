@@ -5,17 +5,18 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.example.postman.common.utils.HttpMethod
+import com.example.postman.core.KeyValueList
 
 @Entity(tableName = "collections")
 data class CollectionEntity(
     @PrimaryKey
     val collectionId: String,
-    val collectionName: String
+    val collectionName: String,
 )
 
 @Entity(
     tableName = "requests",
-   // primaryKeys = ["collectionId", "id"],
+    // primaryKeys = ["collectionId", "id"],
     foreignKeys = [
         ForeignKey(
             entity = CollectionEntity::class,
@@ -39,5 +40,5 @@ data class RequestEntity(
     val createdAt: Long,
     val statusCode: Int?,
     val body: String? = null,
-    val headers: List<Pair<String, String>>? = null
+    val headers: KeyValueList? = null,
 )

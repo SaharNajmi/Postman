@@ -2,6 +2,7 @@ package com.example.postman.common.extensions
 
 import androidx.core.net.toUri
 import com.example.postman.common.utils.HttpMethod
+import com.example.postman.core.KeyValueList
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
 
@@ -14,7 +15,7 @@ fun String.formatJson(): String {
     }
 }
 
-fun String.mapStringToKeyValuePairs(): List<Pair<String, String>> {
+fun String.mapStringToKeyValuePairs(): KeyValueList {
     if (this.isEmpty())
         return emptyList()
 
@@ -34,7 +35,7 @@ fun String.mapStringToKeyValuePairs(): List<Pair<String, String>> {
         }
 }
 
-fun List<Pair<String, String>>.mapKeyValuePairsToQueryParameter(): String {
+fun KeyValueList.mapKeyValuePairsToQueryParameter(): String {
     return this.joinToString("&") { (prefix, postfix) ->
         "$prefix=$postfix"
     }

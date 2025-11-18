@@ -2,6 +2,7 @@ package com.example.postman.domain.model
 
 import androidx.compose.ui.graphics.ImageBitmap
 import com.example.postman.common.utils.HttpMethod
+import com.example.postman.core.KeyValueList
 import java.time.LocalDate
 import java.util.UUID
 
@@ -22,5 +23,5 @@ data class Request(
     val imageResponse: ImageBitmap? = null,
     val statusCode: Int? = null,
     val body: String? = null,
-    val headers: List<Pair<String, String>>? = null,
+    val headers: KeyValueList? = null,
 )

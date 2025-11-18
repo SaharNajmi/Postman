@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import com.example.postman.R
 import com.example.postman.common.extensions.getHeaderValue
 import com.example.postman.common.utils.HttpMethod
+import com.example.postman.core.KeyValueList
 import com.example.postman.domain.model.ApiResponse
 import com.example.postman.presentation.base.Loadable
 import com.example.postman.presentation.navigation.Screens
@@ -67,6 +68,7 @@ import com.example.postman.ui.theme.icons.Collections_bookmark
 import com.example.postman.ui.theme.icons.Content_copy
 import com.example.postman.ui.theme.icons.History
 import com.example.postman.ui.theme.icons.Search
+
 
 @Composable()
 fun HomeScreen(
@@ -294,8 +296,8 @@ private fun RequestLine(
 @Composable
 fun RequestParametersSection(
     modifier: Modifier,
-    headers: List<Pair<String, String>>?,
-    params: List<Pair<String, String>>?,
+    headers: KeyValueList?,
+    params: KeyValueList?,
     body: String?,
     callbacks: HomeCallbacks,
 ) {
@@ -357,8 +359,8 @@ private fun HttpParameterSelection(
 private fun HttpParameterBody(
     modifier: Modifier,
     selectedOption: RadioHttpParameterOptions,
-    headers: List<Pair<String, String>>?,
-    params: List<Pair<String, String>>?,
+    headers: KeyValueList?,
+    params: KeyValueList?,
     body: String?,
     callbacks: HomeCallbacks,
 ) {
@@ -415,7 +417,7 @@ private fun StatusCode(statusCode: Int?) {
 
 @Composable
 fun ParamsSection(
-    params: List<Pair<String, String>>?,
+    params: KeyValueList?,
     callbacks: HomeCallbacks,
 ) {
     Column {
@@ -435,7 +437,7 @@ fun ParamsSection(
 @Composable
 fun AuthSection(
     modifier: Modifier,
-    headers: List<Pair<String, String>>?,
+    headers: KeyValueList?,
     callbacks: HomeCallbacks,
 ) {
     Column(modifier) {
@@ -457,7 +459,7 @@ fun AuthSection(
 
 @Composable
 fun HeaderSection(
-    headers: List<Pair<String, String>>?,
+    headers: KeyValueList?,
     callbacks: HomeCallbacks,
 ) {
     Column {

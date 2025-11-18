@@ -1,13 +1,14 @@
 package com.example.postman
 
 import com.example.postman.common.extensions.getHeaderValue
+import com.example.postman.core.KeyValueList
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 
 class ListExtensionTest : StringSpec({
 
     "give a pairs of strings and returns correct value for existing key" {
-        val headers: List<Pair<String, String>> = listOf(
+        val headers: KeyValueList = listOf(
             "Authorization" to "bearer jksdfs",
             "Authorization" to "cgwbkscd",
             "Token" to "gusdh",

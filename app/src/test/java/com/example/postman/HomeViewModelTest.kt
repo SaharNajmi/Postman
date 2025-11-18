@@ -1,6 +1,7 @@
 package com.example.postman
 
 import com.example.postman.common.utils.HttpMethod
+import com.example.postman.core.KeyValueList
 import com.example.postman.domain.model.ApiRequest
 import com.example.postman.domain.model.History
 import com.example.postman.domain.model.Request
@@ -113,8 +114,8 @@ class HomeViewModelTest {
             apiService.sendRequest(
                 any<String>(),
                 any<String>(),
-                any<List<Pair<String, String>>>(),
-                any<List<Pair<String, String>>>(),
+                any<KeyValueList>(),
+                any<KeyValueList>(),
                 any<Any>(),
             )
         }
