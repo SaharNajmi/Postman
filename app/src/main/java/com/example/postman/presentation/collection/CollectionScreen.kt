@@ -20,11 +20,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -40,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -64,8 +60,14 @@ import com.example.postman.presentation.base.CustomToolbar
 import com.example.postman.presentation.base.NotFoundMessage
 import com.example.postman.presentation.base.searchCollections
 import com.example.postman.ui.theme.Blue
-import com.example.postman.ui.theme.LightGray
+import com.example.postman.ui.theme.LightGreen
 import com.example.postman.ui.theme.Silver
+import com.example.postman.ui.theme.icons.Add
+import com.example.postman.ui.theme.icons.Delete
+import com.example.postman.ui.theme.icons.Delete_sweep
+import com.example.postman.ui.theme.icons.Edit
+import com.example.postman.ui.theme.icons.Keyboard_arrow_down
+import com.example.postman.ui.theme.icons.Keyboard_arrow_right
 
 @Composable
 fun CollectionScreen(
@@ -106,15 +108,17 @@ fun CollectionScreen(
             }) {
         Spacer(modifier = Modifier.height(24.dp))
         CustomToolbar("Collections", navController)
+        Spacer(Modifier.height(8.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = {
                 viewModel.createNewCollection()
             }, Modifier.size(24.dp)) {
                 Icon(
-                    imageVector = Icons.Default.Add,
+                    imageVector = Add,
                     contentDescription = "create new collection",
                 )
             }
+            Spacer(Modifier.height(8.dp))
             CustomSearchBar("Search collections", searchQuery) { searchQuery = it }
         }
         when {
@@ -162,6 +166,7 @@ private fun CreateNewCollection(callbacks: CollectionCallbacks) {
         }
     }
 }
+
 @Composable
 private fun ExpandedCollectionItems(
     collections: List<Collection>,
@@ -201,15 +206,16 @@ private fun ExpandedCollectionItems(
                         modifier = Modifier.fillMaxWidth(),
                         visible = collection.isExpanded == true
                     ) {
-                      //  key(allRequests[index].id) {
+                        //  key(allRequests[index].id) {
                         CollectionItem(
                             Modifier
                                 .padding(top = 2.dp, bottom = 2.dp, start = 12.dp),
                             allRequests[index],
                             collection.collectionId,
                             callbacks
-                        )}
-                   // }
+                        )
+                    }
+                    // }
                 }
             }
         }
@@ -236,11 +242,12 @@ fun CollectionHeader(
 
     var isEditable by remember { mutableStateOf(false) }
     val icon =
-        if (isExpanded) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowRight
+        if (isExpanded) Keyboard_arrow_down else Keyboard_arrow_right
 
     Row(
         modifier = modifier
-            .background(if (isExpanded) LightGray else Color.Transparent),
+            .clip(RoundedCornerShape(4.dp))
+            .background(if (isExpanded) LightGreen else Color.Transparent),
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(onClick = { callbacks.onHeaderClick(collection.collectionId) }) {
@@ -287,7 +294,7 @@ fun CollectionHeader(
         )
 
         Icon(
-            Icons.Default.Add, contentDescription = "add new request",
+            Add, contentDescription = "add new request",
             Modifier
                 .padding(horizontal = 4.dp)
                 .clickable {
@@ -297,7 +304,7 @@ fun CollectionHeader(
         )
 
         Icon(
-            Icons.Default.Edit,
+            Edit,
             contentDescription = "rename",
             Modifier
                 .padding(horizontal = 4.dp)
@@ -314,7 +321,7 @@ fun CollectionHeader(
         )
 
         Icon(
-            painterResource(R.drawable.ic_delete_sweep), contentDescription = "delete lists",
+            Delete_sweep, contentDescription = "delete lists",
             Modifier
                 .padding(horizontal = 4.dp)
                 .clickable {
@@ -407,7 +414,7 @@ private fun CollectionItem(
         )
 
         Icon(
-            Icons.Default.Edit,
+            Edit,
             contentDescription = "rename",
             Modifier
                 .padding(horizontal = 4.dp)
@@ -420,11 +427,12 @@ private fun CollectionItem(
                         focusRequester.requestFocus()
                     }
                 },
-            tint = Blue
+           // tint = Blue
         )
 
         Icon(
-            painter = painterResource(R.drawable.ic_delete), contentDescription = "delete",
+            Delete,
+            contentDescription = "delete",
             Modifier
                 .padding(horizontal = 4.dp)
                 .size(20.dp)

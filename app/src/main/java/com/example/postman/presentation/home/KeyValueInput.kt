@@ -6,9 +6,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -21,7 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.postman.ui.theme.LightGreen
+import com.example.postman.ui.theme.icons.Add
 
 @Composable
 fun KeyValueInput(
@@ -35,7 +34,7 @@ fun KeyValueInput(
                 .weight(1f)
                 .border(
                     width = 1.dp,
-                    color = LightGreen,
+                    color = MaterialTheme.colorScheme.primary,
                     shape = RoundedCornerShape(8.dp)
                 ),
             value = key,
@@ -45,6 +44,8 @@ fun KeyValueInput(
                 unfocusedContainerColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
+                //cursorColor = Color.Black,
+                focusedLabelColor = Color.Black,
             ),
             onValueChange = {
                 key = it
@@ -57,7 +58,7 @@ fun KeyValueInput(
                 .weight(1f)
                 .border(
                     width = 1.dp,
-                    color = LightGreen,
+                    color = MaterialTheme.colorScheme.primary,
                     shape = RoundedCornerShape(8.dp)
                 ),
             value = value,
@@ -67,6 +68,8 @@ fun KeyValueInput(
                 unfocusedContainerColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
+                //cursorColor = Color.Black,
+                focusedLabelColor = Color.Black,
             ),
             onValueChange = {
                 value = it
@@ -75,7 +78,7 @@ fun KeyValueInput(
         )
         Spacer(modifier = Modifier.width(4.dp))
         Icon(
-            imageVector = Icons.Default.Add,
+            imageVector = Add,
             contentDescription = "headers",
             modifier = Modifier.clickable {
                 item(key.trim(), value.trim())

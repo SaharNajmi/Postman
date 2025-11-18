@@ -12,6 +12,7 @@ import androidx.compose.foundation.text.BasicSecureTextField
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.TextObfuscationMode
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -24,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.postman.R
-import com.example.postman.ui.theme.LightGreen
 
 @Composable
 fun TextVisibilityTextField(value: String, onTextChange: (String) -> Unit) {
@@ -33,7 +33,7 @@ fun TextVisibilityTextField(value: String, onTextChange: (String) -> Unit) {
     LaunchedEffect(state) {
         snapshotFlow { state.text }
             .collect {
-                Log.e("DDD",it.toString())
+                Log.e("DDD", it.toString())
                 onTextChange(it.toString())
             }
     }
@@ -47,7 +47,7 @@ fun TextVisibilityTextField(value: String, onTextChange: (String) -> Unit) {
             },
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, LightGreen, RoundedCornerShape(6.dp))
+            .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(6.dp))
             .padding(6.dp),
         decorator = { innerTextField ->
             Row(

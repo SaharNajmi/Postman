@@ -1,19 +1,13 @@
 package com.example.postman.common.utils
 
 import androidx.compose.ui.graphics.Color
-import com.example.postman.ui.theme.Blue
-import com.example.postman.ui.theme.Brown
-import com.example.postman.ui.theme.Green
-import com.example.postman.ui.theme.Magenta
-import com.example.postman.ui.theme.Purple
-import com.example.postman.ui.theme.Red
 
 enum class HttpMethod(val color: Color) {
-    GET(Green),
-    POST(Brown),
-    PUT(Blue),
-    PATCH(Purple),
-    DELETE(Red),
-    HEAD(Green),
-    OPTIONS(Magenta)
-}
+        GET(Color(0xFF1F7922)),
+        POST(Color(0xFF853924)),
+        PUT(Color(0xFF2F409D)),
+        PATCH(Color(0xFF5A30A6)),
+        DELETE(Color(0xFF730606)),
+        HEAD(Color(0xFF1F7922)),
+        OPTIONS(Color(0xFFA41142))
+    }

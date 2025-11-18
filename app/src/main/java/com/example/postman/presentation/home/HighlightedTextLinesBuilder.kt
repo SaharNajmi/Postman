@@ -15,7 +15,9 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,17 +29,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.postman.R
 import com.example.postman.common.extensions.formatJson
 import com.example.postman.presentation.base.buildHighlightedTextLines
 import com.example.postman.ui.theme.LightGray
-import com.example.postman.ui.theme.LightYellow
+import com.example.postman.ui.theme.LightGreen
+import com.example.postman.ui.theme.Silver
+import com.example.postman.ui.theme.icons.Arrow_downward_alt
+import com.example.postman.ui.theme.icons.Arrow_upward_alt
+import com.example.postman.ui.theme.icons.ChromeClose
+import com.example.postman.ui.theme.icons.Search
 
 @Composable
-fun SearchFromContentText(contentText: String) {
+fun SearchFromContentText(
+    contentText: String,
+    isSearchVisible: Boolean,
+    onDismissSearch: () -> Unit,
+) {
     val formattedJson = remember(contentText) { contentText.formatJson() }
     val lines = remember(formattedJson) { formattedJson.lines() }
     val listState = rememberLazyListState()
@@ -63,8 +72,9 @@ fun SearchFromContentText(contentText: String) {
         }
     }
 
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(modifier = Modifier.padding(8.dp)) {
         SearchBar(
+            isVisible = isSearchVisible,
             searchQuery = searchQuery,
             totalMatches = totalMatches,
             targetMatchIndex = targetMatchIndex,
@@ -82,10 +92,11 @@ fun SearchFromContentText(contentText: String) {
                 if (totalMatches > 0) {
                     targetMatchIndex = (targetMatchIndex + 1) % totalMatches
                 }
-            }
+            },
+            onClose = onDismissSearch
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
 
         HighlightedTextList(
             lines = highlightedTextLines,
@@ -97,49 +108,71 @@ fun SearchFromContentText(contentText: String) {
 
 @Composable
 fun SearchBar(
+    isVisible: Boolean,
     searchQuery: String,
     totalMatches: Int,
     targetMatchIndex: Int,
     onQueryChange: (String) -> Unit,
     onPrev: () -> Unit,
     onNext: () -> Unit,
+    onClose: () -> Unit,
 ) {
-    Row(
-        modifier = Modifier
-            .clip(RoundedCornerShape(4.dp))
-            .background(LightGray)
-            .padding(4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = onQueryChange,
-            label = { Text("Find") },
+    if (isVisible)
+        Row(
             modifier = Modifier
-                .weight(3f)
-                .padding(bottom = 4.dp)
-        )
+                .clip(RoundedCornerShape(4.dp))
+                .background(LightGray)
+                .padding(6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = onQueryChange,
+                placeholder = { Text("Find", color = Silver) },
+                modifier = Modifier
+                    .weight(3f),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Search,
+                        contentDescription = "Search Icon",
+                        tint = Silver
+                    )
+                },
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedContainerColor = MaterialTheme.colorScheme.background,
+                    focusedContainerColor = MaterialTheme.colorScheme.background,
+                    focusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                    unfocusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+                ),
+            )
 
-        Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
-        Text(
-            text = if (totalMatches == 0) "No results" else "${targetMatchIndex + 1} of $totalMatches",
-            fontSize = 12.sp,
-            modifier = Modifier.weight(1f)
-        )
+            Text(
+                text = if (totalMatches == 0) "No results" else "${targetMatchIndex + 1} of $totalMatches",
+                fontSize = 12.sp,
+                modifier = Modifier.weight(1f)
+            )
 
-        Icon(
-            painter = painterResource(R.drawable.arrow_upward),
-            contentDescription = "Previous match",
-            modifier = Modifier.clickable { onPrev() }
-        )
+            Icon(
+                imageVector = Arrow_upward_alt,
+                contentDescription = "Previous match",
+                modifier = Modifier.clickable { onPrev() }
+            )
 
-        Icon(
-            painter = painterResource(R.drawable.arrow_downward),
-            contentDescription = "Next match",
-            modifier = Modifier.clickable { onNext() }
-        )
-    }
+            Icon(
+                imageVector = Arrow_downward_alt,
+                contentDescription = "Next match",
+                modifier = Modifier.clickable { onNext() }
+            )
+
+            Icon(
+                imageVector = ChromeClose,
+                contentDescription = "close search box",
+                modifier = Modifier.clickable { onClose() }
+            )
+        }
 }
 
 @Composable
@@ -155,7 +188,7 @@ fun HighlightedTextList(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
-                    .background(if (index == foundIndex) LightYellow else Color.Transparent)
+                    .background(if (index == foundIndex) LightGreen else Color.Transparent)
             )
         }
     }

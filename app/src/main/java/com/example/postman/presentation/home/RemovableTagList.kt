@@ -8,13 +8,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.example.postman.ui.theme.LightGray
 import com.example.postman.ui.theme.LightGreen
 
 @Composable
@@ -23,10 +24,11 @@ fun RemovableTagList(items: List<Pair<String, String>>?, onRemoveItem: (String, 
 
     Row(
         modifier = Modifier
-            .height(46.dp)
+            .height(48.dp)
             .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .background(LightGreen)
+            .clip(RoundedCornerShape(4.dp))
+            .background(MaterialTheme.colorScheme.secondaryContainer)
+//            .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f))
             .horizontalScroll(scrollState),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -37,9 +39,9 @@ fun RemovableTagList(items: List<Pair<String, String>>?, onRemoveItem: (String, 
                     .clickable {
                         onRemoveItem(key, value)
                     }
-                    .padding(8.dp)
-                    .background(LightGray, shape = MaterialTheme.shapes.small)
-                    .padding(4.dp),
+                    .padding(horizontal = 8.dp)
+                    .background(LightGreen, shape = MaterialTheme.shapes.small)
+                    .padding(horizontal = 4.dp),
             )
         }
     }
