@@ -42,7 +42,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -51,14 +50,13 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.postman.R
-import com.example.postman.common.extensions.parseHttpMethodFromString
-import com.example.postman.domain.model.Collection
-import com.example.postman.domain.model.Request
+import com.example.postman.core.extensions.parseHttpMethodFromString
+import com.example.postman.domain.models.Collection
+import com.example.postman.domain.models.Request
 import com.example.postman.presentation.base.CustomSearchBar
 import com.example.postman.presentation.base.CustomToolbar
 import com.example.postman.presentation.base.NotFoundMessage
-import com.example.postman.presentation.base.searchCollections
+import com.example.postman.presentation.history.searchCollections
 import com.example.postman.ui.theme.Blue
 import com.example.postman.ui.theme.LightGreen
 import com.example.postman.ui.theme.Silver

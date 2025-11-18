@@ -1,8 +1,8 @@
 package com.example.postman.data.di
 
-import com.example.postman.common.constants.NetworkConstants
-import com.example.postman.data.local.dao.CollectionDao
-import com.example.postman.data.local.dao.HistoryRequestDao
+import com.example.postman.core.constants.NetworkConstants
+import com.example.postman.data.db.dao.CollectionDao
+import com.example.postman.data.db.dao.HistoryRequestDao
 import com.example.postman.data.repository.ApiServiceImp
 import com.example.postman.data.repository.CollectionRepositoryImp
 import com.example.postman.data.repository.HistoryRepositoryImp
@@ -18,7 +18,6 @@ import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
 import javax.inject.Singleton
 

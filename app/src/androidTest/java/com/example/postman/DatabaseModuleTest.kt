@@ -3,9 +3,9 @@ package com.example.postman
 import android.content.Context
 import androidx.room.Room
 import com.example.postman.data.di.DatabaseModule
-import com.example.postman.data.local.appDatabase.AppDatabase
-import com.example.postman.data.local.dao.CollectionDao
-import com.example.postman.data.local.dao.HistoryRequestDao
+import com.example.postman.data.db.AppDatabase
+import com.example.postman.data.db.dao.CollectionDao
+import com.example.postman.data.db.dao.HistoryRequestDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.android.qualifiers.ApplicationContext

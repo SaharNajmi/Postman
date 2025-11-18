@@ -1,10 +1,10 @@
 package com.example.postman.data.repository
 
-import com.example.postman.data.local.dao.CollectionDao
+import com.example.postman.data.db.dao.CollectionDao
 import com.example.postman.data.mapper.toDomain
 import com.example.postman.data.mapper.toEntity
-import com.example.postman.domain.model.Collection
-import com.example.postman.domain.model.Request
+import com.example.postman.domain.models.Collection
+import com.example.postman.domain.models.Request
 import com.example.postman.domain.repository.CollectionRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext

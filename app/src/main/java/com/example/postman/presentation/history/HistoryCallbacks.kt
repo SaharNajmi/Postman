@@ -1,6 +1,6 @@
 package com.example.postman.presentation.history
 
-import com.example.postman.domain.model.History
+import com.example.postman.domain.models.History
 
 data class HistoryCallbacks(
     val onHistoryItemClick: (Int) -> Unit,

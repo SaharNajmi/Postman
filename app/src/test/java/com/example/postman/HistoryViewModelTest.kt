@@ -1,9 +1,9 @@
 package com.example.postman
 
-import com.example.postman.common.utils.formatDate
-import com.example.postman.domain.model.Collection
-import com.example.postman.domain.model.ExpandableHistoryItem
-import com.example.postman.domain.model.History
+import com.example.postman.presentation.history.formatDate
+import com.example.postman.domain.models.Collection
+import com.example.postman.domain.models.ExpandableHistoryItem
+import com.example.postman.domain.models.History
 import com.example.postman.domain.repository.CollectionRepository
 import com.example.postman.domain.repository.HistoryRepository
 import com.example.postman.presentation.history.HistoryViewModel

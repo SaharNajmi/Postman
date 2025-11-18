@@ -1,15 +1,15 @@
 package com.example.postman.data.mapper
 
-import com.example.postman.common.extensions.toByteArray
-import com.example.postman.common.extensions.toImageBitmap
-import com.example.postman.common.extensions.toLocalDate
-import com.example.postman.common.extensions.toLong
-import com.example.postman.data.local.entity.CollectionEntity
-import com.example.postman.data.local.entity.HistoryEntity
-import com.example.postman.data.local.entity.RequestEntity
-import com.example.postman.domain.model.Collection
-import com.example.postman.domain.model.History
-import com.example.postman.domain.model.Request
+import com.example.postman.data.extensions.toByteArray
+import com.example.postman.data.extensions.toImageBitmap
+import com.example.postman.data.extensions.toLocalDate
+import com.example.postman.data.extensions.toLong
+import com.example.postman.data.db.entities.CollectionEntity
+import com.example.postman.data.db.entities.HistoryEntity
+import com.example.postman.data.db.entities.RequestEntity
+import com.example.postman.domain.models.Collection
+import com.example.postman.domain.models.History
+import com.example.postman.domain.models.Request
 
 fun CollectionEntity.toDomain(requests: List<Request>): Collection {
     return Collection(

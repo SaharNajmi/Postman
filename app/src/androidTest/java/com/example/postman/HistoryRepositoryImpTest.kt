@@ -3,10 +3,10 @@ package com.example.postman
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import com.example.postman.data.local.appDatabase.AppDatabase
-import com.example.postman.data.local.dao.HistoryRequestDao
+import com.example.postman.data.db.AppDatabase
+import com.example.postman.data.db.dao.HistoryRequestDao
 import com.example.postman.data.repository.HistoryRepositoryImp
-import com.example.postman.domain.model.History
+import com.example.postman.domain.models.History
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest

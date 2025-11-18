@@ -1,7 +1,7 @@
 package com.example.postman.domain.repository
 
 import com.example.postman.core.KeyValueList
-import com.example.postman.domain.model.ApiResponse
+import com.example.postman.domain.models.ApiResponse
 
 interface ApiService {
     suspend fun sendRequest(
