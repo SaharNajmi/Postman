@@ -8,9 +8,9 @@ import com.example.postman.domain.models.Request
 import com.example.postman.domain.repository.ApiService
 import com.example.postman.domain.repository.CollectionRepository
 import com.example.postman.domain.repository.HistoryRepository
-import com.example.postman.presentation.home.Loadable
-import com.example.postman.presentation.home.HomeUiState
-import com.example.postman.presentation.home.HomeViewModel
+import com.example.postman.home.presentation.Loadable
+import com.example.postman.home.presentation.HomeUiState
+import com.example.postman.home.presentation.HomeViewModel
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify

@@ -12,8 +12,8 @@ import com.example.postman.presentation.collection.CollectionScreen
 import com.example.postman.presentation.collection.CollectionViewModel
 import com.example.postman.presentation.history.HistoryScreen
 import com.example.postman.presentation.history.HistoryViewModel
-import com.example.postman.presentation.home.HomeScreen
-import com.example.postman.presentation.home.HomeViewModel
+import com.example.postman.home.presentation.HomeScreen
+import com.example.postman.home.presentation.HomeViewModel
 
 @Composable
 fun AppNavHost(

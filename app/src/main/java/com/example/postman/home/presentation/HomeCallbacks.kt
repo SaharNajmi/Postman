@@ -1,4 +1,4 @@
-package com.example.postman.presentation.home
+package com.example.postman.home.presentation
 
 import com.example.postman.core.models.HttpMethod
 

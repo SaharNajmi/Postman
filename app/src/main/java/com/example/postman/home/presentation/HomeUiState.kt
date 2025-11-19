@@ -1,8 +1,8 @@
-package com.example.postman.presentation.home
+package com.example.postman.home.presentation
 
 import com.example.postman.domain.models.ApiRequest
 import com.example.postman.domain.models.ApiResponse
-import com.example.postman.presentation.home.Loadable
+import com.example.postman.home.presentation.Loadable
 
 data class HomeUiState(
     val data: ApiRequest,

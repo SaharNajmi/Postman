@@ -1,4 +1,4 @@
-package com.example.postman.presentation.home
+package com.example.postman.home.presentation
 
 sealed class Loadable<out U> {
     object Loading : Loadable<Nothing>()

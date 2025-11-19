@@ -1,4 +1,4 @@
-package com.example.postman.presentation.home
+package com.example.postman.home.domain
 
 import com.example.postman.domain.models.ApiRequest
 import com.example.postman.domain.models.ApiResponse

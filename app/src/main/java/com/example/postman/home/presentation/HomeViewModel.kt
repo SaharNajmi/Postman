@@ -1,14 +1,12 @@
-package com.example.postman.presentation.home
+package com.example.postman.home.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.postman.core.KeyValueList
 import com.example.postman.core.extensions.buildUrlWithParams
 import com.example.postman.core.extensions.mapKeyValuePairsToQueryParameter
 import com.example.postman.core.extensions.removeParameterFromUrl
 import com.example.postman.core.models.HttpMethod
-import com.example.postman.core.KeyValueList
-import com.example.postman.presentation.home.CollectionMapper.toHttpRequest
-import com.example.postman.presentation.home.CollectionMapper.toHttpResponse
 import com.example.postman.data.mapper.HistoryMapper
 import com.example.postman.data.mapper.HistoryMapper.toHttpRequest
 import com.example.postman.data.mapper.HistoryMapper.toHttpResponse
@@ -18,7 +16,12 @@ import com.example.postman.domain.models.Request
 import com.example.postman.domain.repository.ApiService
 import com.example.postman.domain.repository.CollectionRepository
 import com.example.postman.domain.repository.HistoryRepository
-import com.example.postman.presentation.home.Loadable
+import com.example.postman.home.presentation.util.getNetworkErrorMessage
+import com.example.postman.home.domain.CollectionMapper
+import com.example.postman.home.domain.CollectionMapper.toHttpRequest
+import com.example.postman.home.domain.CollectionMapper.toHttpResponse
+import com.example.postman.home.presentation.HomeUiState
+import com.example.postman.home.presentation.Loadable
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -1,4 +1,4 @@
-package com.example.postman.presentation.home
+package com.example.postman.home.presentation.util
 
 import retrofit2.HttpException
 import java.net.*

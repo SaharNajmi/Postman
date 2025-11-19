@@ -1,4 +1,4 @@
-package com.example.postman.presentation.home
+package com.example.postman.home.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -32,6 +32,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.postman.core.extensions.formatJson
+import com.example.postman.home.domain.HighlightedTextLine
+import com.example.postman.home.domain.buildHighlightedTextLines
 import com.example.postman.ui.theme.LightGray
 import com.example.postman.ui.theme.LightGreen
 import com.example.postman.ui.theme.Silver

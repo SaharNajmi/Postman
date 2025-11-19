@@ -1,4 +1,4 @@
-package com.example.postman.presentation.home
+package com.example.postman.home.presentation.components
 
 import android.util.Log
 import androidx.compose.foundation.border

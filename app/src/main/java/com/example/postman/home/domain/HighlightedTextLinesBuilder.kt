@@ -1,11 +1,10 @@
-package com.example.postman.presentation.home
+package com.example.postman.home.domain
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
-
 
 fun buildHighlightedTextLines(
     lines: List<String>,
