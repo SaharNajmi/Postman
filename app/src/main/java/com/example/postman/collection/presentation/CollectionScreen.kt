@@ -51,21 +51,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.postman.core.extensions.parseHttpMethodFromString
-import com.example.postman.domain.models.Collection
-import com.example.postman.domain.models.Request
+import com.example.postman.core.domain.models.Collection
+import com.example.postman.core.domain.models.Request
 import com.example.postman.core.presentation.component.CustomSearchBar
 import com.example.postman.core.presentation.component.CustomToolbar
 import com.example.postman.core.presentation.component.NotFoundMessage
 import com.example.postman.history.domain.searchCollections
-import com.example.postman.ui.theme.Blue
-import com.example.postman.ui.theme.LightGreen
-import com.example.postman.ui.theme.Silver
-import com.example.postman.ui.theme.icons.Add
-import com.example.postman.ui.theme.icons.Delete
-import com.example.postman.ui.theme.icons.Delete_sweep
-import com.example.postman.ui.theme.icons.Edit
-import com.example.postman.ui.theme.icons.Keyboard_arrow_down
-import com.example.postman.ui.theme.icons.Keyboard_arrow_right
+import com.example.postman.core.presentation.theme.Blue
+import com.example.postman.core.presentation.theme.LightGreen
+import com.example.postman.core.presentation.theme.Silver
+import com.example.postman.core.presentation.icons.Add
+import com.example.postman.core.presentation.icons.Delete
+import com.example.postman.core.presentation.icons.Delete_sweep
+import com.example.postman.core.presentation.icons.Edit
+import com.example.postman.core.presentation.icons.Keyboard_arrow_down
+import com.example.postman.core.presentation.icons.Keyboard_arrow_right
 
 @Composable
 fun CollectionScreen(

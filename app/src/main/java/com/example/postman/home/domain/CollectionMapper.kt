@@ -1,8 +1,8 @@
 package com.example.postman.home.domain
 
-import com.example.postman.domain.models.ApiRequest
-import com.example.postman.domain.models.ApiResponse
-import com.example.postman.domain.models.Request
+import com.example.postman.core.domain.models.ApiRequest
+import com.example.postman.core.domain.models.ApiResponse
+import com.example.postman.core.domain.models.Request
 
 object CollectionMapper {
     fun Request.toHttpRequest(): ApiRequest =

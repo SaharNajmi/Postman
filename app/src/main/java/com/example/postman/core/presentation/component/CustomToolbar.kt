@@ -14,7 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.postman.ui.theme.icons.Arrow_back_ios
+import com.example.postman.core.presentation.icons.Arrow_back_ios
 
 @Composable
 fun CustomToolbar(title: String, navController: NavController) {

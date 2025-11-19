@@ -2,9 +2,9 @@ package com.example.postman.collection.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.postman.domain.models.Collection
-import com.example.postman.domain.models.Request
-import com.example.postman.domain.repository.CollectionRepository
+import com.example.postman.core.domain.models.Collection
+import com.example.postman.core.domain.models.Request
+import com.example.postman.core.domain.repository.CollectionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -52,29 +52,26 @@ import androidx.compose.ui.unit.sp
 import com.example.postman.R
 import com.example.postman.core.models.HttpMethod
 import com.example.postman.core.KeyValueList
-import com.example.postman.domain.models.ApiResponse
+import com.example.postman.core.domain.models.ApiResponse
 import com.example.postman.home.presentation.util.getHeaderValue
-import com.example.postman.home.presentation.HomeCallbacks
-import com.example.postman.home.presentation.HomeUiState
 import com.example.postman.home.presentation.components.KeyValueInput
-import com.example.postman.home.presentation.Loadable
 import com.example.postman.home.domain.RadioHttpParameterOptions
 import com.example.postman.home.presentation.components.RemovableTagList
 import com.example.postman.home.presentation.components.SearchFromContentText
 import com.example.postman.home.presentation.components.TextVisibilityTextField
 import com.example.postman.core.presentation.navigation.Screens
-import com.example.postman.ui.theme.DarkGreen
-import com.example.postman.ui.theme.Gray
-import com.example.postman.ui.theme.LightGray
-import com.example.postman.ui.theme.LightGreen
-import com.example.postman.ui.theme.Silver
-import com.example.postman.ui.theme.TextPrimary
-import com.example.postman.ui.theme.icons.Add
-import com.example.postman.ui.theme.icons.Arrow_drop_down
-import com.example.postman.ui.theme.icons.Collections_bookmark
-import com.example.postman.ui.theme.icons.Content_copy
-import com.example.postman.ui.theme.icons.History
-import com.example.postman.ui.theme.icons.Search
+import com.example.postman.core.presentation.theme.DarkGreen
+import com.example.postman.core.presentation.theme.Gray
+import com.example.postman.core.presentation.theme.LightGray
+import com.example.postman.core.presentation.theme.LightGreen
+import com.example.postman.core.presentation.theme.Silver
+import com.example.postman.core.presentation.theme.TextPrimary
+import com.example.postman.core.presentation.icons.Add
+import com.example.postman.core.presentation.icons.Arrow_drop_down
+import com.example.postman.core.presentation.icons.Collections_bookmark
+import com.example.postman.core.presentation.icons.Content_copy
+import com.example.postman.core.presentation.icons.History
+import com.example.postman.core.presentation.icons.Search
 
 
 @Composable()

@@ -34,13 +34,13 @@ import androidx.compose.ui.unit.sp
 import com.example.postman.core.extensions.formatJson
 import com.example.postman.home.domain.HighlightedTextLine
 import com.example.postman.home.domain.buildHighlightedTextLines
-import com.example.postman.ui.theme.LightGray
-import com.example.postman.ui.theme.LightGreen
-import com.example.postman.ui.theme.Silver
-import com.example.postman.ui.theme.icons.Arrow_downward_alt
-import com.example.postman.ui.theme.icons.Arrow_upward_alt
-import com.example.postman.ui.theme.icons.ChromeClose
-import com.example.postman.ui.theme.icons.Search
+import com.example.postman.core.presentation.theme.LightGray
+import com.example.postman.core.presentation.theme.LightGreen
+import com.example.postman.core.presentation.theme.Silver
+import com.example.postman.core.presentation.icons.Arrow_downward_alt
+import com.example.postman.core.presentation.icons.Arrow_upward_alt
+import com.example.postman.core.presentation.icons.ChromeClose
+import com.example.postman.core.presentation.icons.Search
 
 @Composable
 fun SearchFromContentText(

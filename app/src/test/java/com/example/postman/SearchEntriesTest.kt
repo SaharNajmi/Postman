@@ -1,9 +1,9 @@
 package com.example.postman
 
-import com.example.postman.domain.models.Collection
-import com.example.postman.domain.models.History
-import com.example.postman.domain.models.HistoryEntry
-import com.example.postman.domain.models.Request
+import com.example.postman.core.domain.models.Collection
+import com.example.postman.core.domain.models.History
+import com.example.postman.core.domain.models.HistoryEntry
+import com.example.postman.core.domain.models.Request
 import com.example.postman.history.domain.searchCollections
 import com.example.postman.history.domain.searchHistories
 import io.kotest.matchers.collections.shouldBeEmpty

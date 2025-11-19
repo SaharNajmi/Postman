@@ -2,12 +2,12 @@ package com.example.postman
 
 import com.example.postman.core.models.HttpMethod
 import com.example.postman.core.KeyValueList
-import com.example.postman.domain.models.ApiRequest
-import com.example.postman.domain.models.History
-import com.example.postman.domain.models.Request
-import com.example.postman.domain.repository.ApiService
-import com.example.postman.domain.repository.CollectionRepository
-import com.example.postman.domain.repository.HistoryRepository
+import com.example.postman.core.domain.models.ApiRequest
+import com.example.postman.core.domain.models.History
+import com.example.postman.core.domain.models.Request
+import com.example.postman.core.domain.repository.ApiService
+import com.example.postman.core.domain.repository.CollectionRepository
+import com.example.postman.core.domain.repository.HistoryRepository
 import com.example.postman.home.presentation.Loadable
 import com.example.postman.home.presentation.HomeUiState
 import com.example.postman.home.presentation.HomeViewModel

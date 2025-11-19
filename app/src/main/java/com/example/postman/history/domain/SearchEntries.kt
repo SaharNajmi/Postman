@@ -1,7 +1,7 @@
 package com.example.postman.history.domain
 
-import com.example.postman.domain.models.Collection
-import com.example.postman.domain.models.HistoryEntry
+import com.example.postman.core.domain.models.Collection
+import com.example.postman.core.domain.models.HistoryEntry
 
 fun searchHistories(
     entries: List<HistoryEntry>,

@@ -11,8 +11,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.postman.ui.theme.Silver
-import com.example.postman.ui.theme.icons.Search
+import com.example.postman.core.presentation.theme.Silver
+import com.example.postman.core.presentation.icons.Search
 
 @Composable
 fun CustomSearchBar(
