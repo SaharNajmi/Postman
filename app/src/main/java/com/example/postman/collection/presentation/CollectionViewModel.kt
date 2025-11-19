@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.postman.collection.domain.model.Collection
 import com.example.postman.collection.domain.model.Request
 import com.example.postman.collection.domain.repository.CollectionRepository
+import com.example.postman.collection.presentation.model.CollectionUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,23 +20,23 @@ class CollectionViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _collections =
-        MutableStateFlow<List<Collection>>(emptyList())
-    val collections: StateFlow<List<Collection>> = _collections
+        MutableStateFlow<List<CollectionUiState>>(emptyList())
+    val collections: StateFlow<List<CollectionUiState>> = _collections
 
     fun getCollections() {
         viewModelScope.launch(dispatcher) {
             _collections.value = collectionRepository.getAllCollections().map { item ->
                 val expanded =
-                    _collections.value.firstOrNull() { it.collectionId == item.collectionId }?.isExpanded
+                    _collections.value.firstOrNull() { it.collection.collectionId == item.collectionId }?.isExpanded
                         ?: false
-                item.copy(isExpanded = expanded)
+                CollectionUiState(item, expanded)
             }
         }
     }
 
     fun toggleExpanded(collectionId: String) {
         _collections.value = _collections.value.map {
-            if (it.collectionId == collectionId) {
+            if (it.collection.collectionId == collectionId) {
                 it.copy(isExpanded = !it.isExpanded)
             } else {
                 it

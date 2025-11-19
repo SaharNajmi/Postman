@@ -1,6 +1,6 @@
 package com.example.postman.history.domain
 
-import com.example.postman.collection.domain.model.Collection
+import com.example.postman.collection.presentation.model.CollectionUiState
 import com.example.postman.history.presentation.model.HistoryEntry
 
 fun searchHistories(
@@ -22,25 +22,25 @@ fun searchHistories(
 }
 
 fun searchCollections(
-    items: List<Collection>,
+    items: List<CollectionUiState>,
     searchQuery: String,
-): List<Collection> {
+): List<CollectionUiState> {
     if (searchQuery.isBlank()) return items
-    val result = mutableListOf<Collection>()
+    val result = mutableListOf<CollectionUiState>()
     items.forEach { collection ->
         val isQueryInCollectionName =
-            collection.collectionName.contains(searchQuery, ignoreCase = true)
+            collection.collection.collectionName.contains(searchQuery, ignoreCase = true)
         if (isQueryInCollectionName) {
             result.add(collection)
         } else {
-            val requests = collection.requests?.filter {
+            val requests = collection.collection.requests?.filter {
                 it.requestName.contains(
                     searchQuery,
                     ignoreCase = true
                 )
             }
             if (requests?.isNotEmpty() == true) {
-                result.add(collection.copy(requests = requests))
+                result.add(collection.copy(collection = collection.collection.copy(requests = requests)))
             }
         }
 

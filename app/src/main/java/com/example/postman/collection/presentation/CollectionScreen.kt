@@ -53,6 +53,7 @@ import androidx.navigation.NavController
 import com.example.postman.core.extensions.parseHttpMethodFromString
 import com.example.postman.collection.domain.model.Collection
 import com.example.postman.collection.domain.model.Request
+import com.example.postman.collection.presentation.model.CollectionUiState
 import com.example.postman.core.presentation.component.CustomSearchBar
 import com.example.postman.core.presentation.component.CustomToolbar
 import com.example.postman.core.presentation.component.NotFoundMessage
@@ -167,18 +168,18 @@ private fun CreateNewCollection(callbacks: CollectionCallbacks) {
 
 @Composable
 private fun ExpandedCollectionItems(
-    collections: List<Collection>,
+    collections: List<CollectionUiState>,
     callbacks: CollectionCallbacks,
 ) {
     LazyColumn {
         collections.forEachIndexed { index, collection ->
-            val allRequests = collection.requests
+            val allRequests = collection.collection.requests
             item {
                 CollectionHeader(
                     Modifier
                         .fillMaxWidth()
                         .padding(vertical = 2.dp),
-                    collection.collectionName,
+                    collection.collection.collectionName,
                     collection.isExpanded,
                     collection,
                     callbacks
@@ -193,7 +194,7 @@ private fun ExpandedCollectionItems(
                     ) {
                         AddARequestButton(
                             Modifier.padding(12.dp),
-                            collection.collectionId,
+                            collection.collection.collectionId,
                             callbacks
                         )
                     }
@@ -209,7 +210,7 @@ private fun ExpandedCollectionItems(
                             Modifier
                                 .padding(top = 2.dp, bottom = 2.dp, start = 12.dp),
                             allRequests[index],
-                            collection.collectionId,
+                            collection.collection.collectionId,
                             callbacks
                         )
                     }
@@ -225,7 +226,7 @@ fun CollectionHeader(
     modifier: Modifier,
     header: String,
     isExpanded: Boolean,
-    collection: Collection,
+    collection: CollectionUiState,
     callbacks: CollectionCallbacks,
 ) {
     val focusManager = LocalFocusManager.current
@@ -248,7 +249,7 @@ fun CollectionHeader(
             .background(if (isExpanded) LightGreen else Color.Transparent),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = { callbacks.onHeaderClick(collection.collectionId) }) {
+        IconButton(onClick = { callbacks.onHeaderClick(collection.collection.collectionId) }) {
             Icon(
                 imageVector = icon,
                 contentDescription = "isExpandedIcon",
@@ -269,8 +270,12 @@ fun CollectionHeader(
                     if (!focusState.isFocused && isEditable) {
                         isEditable = false
                         val newName = text.text
-                        if (collection.collectionName != newName) {
-                            callbacks.onRenameCollectionClick(collection.copy(collectionName = newName))
+                        if (collection.collection.collectionName != newName) {
+                            callbacks.onRenameCollectionClick(
+                                collection.collection.copy(
+                                    collectionName = newName
+                                )
+                            )
                         }
                     }
                 },
@@ -296,7 +301,7 @@ fun CollectionHeader(
             Modifier
                 .padding(horizontal = 4.dp)
                 .clickable {
-                    callbacks.onCreateEmptyRequestClick(collection.collectionId)
+                    callbacks.onCreateEmptyRequestClick(collection.collection.collectionId)
                 },
             tint = Blue
         )
@@ -323,7 +328,7 @@ fun CollectionHeader(
             Modifier
                 .padding(horizontal = 4.dp)
                 .clickable {
-                    callbacks.onDeleteCollectionClick(collection.collectionId)
+                    callbacks.onDeleteCollectionClick(collection.collection.collectionId)
                 },
             tint = Blue
         )
@@ -425,7 +430,7 @@ private fun CollectionItem(
                         focusRequester.requestFocus()
                     }
                 },
-           // tint = Blue
+            // tint = Blue
         )
 
         Icon(
