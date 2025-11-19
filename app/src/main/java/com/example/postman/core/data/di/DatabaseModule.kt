@@ -22,12 +22,4 @@ object DatabaseModule {
         Room.databaseBuilder(context, AppDatabase::class.java, "history_db")
             .fallbackToDestructiveMigration(true)
             .build()
-
-
-    @Provides
-    fun provideHistoryDao(db: AppDatabase): HistoryRequestDao =
-        db.historyRequestDao()
-
-    @Provides
-    fun provideCollocationDao(db: AppDatabase): CollectionDao = db.collectionDao()
 }

@@ -1,7 +1,6 @@
 package com.example.postman.core.data.di
 
 import com.example.postman.collection.data.dao.CollectionDao
-import com.example.postman.core.constants.NetworkConstants
 import com.example.postman.core.data.repository.ApiServiceImp
 import com.example.postman.core.data.repository.CollectionRepositoryImp
 import com.example.postman.core.data.repository.HistoryRepositoryImp
@@ -24,10 +23,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object RepositoryModule {
-    @Provides
-    fun provideBaseUrl(): String {
-        return NetworkConstants.BASE_URL
-    }
 
     @Provides
     fun provideHistoryRequestRepository(
