@@ -1,9 +1,9 @@
 package com.example.postman.history.data.repository
 
-import com.example.postman.core.data.mapper.toDomain
-import com.example.postman.core.data.mapper.toEntity
-import com.example.postman.core.domain.models.History
 import com.example.postman.history.data.dao.HistoryRequestDao
+import com.example.postman.history.data.mapper.toDomain
+import com.example.postman.history.data.mapper.toEntity
+import com.example.postman.history.domain.model.History
 import com.example.postman.history.domain.repository.HistoryRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext

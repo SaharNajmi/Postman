@@ -52,7 +52,7 @@ import androidx.compose.ui.unit.sp
 import com.example.postman.R
 import com.example.postman.core.models.HttpMethod
 import com.example.postman.core.KeyValueList
-import com.example.postman.core.domain.models.ApiResponse
+import com.example.postman.core.domain.model.ApiResponse
 import com.example.postman.home.presentation.util.getHeaderValue
 import com.example.postman.home.presentation.components.KeyValueInput
 import com.example.postman.home.domain.RadioHttpParameterOptions

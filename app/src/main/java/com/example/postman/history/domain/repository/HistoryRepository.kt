@@ -1,6 +1,6 @@
 package com.example.postman.history.domain.repository
 
-import com.example.postman.core.domain.models.History
+import com.example.postman.history.domain.model.History
 
 interface HistoryRepository {
     suspend fun getAllHistories(): List<History>

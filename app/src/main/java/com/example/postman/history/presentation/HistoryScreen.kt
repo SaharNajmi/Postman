@@ -33,10 +33,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.postman.core.domain.models.CollectionEntry
-import com.example.postman.core.domain.models.ExpandableHistoryItem
-import com.example.postman.core.domain.models.History
-import com.example.postman.core.domain.models.HistoryEntry
+import com.example.postman.collection.presentation.model.CollectionEntry
+import com.example.postman.history.presentation.model.ExpandableHistoryItem
+import com.example.postman.history.domain.model.History
+import com.example.postman.history.presentation.model.HistoryEntry
 import com.example.postman.core.presentation.component.CustomSearchBar
 import com.example.postman.core.presentation.component.CustomToolbar
 import com.example.postman.core.presentation.component.NotFoundMessage

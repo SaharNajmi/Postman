@@ -51,8 +51,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.postman.core.extensions.parseHttpMethodFromString
-import com.example.postman.core.domain.models.Collection
-import com.example.postman.core.domain.models.Request
+import com.example.postman.collection.domain.model.Collection
+import com.example.postman.collection.domain.model.Request
 import com.example.postman.core.presentation.component.CustomSearchBar
 import com.example.postman.core.presentation.component.CustomToolbar
 import com.example.postman.core.presentation.component.NotFoundMessage

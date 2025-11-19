@@ -1,4 +1,4 @@
-package com.example.postman.core.domain.models
+package com.example.postman.core.domain.model
 
 import androidx.compose.ui.graphics.ImageBitmap
 import com.example.postman.core.extensions.mapStringToKeyValuePairs

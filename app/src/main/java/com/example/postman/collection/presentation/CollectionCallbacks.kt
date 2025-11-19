@@ -1,6 +1,6 @@
 package com.example.postman.collection.presentation
 
-import com.example.postman.core.domain.models.Collection
+import com.example.postman.collection.domain.model.Collection
 
 data class CollectionCallbacks(
     val onCollectionItemClick: (Int, String) -> Unit,

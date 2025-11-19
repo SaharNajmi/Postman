@@ -1,8 +1,8 @@
-package com.example.postman.core.domain.models
+package com.example.postman.history.domain.model
 
 import androidx.compose.ui.graphics.ImageBitmap
-import com.example.postman.core.models.HttpMethod
 import com.example.postman.core.KeyValueList
+import com.example.postman.core.models.HttpMethod
 import java.time.LocalDate
 
 data class History(

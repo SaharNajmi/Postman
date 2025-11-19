@@ -2,9 +2,9 @@ package com.example.postman
 
 import com.example.postman.core.models.HttpMethod
 import com.example.postman.core.KeyValueList
-import com.example.postman.core.domain.models.ApiRequest
-import com.example.postman.core.domain.models.History
-import com.example.postman.core.domain.models.Request
+import com.example.postman.core.domain.model.ApiRequest
+import com.example.postman.history.domain.model.History
+import com.example.postman.collection.domain.model.Request
 import com.example.postman.core.domain.repository.ApiService
 import com.example.postman.collection.domain.repository.CollectionRepository
 import com.example.postman.history.domain.repository.HistoryRepository

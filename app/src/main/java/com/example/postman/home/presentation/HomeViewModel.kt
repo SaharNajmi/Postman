@@ -2,23 +2,21 @@ package com.example.postman.home.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.postman.core.KeyValueList
-import com.example.postman.core.data.mapper.HistoryMapper
-import com.example.postman.core.data.mapper.HistoryMapper.toHttpRequest
-import com.example.postman.core.data.mapper.HistoryMapper.toHttpResponse
-import com.example.postman.core.domain.models.ApiRequest
-import com.example.postman.core.domain.models.ApiResponse
-import com.example.postman.core.domain.models.Request
-import com.example.postman.core.domain.repository.ApiService
+import com.example.postman.collection.domain.model.Request
 import com.example.postman.collection.domain.repository.CollectionRepository
-import com.example.postman.history.domain.repository.HistoryRepository
+import com.example.postman.core.KeyValueList
+import com.example.postman.core.domain.model.ApiRequest
+import com.example.postman.core.domain.model.ApiResponse
+import com.example.postman.core.domain.repository.ApiService
 import com.example.postman.core.extensions.buildUrlWithParams
 import com.example.postman.core.extensions.mapKeyValuePairsToQueryParameter
 import com.example.postman.core.extensions.removeParameterFromUrl
 import com.example.postman.core.models.HttpMethod
-import com.example.postman.home.domain.CollectionMapper
-import com.example.postman.home.domain.CollectionMapper.toHttpRequest
-import com.example.postman.home.domain.CollectionMapper.toHttpResponse
+import com.example.postman.history.domain.repository.HistoryRepository
+import com.example.postman.home.data.mapper.httpRequestToHistory
+import com.example.postman.home.data.mapper.httpRequestToRequest
+import com.example.postman.home.data.mapper.toHttpRequest
+import com.example.postman.home.data.mapper.toHttpResponse
 import com.example.postman.home.presentation.util.getNetworkErrorMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -33,7 +31,7 @@ class HomeViewModel @Inject constructor(
     private val apiService: ApiService,
     private val historyRepository: HistoryRepository,
     private val collectionRepository: CollectionRepository,
-    private val dispatcher: CoroutineDispatcher
+    private val dispatcher: CoroutineDispatcher,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HomeUiState>(
@@ -68,7 +66,7 @@ class HomeViewModel @Inject constructor(
                 if (collectionId != null) {
                     updateCollectionRequest(
                         collectionId = collectionId,
-                        CollectionMapper.httpRequestToRequest(
+                        httpRequestToRequest(
                             apiRequest = requestData,
                             apiResponse = result
                         )
@@ -88,7 +86,7 @@ class HomeViewModel @Inject constructor(
                 if (collectionId != null) {
                     updateCollectionRequest(
                         collectionId = collectionId,
-                        CollectionMapper.httpRequestToRequest(
+                        httpRequestToRequest(
                             apiRequest = requestData,
                             apiResponse = ApiResponse(error.getNetworkErrorMessage())
                         )
@@ -181,7 +179,7 @@ class HomeViewModel @Inject constructor(
     ) {
         viewModelScope.launch(dispatcher) {
             historyRepository.insertHistoryRequest(
-                HistoryMapper.httpRequestToHistory(apiRequest, response)
+                httpRequestToHistory(apiRequest, response)
             )
         }
     }

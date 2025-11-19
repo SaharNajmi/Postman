@@ -2,15 +2,15 @@ package com.example.postman.history.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.postman.core.data.mapper.toDomain
-import com.example.postman.core.data.mapper.toRequestEntity
-import com.example.postman.core.domain.models.CollectionEntry
-import com.example.postman.core.domain.models.ExpandableHistoryItem
-import com.example.postman.core.domain.models.History
-import com.example.postman.core.domain.models.HistoryEntry
 import com.example.postman.collection.domain.repository.CollectionRepository
-import com.example.postman.history.domain.repository.HistoryRepository
+import com.example.postman.collection.presentation.model.CollectionEntry
+import com.example.postman.core.data.mapper.toDomain
+import com.example.postman.history.presentation.model.ExpandableHistoryItem
+import com.example.postman.history.data.mapper.toEntity
 import com.example.postman.history.domain.formatDate
+import com.example.postman.history.domain.model.History
+import com.example.postman.history.domain.repository.HistoryRepository
+import com.example.postman.history.presentation.model.HistoryEntry
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -83,7 +83,7 @@ class HistoryViewModel @Inject constructor(
         viewModelScope.launch(dispatcher) {
             collectionRepository.insertRequestToCollection(
                 collectionId,
-                request.toRequestEntity(collectionId).toDomain()
+                request.toEntity(collectionId).toDomain()
             )
         }
     }
@@ -93,7 +93,7 @@ class HistoryViewModel @Inject constructor(
         collectionId: String,
     ) {
         viewModelScope.launch(dispatcher) {
-            requests.map { it.toRequestEntity(collectionId).toDomain() }
+            requests.map { it.toEntity(collectionId).toDomain() }
                 .forEach { collectionRepository.insertRequestToCollection(collectionId, it) }
         }
     }

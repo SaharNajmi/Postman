@@ -1,4 +1,4 @@
-package com.example.postman.core.domain.models
+package com.example.postman.history.presentation.model
 
 data class ExpandableHistoryItem(
     val dateCreated: String,

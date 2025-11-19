@@ -4,7 +4,7 @@ import android.graphics.BitmapFactory
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.example.postman.core.KeyValueList
-import com.example.postman.core.domain.models.ApiResponse
+import com.example.postman.core.domain.model.ApiResponse
 import com.example.postman.core.domain.repository.ApiService
 import io.ktor.client.HttpClient
 import io.ktor.client.request.request
