@@ -1,4 +1,4 @@
-package com.example.postman.presentation.history
+package com.example.postman.history.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,12 +10,14 @@ import com.example.postman.domain.models.History
 import com.example.postman.domain.models.HistoryEntry
 import com.example.postman.domain.repository.CollectionRepository
 import com.example.postman.domain.repository.HistoryRepository
+import com.example.postman.history.domain.formatDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.collections.plus
 
 @HiltViewModel
 class HistoryViewModel @Inject constructor(

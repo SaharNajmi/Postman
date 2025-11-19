@@ -10,8 +10,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.postman.presentation.collection.CollectionScreen
 import com.example.postman.presentation.collection.CollectionViewModel
-import com.example.postman.presentation.history.HistoryScreen
-import com.example.postman.presentation.history.HistoryViewModel
+import com.example.postman.history.presentation.HistoryScreen
+import com.example.postman.history.presentation.HistoryViewModel
 import com.example.postman.home.presentation.HomeScreen
 import com.example.postman.home.presentation.HomeViewModel
 

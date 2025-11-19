@@ -56,7 +56,7 @@ import com.example.postman.domain.models.Request
 import com.example.postman.presentation.base.CustomSearchBar
 import com.example.postman.presentation.base.CustomToolbar
 import com.example.postman.presentation.base.NotFoundMessage
-import com.example.postman.presentation.history.searchCollections
+import com.example.postman.history.domain.searchCollections
 import com.example.postman.ui.theme.Blue
 import com.example.postman.ui.theme.LightGreen
 import com.example.postman.ui.theme.Silver

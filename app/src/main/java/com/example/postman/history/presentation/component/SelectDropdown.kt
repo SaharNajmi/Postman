@@ -1,4 +1,4 @@
-package com.example.postman.presentation.history
+package com.example.postman.history.presentation.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

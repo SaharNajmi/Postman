@@ -1,4 +1,4 @@
-package com.example.postman.presentation.history
+package com.example.postman.history.domain
 
 import java.time.LocalDate
 import java.time.format.TextStyle

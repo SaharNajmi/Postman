@@ -1,4 +1,4 @@
-package com.example.postman.presentation.history
+package com.example.postman.history.presentation
 
 import com.example.postman.domain.models.History
 

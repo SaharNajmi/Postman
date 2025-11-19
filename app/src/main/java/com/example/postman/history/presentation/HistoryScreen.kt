@@ -1,4 +1,4 @@
-package com.example.postman.presentation.history
+package com.example.postman.history.presentation
 
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -40,6 +40,8 @@ import com.example.postman.domain.models.HistoryEntry
 import com.example.postman.presentation.base.CustomSearchBar
 import com.example.postman.presentation.base.CustomToolbar
 import com.example.postman.presentation.base.NotFoundMessage
+import com.example.postman.history.presentation.component.SaveToCollectionDialog
+import com.example.postman.history.domain.searchHistories
 import com.example.postman.ui.theme.Blue
 import com.example.postman.ui.theme.LightGreen
 import com.example.postman.ui.theme.icons.Add

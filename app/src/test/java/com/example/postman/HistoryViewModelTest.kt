@@ -1,12 +1,12 @@
 package com.example.postman
 
-import com.example.postman.presentation.history.formatDate
+import com.example.postman.history.domain.formatDate
 import com.example.postman.domain.models.Collection
 import com.example.postman.domain.models.ExpandableHistoryItem
 import com.example.postman.domain.models.History
 import com.example.postman.domain.repository.CollectionRepository
 import com.example.postman.domain.repository.HistoryRepository
-import com.example.postman.presentation.history.HistoryViewModel
+import com.example.postman.history.presentation.HistoryViewModel
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
