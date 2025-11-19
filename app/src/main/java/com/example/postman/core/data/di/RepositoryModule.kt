@@ -1,12 +1,12 @@
 package com.example.postman.core.data.di
 
 import com.example.postman.collection.data.dao.CollectionDao
-import com.example.postman.core.data.repository.ApiServiceImp
-import com.example.postman.core.data.repository.CollectionRepositoryImp
-import com.example.postman.core.data.repository.HistoryRepositoryImp
+import com.example.postman.core.data.network.ApiServiceImp
+import com.example.postman.collection.data.repository.CollectionRepositoryImp
+import com.example.postman.history.data.repository.HistoryRepositoryImp
 import com.example.postman.core.domain.repository.ApiService
-import com.example.postman.core.domain.repository.CollectionRepository
-import com.example.postman.core.domain.repository.HistoryRepository
+import com.example.postman.collection.domain.repository.CollectionRepository
+import com.example.postman.history.domain.repository.HistoryRepository
 import com.example.postman.history.data.dao.HistoryRequestDao
 import dagger.Module
 import dagger.Provides
@@ -39,18 +39,5 @@ object RepositoryModule {
         CollectionRepositoryImp(collectionDao, dispatcher)
 
 
-    @Singleton
-    @Provides
-    fun provideApiService(httpClient: HttpClient): ApiService = ApiServiceImp(httpClient)
 
-    @Singleton
-    @Provides
-    fun provideHttpClient() = HttpClient(CIO) {
-        install(ContentNegotiation) {
-            json(Json {
-                prettyPrint = true
-                isLenient = true
-            })
-        }
-    }
 }

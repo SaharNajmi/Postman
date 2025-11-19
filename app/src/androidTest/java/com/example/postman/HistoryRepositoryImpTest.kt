@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.example.postman.core.data.db.AppDatabase
-import com.example.postman.core.data.repository.HistoryRepositoryImp
+import com.example.postman.history.data.repository.HistoryRepositoryImp
 import com.example.postman.core.domain.models.History
 import com.example.postman.history.data.dao.HistoryRequestDao
 import kotlinx.coroutines.Dispatchers

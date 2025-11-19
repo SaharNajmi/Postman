@@ -4,8 +4,8 @@ import com.example.postman.history.domain.formatDate
 import com.example.postman.core.domain.models.Collection
 import com.example.postman.core.domain.models.ExpandableHistoryItem
 import com.example.postman.core.domain.models.History
-import com.example.postman.core.domain.repository.CollectionRepository
-import com.example.postman.core.domain.repository.HistoryRepository
+import com.example.postman.collection.domain.repository.CollectionRepository
+import com.example.postman.history.domain.repository.HistoryRepository
 import com.example.postman.history.presentation.HistoryViewModel
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery

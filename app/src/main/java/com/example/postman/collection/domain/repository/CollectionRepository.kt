@@ -1,4 +1,4 @@
-package com.example.postman.core.domain.repository
+package com.example.postman.collection.domain.repository
 
 import com.example.postman.core.domain.models.Collection
 import com.example.postman.core.domain.models.Request

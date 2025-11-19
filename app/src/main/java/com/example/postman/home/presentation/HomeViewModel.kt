@@ -10,8 +10,8 @@ import com.example.postman.core.domain.models.ApiRequest
 import com.example.postman.core.domain.models.ApiResponse
 import com.example.postman.core.domain.models.Request
 import com.example.postman.core.domain.repository.ApiService
-import com.example.postman.core.domain.repository.CollectionRepository
-import com.example.postman.core.domain.repository.HistoryRepository
+import com.example.postman.collection.domain.repository.CollectionRepository
+import com.example.postman.history.domain.repository.HistoryRepository
 import com.example.postman.core.extensions.buildUrlWithParams
 import com.example.postman.core.extensions.mapKeyValuePairsToQueryParameter
 import com.example.postman.core.extensions.removeParameterFromUrl

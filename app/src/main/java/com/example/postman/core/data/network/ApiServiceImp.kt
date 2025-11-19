@@ -1,4 +1,4 @@
-package com.example.postman.core.data.repository
+package com.example.postman.core.data.network
 
 import android.graphics.BitmapFactory
 import androidx.compose.ui.graphics.ImageBitmap
@@ -25,7 +25,7 @@ class ApiServiceImp(
         parameters: KeyValueList?,
         body: Any?,
     ): ApiResponse {
-        val httpMethod = HttpMethod.parse(method)
+        val httpMethod = HttpMethod.Companion.parse(method)
 
         val result = client.request(url) {
             this.method = httpMethod
@@ -39,7 +39,7 @@ class ApiServiceImp(
                 this.headers.append(key, value)
             }
 
-            if (body != null && httpMethod !in listOf(HttpMethod.Get, HttpMethod.Head)) {
+            if (body != null && httpMethod !in listOf(HttpMethod.Companion.Get, HttpMethod.Companion.Head)) {
                 setBody(body)
             }
         }
