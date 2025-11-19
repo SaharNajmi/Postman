@@ -1,4 +1,4 @@
-package com.example.postman.presentation.base
+package com.example.postman.core.presentation.component
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding

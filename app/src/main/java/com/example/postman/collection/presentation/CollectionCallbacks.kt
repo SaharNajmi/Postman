@@ -1,4 +1,4 @@
-package com.example.postman.presentation.collection
+package com.example.postman.collection.presentation
 
 import com.example.postman.domain.models.Collection
 

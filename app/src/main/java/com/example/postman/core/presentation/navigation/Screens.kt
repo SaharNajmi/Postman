@@ -1,4 +1,4 @@
-package com.example.postman.presentation.navigation
+package com.example.postman.core.presentation.navigation
 
 sealed class Screens(val route: String) {
     object HomeScreen :

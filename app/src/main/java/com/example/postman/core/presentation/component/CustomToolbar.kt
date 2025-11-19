@@ -1,4 +1,4 @@
-package com.example.postman.presentation.base
+package com.example.postman.core.presentation.component
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row

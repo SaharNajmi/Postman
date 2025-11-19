@@ -1,4 +1,4 @@
-package com.example.postman.presentation.navigation
+package com.example.postman.core.presentation.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -8,12 +8,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.postman.presentation.collection.CollectionScreen
-import com.example.postman.presentation.collection.CollectionViewModel
+import com.example.postman.collection.presentation.CollectionScreen
+import com.example.postman.collection.presentation.CollectionViewModel
 import com.example.postman.history.presentation.HistoryScreen
 import com.example.postman.history.presentation.HistoryViewModel
 import com.example.postman.home.presentation.HomeScreen
 import com.example.postman.home.presentation.HomeViewModel
+import com.example.postman.core.presentation.navigation.Screens
 
 @Composable
 fun AppNavHost(
@@ -28,24 +29,24 @@ fun AppNavHost(
     ) {
         composable(
             Screens.HomeScreen.route,
-            arguments = listOf(navArgument(Screens.ARG_REQUEST_ID) {
+            arguments = listOf(navArgument(Screens.Companion.ARG_REQUEST_ID) {
                 type = NavType.StringType
                 nullable = true
                 defaultValue = null
-            }, navArgument(Screens.ARG_SOURCE) {
+            }, navArgument(Screens.Companion.ARG_SOURCE) {
                 type = NavType.StringType
                 nullable = true
                 defaultValue = null
-            }, navArgument(Screens.ARG_COLLECTION_ID) {
+            }, navArgument(Screens.Companion.ARG_COLLECTION_ID) {
                 type = NavType.StringType
                 nullable = true
                 defaultValue = null
             })
         ) { backStackEntry ->
             var requestId =
-                backStackEntry.arguments?.getString(Screens.ARG_REQUEST_ID)?.toIntOrNull()
-            var source = backStackEntry.arguments?.getString(Screens.ARG_SOURCE)
-            val collectionId = backStackEntry.arguments?.getString((Screens.ARG_COLLECTION_ID))
+                backStackEntry.arguments?.getString(Screens.Companion.ARG_REQUEST_ID)?.toIntOrNull()
+            var source = backStackEntry.arguments?.getString(Screens.Companion.ARG_SOURCE)
+            val collectionId = backStackEntry.arguments?.getString((Screens.Companion.ARG_COLLECTION_ID))
             HomeScreen(
                 homeViewModel,
                 requestId,
@@ -68,7 +69,7 @@ fun AppNavHost(
                     navController.navigate(
                         Screens.HomeScreen.createRoute(
                             requestId,
-                            Screens.ROUTE_HISTORY_SCREEN
+                            Screens.Companion.ROUTE_HISTORY_SCREEN
                         )
                     )
                 }
@@ -82,7 +83,7 @@ fun AppNavHost(
                     navController.navigate(
                         Screens.HomeScreen.createRoute(
                             requestId,
-                            Screens.ROUTE_COLLECTION_SCREEN,
+                            Screens.Companion.ROUTE_COLLECTION_SCREEN,
                             collectionId
                         )
                     )

@@ -1,4 +1,4 @@
-package com.example.postman.presentation.collection
+package com.example.postman.collection.presentation
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -53,9 +53,9 @@ import androidx.navigation.NavController
 import com.example.postman.core.extensions.parseHttpMethodFromString
 import com.example.postman.domain.models.Collection
 import com.example.postman.domain.models.Request
-import com.example.postman.presentation.base.CustomSearchBar
-import com.example.postman.presentation.base.CustomToolbar
-import com.example.postman.presentation.base.NotFoundMessage
+import com.example.postman.core.presentation.component.CustomSearchBar
+import com.example.postman.core.presentation.component.CustomToolbar
+import com.example.postman.core.presentation.component.NotFoundMessage
 import com.example.postman.history.domain.searchCollections
 import com.example.postman.ui.theme.Blue
 import com.example.postman.ui.theme.LightGreen

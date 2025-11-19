@@ -62,7 +62,7 @@ import com.example.postman.home.domain.RadioHttpParameterOptions
 import com.example.postman.home.presentation.components.RemovableTagList
 import com.example.postman.home.presentation.components.SearchFromContentText
 import com.example.postman.home.presentation.components.TextVisibilityTextField
-import com.example.postman.presentation.navigation.Screens
+import com.example.postman.core.presentation.navigation.Screens
 import com.example.postman.ui.theme.DarkGreen
 import com.example.postman.ui.theme.Gray
 import com.example.postman.ui.theme.LightGray

@@ -2,7 +2,7 @@ package com.example.postman
 
 import com.example.postman.domain.models.Collection
 import com.example.postman.domain.repository.CollectionRepository
-import com.example.postman.presentation.collection.CollectionViewModel
+import com.example.postman.collection.presentation.CollectionViewModel
 import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe

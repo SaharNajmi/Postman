@@ -1,4 +1,4 @@
-package com.example.postman.presentation.collection
+package com.example.postman.collection.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

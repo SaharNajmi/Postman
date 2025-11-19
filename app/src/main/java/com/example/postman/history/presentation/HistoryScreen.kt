@@ -37,9 +37,9 @@ import com.example.postman.domain.models.CollectionEntry
 import com.example.postman.domain.models.ExpandableHistoryItem
 import com.example.postman.domain.models.History
 import com.example.postman.domain.models.HistoryEntry
-import com.example.postman.presentation.base.CustomSearchBar
-import com.example.postman.presentation.base.CustomToolbar
-import com.example.postman.presentation.base.NotFoundMessage
+import com.example.postman.core.presentation.component.CustomSearchBar
+import com.example.postman.core.presentation.component.CustomToolbar
+import com.example.postman.core.presentation.component.NotFoundMessage
 import com.example.postman.history.presentation.component.SaveToCollectionDialog
 import com.example.postman.history.domain.searchHistories
 import com.example.postman.ui.theme.Blue

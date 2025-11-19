@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.example.postman.presentation.navigation.AppNavHost
+import com.example.postman.core.presentation.navigation.AppNavHost
 import com.example.postman.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
