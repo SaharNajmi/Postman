@@ -4,12 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.postman.collection.domain.repository.CollectionRepository
 import com.example.postman.collection.presentation.model.CollectionEntry
-import com.example.postman.core.data.mapper.toDomain
-import com.example.postman.history.presentation.model.ExpandableHistoryItem
-import com.example.postman.history.data.mapper.toEntity
+import com.example.postman.history.data.mapper.toRequest
 import com.example.postman.history.domain.formatDate
 import com.example.postman.history.domain.model.History
 import com.example.postman.history.domain.repository.HistoryRepository
+import com.example.postman.history.presentation.model.ExpandableHistoryItem
 import com.example.postman.history.presentation.model.HistoryEntry
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -79,22 +78,22 @@ class HistoryViewModel @Inject constructor(
         }
     }
 
-    fun addRequestToCollection(request: History, collectionId: String) {
+    fun addHistoryRequestToCollection(history: History, collectionId: String) {
         viewModelScope.launch(dispatcher) {
             collectionRepository.insertRequestToCollection(
                 collectionId,
-                request.toEntity(collectionId).toDomain()
+                history.toRequest()
             )
         }
     }
 
-    fun addRequestsToCollection(
-        requests: List<History>,
+    fun addHistoryRequestsToCollection(
+        histories: List<History>,
         collectionId: String,
     ) {
+        val requests = histories.map { it.toRequest() }
         viewModelScope.launch(dispatcher) {
-            requests.map { it.toEntity(collectionId).toDomain() }
-                .forEach { collectionRepository.insertRequestToCollection(collectionId, it) }
+            requests.forEach { collectionRepository.insertRequestToCollection(collectionId, it) }
         }
     }
 }

@@ -6,8 +6,6 @@ import com.example.postman.collection.data.mapper.toEntity
 import com.example.postman.collection.domain.model.Collection
 import com.example.postman.collection.domain.model.Request
 import com.example.postman.collection.domain.repository.CollectionRepository
-import com.example.postman.core.data.mapper.toDomain
-import com.example.postman.core.data.mapper.toEntity
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 

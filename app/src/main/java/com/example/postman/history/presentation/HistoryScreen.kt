@@ -73,7 +73,7 @@ fun HistoryScreen(
     val callbacks = HistoryCallbacks(
         onHistoryItemClick,
         onAddHistoryToCollection = { history, collectionId ->
-            viewModel.addRequestToCollection(history, collectionId)
+            viewModel.addHistoryRequestToCollection(history, collectionId)
             Toast.makeText(
                 context,
                 "successfully added to collections",
@@ -81,7 +81,7 @@ fun HistoryScreen(
             ).show()
         },
         onAddHistoriesToCollection = { histories, collectionId ->
-            viewModel.addRequestsToCollection(histories, collectionId)
+            viewModel.addHistoryRequestsToCollection(histories, collectionId)
             Toast.makeText(
                 context,
                 "successfully added to collections",
